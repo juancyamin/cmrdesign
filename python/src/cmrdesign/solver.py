@@ -81,7 +81,8 @@ def inverse_share_sums(pi, A) -> np.ndarray:
     out = np.zeros(A.shape[0], dtype=float)
     for j, share in enumerate(pi):
         if share > 0:
-            out += A[:, j] / share
+            with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+                out += A[:, j] / share
         elif np.any(A[:, j] > 0):
             out[A[:, j] > 0] = np.inf
     return out
@@ -216,13 +217,19 @@ def _smooth_vertex_objective(z, A, oracle, tau: float) -> tuple[float, np.ndarra
     pi = _from_logits(z)
     values = vertex_regrets(pi, A, oracle)
     center = float(np.max(values))
-    scaled = np.exp((values - center) / tau)
-    weights = scaled / np.sum(scaled)
-    value = center + tau * math.log(float(np.sum(scaled)))
-    grad_pi = -np.sum(
-        A * weights.reshape(-1, 1) / (pi.reshape(1, -1) ** 2),
-        axis=0,
-    )
+    if not math.isfinite(center):
+        return math.inf, np.zeros_like(z)
+    with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+        scaled = np.exp((values - center) / tau)
+        total_scaled = float(np.sum(scaled))
+        weights = scaled / total_scaled
+        value = center + tau * math.log(total_scaled)
+        grad_pi = -np.sum(
+            A * weights.reshape(-1, 1) / (pi.reshape(1, -1) ** 2),
+            axis=0,
+        )
+    if not math.isfinite(value) or not np.all(np.isfinite(grad_pi)):
+        return math.inf, np.zeros_like(z)
     mean_grad = float(np.sum(pi * grad_pi))
     grad_z = pi[:-1] * (grad_pi[:-1] - mean_grad)
     return float(value), grad_z

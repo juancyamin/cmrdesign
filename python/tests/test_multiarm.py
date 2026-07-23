@@ -1,6 +1,8 @@
 import math
 import unittest
+import warnings
 
+import numpy as np
 import cmrdesign as cmr
 
 
@@ -60,6 +62,20 @@ class MultiarmTests(unittest.TestCase):
         fit_big = cmr.cmr_multiarm_from_rectangle(big)
         fit_small = cmr.cmr_multiarm_from_rectangle(small)
         self.assertLessEqual(fit_small.U_CMR, fit_big.U_CMR + 1e-8)
+
+    def test_applied_multiarm_example_has_no_runtime_warnings(self):
+        rng = np.random.default_rng(104)
+        n_per_arm = 300
+        arm = np.repeat([0, 1, 2], n_per_arm)
+        y = np.r_[
+            rng.beta(4, 4, n_per_arm),
+            rng.beta(2, 6, n_per_arm),
+            rng.beta(5, 3, n_per_arm),
+        ]
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            fit = cmr.cmr_multiarm(y, arm, alpha=0.05, method="bounded")
+        self.assertAlmostEqual(sum(fit.pi.values()), 1, places=12)
 
 
 if __name__ == "__main__":

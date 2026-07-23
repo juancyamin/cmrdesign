@@ -1,5 +1,7 @@
 import unittest
+import warnings
 
+import numpy as np
 import cmrdesign as cmr
 
 
@@ -87,6 +89,30 @@ class StratifiedTests(unittest.TestCase):
         fit_big = cmr.cmr_stratified_from_rectangle(big, shares)
         fit_small = cmr.cmr_stratified_from_rectangle(small, shares)
         self.assertLessEqual(fit_small.U_CMR, fit_big.U_CMR + 1e-8)
+
+    def test_applied_stratified_example_has_no_runtime_warnings(self):
+        rng = np.random.default_rng(105)
+        n_per_cell = 150
+        strata = np.repeat(["urban", "rural"], 2 * n_per_cell)
+        d = np.tile(np.r_[np.ones(n_per_cell), np.zeros(n_per_cell)], 2)
+        y = np.r_[
+            rng.beta(2, 5, n_per_cell),
+            rng.beta(4, 4, n_per_cell),
+            rng.beta(3, 6, n_per_cell),
+            rng.beta(5, 4, n_per_cell),
+        ]
+        strata_share = {"urban": 0.55, "rural": 0.45}
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            fit = cmr.cmr_stratified(
+                y,
+                d,
+                strata,
+                strata_share,
+                alpha=0.05,
+                method="bounded",
+            )
+        self.assertAlmostEqual(sum(fit.pi.values()), 1, places=12)
 
 
 if __name__ == "__main__":

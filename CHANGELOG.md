@@ -24,3 +24,6 @@
 - Added Python two-arm rectangle aliases and missing-data controls for expert
   one-arm variance-bound helpers.
 - Added API-freeze notes, release-readiness metadata, and a release checklist.
+- Added a Python package license file so wheels include license metadata.
+- Suppressed expected internal NumPy floating-point warnings from multi-arm and
+  stratified solver trial evaluations.

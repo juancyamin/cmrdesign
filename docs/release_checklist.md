@@ -56,6 +56,7 @@ Build Python source and wheel distributions:
 
 ```bash
 cd python
+python -m pip install build twine
 python -m build
 python -m twine check dist/*
 ```
@@ -68,6 +69,15 @@ python - <<'PY'
 import cmrdesign as cmr
 print(cmr.__version__)
 PY
+```
+
+Before uploading, run the simulated examples from the installed wheel with
+warnings promoted to errors:
+
+```bash
+PYTHONWARNINGS=error python ../examples/python/01_two_arm_bounded.py
+PYTHONWARNINGS=error python ../examples/python/04_multiarm.py
+PYTHONWARNINGS=error python ../examples/python/05_stratified.py
 ```
 
 Use TestPyPI before PyPI for the first public upload.
