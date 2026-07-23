@@ -5,36 +5,24 @@
 [![Fixtures](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml)
 [![Validation](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml)
 
-`cmrdesign` provides R and Python implementations of Conditional Minimax
-Regret (CMR) design rules for applied researchers.
+`cmrdesign` implements Conditional Minimax Regret (CMR) design rules in R and
+Python. The package is for applied researchers planning a main experimental
+wave after observing pilot data: pass pilot outcomes and assignment labels, get
+a recommended main-wave allocation and a worst-case regret certificate.
 
-The repository is intentionally scoped to software implementation only. It will
-not contain paper replication scripts, empirical calibration workflows, raw
-research data, simulation tables, or paper-specific figures.
-
-The methods are developed in
+The methods accompany
 [When and How to Pilot: Design Rules for Two-Wave Experiments](https://arxiv.org/abs/2607.16982)
 by Juan C. Yamin.
 
-## Goals
-
-- Provide applied functions that take pilot data and return CMR allocations.
-- Support two-arm, shared-control multi-arm, stratified, multiple-outcome, and
-  proxy/delayed-outcome designs.
-- Include bounded-outcome Maurer-Pontil, Martinez-Taboada-Ramdas (MTR), exact
-  Bernoulli folded-binomial, and two-arm unbounded-outcome confidence
-  rectangles.
-- Include Appendix E-style pilot planning tools for activation thresholds,
-  break-even screens, and pilot/main-wave sizing diagnostics.
-- Keep R and Python implementations aligned through a shared mathematical and
-  API specification plus cross-language fixtures.
+This repository is software only. It does not contain paper replication code,
+raw research data, empirical calibration workflows, or paper-specific
+simulation output.
 
 ## Installation
 
-The package is currently distributed from GitHub while the API is still in the
-pre-release `0.0.0.9000` series.
+The package is currently in the pre-release `0.0.0.9000` series.
 
-R via R-universe, after the first R-universe build completes:
+R via R-universe:
 
 ```r
 install.packages(
@@ -50,73 +38,129 @@ install.packages("remotes")
 remotes::install_github("juancyamin/cmrdesign", subdir = "r")
 ```
 
-Python:
+Python development version from GitHub:
 
 ```bash
 python -m pip install "cmrdesign @ git+https://github.com/juancyamin/cmrdesign.git#subdirectory=python"
 ```
 
-## Current User API
+## Quick Start
+
+In a two-arm design, `y` is one vector of pilot outcomes and `d` marks the arm
+for each observation. Here the first 40 observations are treatment and the next
+40 are control.
 
 R:
 
 ```r
-cmr_two_arm(y, d, alpha = 0.05, method = "auto")
-cmr_unbounded(y, d, psi, alpha = 0.05)
-cmr_multiarm(y, arm, control_arm = 0, alpha = 0.05, method = "auto")
-cmr_stratified(y, d, strata, strata_share, alpha = 0.05, method = "auto")
-cmr_multiple_outcomes(y, d, weights, estimand = "coprimary", alpha = 0.05)
-cmr_proxy(proxy_y, d, zeta, alpha = 0.05, method = "auto")
-cmr_plan(n, sigma1, sigma0, alpha = 0.05, method = "bounded")
+library(cmrdesign)
+
+set.seed(123)
+d <- c(rep(1, 40), rep(0, 40))
+y <- c(rbeta(40, 2, 5), rbeta(40, 4, 4))
+
+fit <- cmr_two_arm(y, d, alpha = 0.05, method = "auto")
+fit$pi
+fit$U_CMR
+summary(fit)
 ```
 
 Python:
 
 ```python
-cmr_two_arm(y, d, alpha=0.05, method="auto")
-cmr_unbounded(y, d, psi, alpha=0.05)
-cmr_multiarm(y, arm, control_arm=0, alpha=0.05, method="auto")
-cmr_stratified(y, d, strata, strata_share, alpha=0.05, method="auto")
-cmr_multiple_outcomes(y, d, weights, estimand="coprimary", alpha=0.05)
-cmr_proxy(proxy_y, d, zeta, alpha=0.05, method="auto")
-cmr_plan(n, sigma1, sigma0, alpha=0.05, method="bounded")
+import numpy as np
+import cmrdesign as cmr
+
+rng = np.random.default_rng(123)
+d = np.r_[np.ones(40), np.zeros(40)]
+y = np.r_[rng.beta(2, 5, 40), rng.beta(4, 4, 40)]
+
+fit = cmr.cmr_two_arm(y, d, alpha=0.05, method="auto")
+fit.pi
+fit.U_CMR
+print(fit)
 ```
 
-## Status
+`pi` is the recommended treatment share for the main wave. `U_CMR` is the
+certificate: the worst-case regret of that allocation over the estimated
+confidence set for arm variances.
 
-The package currently includes:
+## Which Function Should I Use?
 
-- R reference implementation with deterministic `testthat` coverage.
-- Python implementation with standard-library `unittest` coverage.
-- Simulated examples for the main two-arm rule, MTR, Bernoulli outcomes,
-  unbounded outcomes, multi-arm designs, stratified designs, multiple outcomes,
-  proxy outcomes, and pilot planning.
-- Shared specs and numeric JSON fixtures used by both R and Python to check
-  cross-language parity.
-- Separate validation/provenance checks for formula-based cases, extension
-  identities, Appendix E planning, and archived MTR reference values.
-- Closed-form shortcuts for two-arm, collapsed multi-arm/stratified rectangles,
-  and full no-information rectangles, plus numerical solvers for general
-  multi-arm and stratified rectangles.
+| If your design is... | Use... | Main inputs |
+| --- | --- | --- |
+| One treatment and one control | `cmr_two_arm()` | `y`, `d` |
+| Two-arm with raw unbounded outcomes | `cmr_unbounded()` | `y`, `d`, `psi` |
+| Several treatments sharing one control | `cmr_multiarm()` | `y`, `arm`, `control_arm` |
+| Known strata with possibly different variances | `cmr_stratified()` | `y`, `d`, `strata`, `strata_share` |
+| Multiple outcomes per unit | `cmr_multiple_outcomes()` | outcome matrix `y`, `d`, `weights` |
+| Proxy or delayed primary outcome | `cmr_proxy()` | `proxy_y`, `d`, bridge constant `zeta` |
+| Pilot versus main-wave sample-size planning | `cmr_plan()` | total `n`, pilot SD guesses |
 
-## Roadmap
+The direct rectangle functions, such as `cmr_two_arm_from_rectangle()` and
+`cmr_multiarm_from_rectangle()`, are useful for auditing or teaching. Applied
+users will usually pass pilot data directly and let the package estimate the
+confidence rectangle.
 
-1. Keep GitHub Actions green for R, Python, cross-language fixtures, and
-   validation/provenance checks.
-2. Expand user-facing docs and vignettes around input conventions and inference
-   caveats.
-3. Keep expanding independent validation against any newly archived paper-code
-   release, especially for MTR.
-4. Monitor the first R-universe build, then prepare TestPyPI/PyPI and
-   eventually CRAN releases.
+## Choosing A Confidence Method
 
-## Repository Layout
+| Method | Use when... | Notes |
+| --- | --- | --- |
+| `method = "auto"` | You want the default applied behavior | Uses exact Bernoulli bounds for raw 0/1 outcomes and bounded-outcome bounds otherwise. |
+| `method = "bounded"` or `"mp"` | Outcomes are bounded, usually normalized to `[0, 1]` | Uses Maurer-Pontil variance bounds. |
+| `method = "bernoulli"` | Outcomes are truly binary and coded 0/1 | Uses exact folded-binomial variance bounds. |
+| `method = "mtr"` | You specifically want Martinez-Taboada-Ramdas bounds | Uses the pilot row order, so do not sort outcomes before calling it. |
+| `method = "unbounded"` | Two-arm outcomes are raw finite values rather than bounded-scale values | Requires a kurtosis bound `psi`; use `cmr_unbounded()` for the clearest API. |
+
+For non-unit bounded outcomes, use `normalize = TRUE` in R or `normalize=True`
+in Python when the raw scale is known and meaningful. If a binary outcome is
+coded as something other than 0/1, recode it to 0/1 or explicitly set
+`method = "bernoulli"`.
+
+## Interpreting Results
+
+Most CMR result objects contain:
+
+- `pi`: recommended main-wave allocation. In two-arm designs this is the
+  treatment share; in multi-arm or stratified designs it can be a vector or
+  matrix of shares.
+- `U_CMR`: the worst-case regret certificate over the confidence set.
+- `rectangle` or `confidence_set`: the variance uncertainty set used by the
+  rule.
+- `method`: the confidence-rectangle method actually used after `auto`
+  dispatch.
+- `diagnostics`: solver and edge-case information, such as whether the
+  confidence set collapsed or became a full no-information rectangle.
+
+CMR is a design rule for allocating the next experimental wave. It is not a
+treatment-effect estimator, and `U_CMR` is not a treatment-effect confidence
+interval.
+
+## Examples And Docs
+
+All examples use simulated data.
+
+- [Quickstart](docs/quickstart.md): shortest two-arm example.
+- [Choosing a method](docs/choosing_methods.md): `auto`, bounded, Bernoulli,
+  MTR, and unbounded rules.
+- [Methods](docs/methods.md): implementation details and supported extensions.
+- [Pilot planning](docs/pilot_planning.md): Appendix E-style pilot/main-wave
+  sizing screens.
+- [FAQ](docs/faq.md): input conventions and common edge cases.
+- [R examples](examples/r) and [Python examples](examples/python): simulated
+  examples for each supported design.
+
+## For Contributors
+
+`cmrdesign` is pre-release software. The R and Python APIs are intended to be
+parallel, and cross-language JSON fixtures check that the two implementations
+return the same numerical results on shared cases.
 
 ```text
-spec/      Shared math/API specs and cross-language fixtures.
-validation/ Reference/provenance checks separate from parity fixtures.
-r/         R package.
-python/    Python package.
-examples/  Simulated examples in R and Python.
-docs/      User-facing documentation.
+spec/        Shared math/API specs and cross-language fixtures.
+validation/  Independent reference and provenance checks.
+r/           R package.
+python/      Python package.
+examples/    Simulated examples in R and Python.
+docs/        User-facing documentation.
 ```
