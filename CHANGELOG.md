@@ -28,3 +28,5 @@
 - Suppressed expected internal NumPy floating-point warnings from multi-arm and
   stratified solver trial evaluations.
 - Added the R-universe registry and install instructions for the R package.
+- Added a Python TestPyPI/PyPI release playbook and release optional
+  dependencies.

@@ -21,6 +21,7 @@ the package.
 | Plan pilot size before collecting pilot data | [Pilot Planning](pilot_planning.md) |
 | Resolve input-format and interpretation questions | [FAQ](faq.md) |
 | Prepare a release or audit the package | [Release Checklist](release_checklist.md) |
+| Prepare a Python TestPyPI/PyPI upload | [Python Release](python_release.md) |
 
 The R package also includes vignettes for two-arm bounded outcomes, binary
 outcomes, multiple outcomes, proxy outcomes, CMR extensions, and pilot

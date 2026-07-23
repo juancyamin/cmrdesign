@@ -52,23 +52,33 @@ Pandoc installed.
 
 ## Python Distribution Dry Run
 
-Build Python source and wheel distributions:
+See [Python Release](python_release.md) for the full TestPyPI/PyPI playbook.
+
+Build Python source and wheel distributions from a clean checkout:
 
 ```bash
 cd python
-python -m pip install build twine
-python -m build
+python -m pip install -e ".[release]"
+python -m build --no-isolation
 python -m twine check dist/*
 ```
 
-Install the built wheel in a clean environment and run at least:
+Inspect the generated artifacts:
 
 ```bash
-python -m unittest discover -s python/tests -v
+python -m tarfile -l dist/cmrdesign-*.tar.gz
+python -m zipfile -l dist/cmrdesign-*.whl
+```
+
+Install the built wheel in a clean environment and run at least the package
+import, the test suite, and the simulated examples:
+
+```bash
 python - <<'PY'
 import cmrdesign as cmr
 print(cmr.__version__)
 PY
+python -m unittest discover -s python/tests -v
 ```
 
 Before uploading, run the simulated examples from the installed wheel with
@@ -80,7 +90,9 @@ PYTHONWARNINGS=error python ../examples/python/04_multiarm.py
 PYTHONWARNINGS=error python ../examples/python/05_stratified.py
 ```
 
-Use TestPyPI before PyPI for the first public upload.
+Use TestPyPI before PyPI for the first public upload. Uploads are irreversible
+for a given version number, so the version should be changed intentionally
+before any upload.
 
 ## R Release Dry Run
 

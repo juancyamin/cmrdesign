@@ -46,7 +46,14 @@ Paper = "https://arxiv.org/abs/2607.16982"
 
 [project.optional-dependencies]
 dev = [
+  "build",
+  "hatchling",
   "ruff"
+]
+release = [
+  "build",
+  "hatchling",
+  "twine"
 ]
 
 [tool.ruff]
