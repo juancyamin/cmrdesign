@@ -39,3 +39,6 @@ with Pandoc installed.
 Generated fixture files in `spec/test_fixtures/` should be deterministic and
 easy to inspect. They check R/Python parity; they do not replace independent
 statistical validation.
+
+For release preparation, use `docs/release_checklist.md` as the more complete
+gate covering metadata, distribution builds, validation checks, and CI status.

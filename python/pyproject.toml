@@ -12,6 +12,26 @@ license = "MIT"
 authors = [
   { name = "Juan Yamin Silva", email = "juan_yamin_silva@brown.edu" }
 ]
+keywords = [
+  "experimental-design",
+  "pilot-studies",
+  "conditional-minimax-regret",
+  "randomized-experiments",
+  "treatment-assignment"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Scientific/Engineering :: Information Analysis"
+]
 dependencies = [
   "numpy"
 ]
@@ -20,6 +40,9 @@ dependencies = [
 Homepage = "https://github.com/juancyamin/cmrdesign"
 Repository = "https://github.com/juancyamin/cmrdesign"
 Issues = "https://github.com/juancyamin/cmrdesign/issues"
+Documentation = "https://github.com/juancyamin/cmrdesign/tree/main/docs"
+Changelog = "https://github.com/juancyamin/cmrdesign/blob/main/CHANGELOG.md"
+Paper = "https://arxiv.org/abs/2607.16982"
 
 [project.optional-dependencies]
 dev = [

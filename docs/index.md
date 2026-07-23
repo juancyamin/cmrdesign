@@ -18,6 +18,8 @@ Start with:
 - [Pilot Planning](pilot_planning.md) for Appendix E-style pilot/main-wave
   sizing screens.
 - [FAQ](faq.md) for input conventions and common edge cases.
+- [Release Checklist](release_checklist.md) for package-release readiness
+  checks.
 
 Implementation contracts live in `spec/`. Those files are the source of truth
 for cross-language API names, return fields, formulas, and numerical tolerances.

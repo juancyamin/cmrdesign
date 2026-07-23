@@ -21,3 +21,6 @@
   check for generated R documentation.
 - Fixed R proxy and two-arm rectangle wrappers so default `method` choices are
   resolved before forwarding.
+- Added Python two-arm rectangle aliases and missing-data controls for expert
+  one-arm variance-bound helpers.
+- Added API-freeze notes, release-readiness metadata, and a release checklist.
