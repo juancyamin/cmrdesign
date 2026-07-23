@@ -4,6 +4,8 @@
 [![R](https://github.com/juancyamin/cmrdesign/actions/workflows/r.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/r.yml)
 [![Fixtures](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml)
 [![Validation](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml)
+[![R-universe version](https://juancyamin.r-universe.dev/cmrdesign/badges/version)](https://juancyamin.r-universe.dev/cmrdesign)
+[![R-universe checks](https://juancyamin.r-universe.dev/cmrdesign/badges/checks)](https://juancyamin.r-universe.dev/cmrdesign)
 
 `cmrdesign` implements Conditional Minimax Regret (CMR) design rules in R and
 Python. The package is for applied researchers planning a main experimental
