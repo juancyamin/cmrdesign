@@ -7,5 +7,73 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Placeholder vignette using simulated Bernoulli pilot data.
+This vignette shows how to use CMR when the pilot outcome is binary. Binary
+outcomes support the exact folded-binomial variance bounds in addition to the
+general bounded-outcome bounds.
 
+```{r setup}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(cmrdesign)
+```
+
+## Simulate a binary pilot
+
+```{r simulate-binary-pilot}
+set.seed(202)
+
+n_pilot <- 220
+d <- rbinom(n_pilot, size = 1, prob = 0.5)
+response_prob <- ifelse(d == 1, 0.38, 0.55)
+y <- rbinom(n_pilot, size = 1, prob = response_prob)
+
+table(treatment = d, outcome = y)
+```
+
+## Exact Bernoulli CMR
+
+For 0/1 outcomes, `method = "auto"` resolves to the exact Bernoulli variance
+confidence set.
+
+```{r bernoulli-cmr}
+fit_auto <- cmr_binary(y, d, method = "auto", alpha = 0.05)
+
+fit_auto$method
+fit_auto$pi
+round(fit_auto$rectangle, 4)
+fit_auto$pilot$n
+```
+
+The exact Bernoulli rectangle is also available explicitly with
+`method = "bernoulli"` or `method = "bernoulli_exact"`.
+
+```{r binary-methods}
+methods <- c("auto", "bernoulli", "bernoulli_exact", "bounded", "mtr")
+
+comparison <- do.call(rbind, lapply(methods, function(method) {
+  fit <- cmr_binary(y, d, method = method, alpha = 0.05)
+  c(
+    pi = fit$pi,
+    U_CMR = fit$U_CMR,
+    v_l1 = fit$rectangle[["v_l1"]],
+    v_u1 = fit$rectangle[["v_u1"]],
+    v_l0 = fit$rectangle[["v_l0"]],
+    v_u0 = fit$rectangle[["v_u0"]]
+  )
+}))
+rownames(comparison) <- methods
+
+round(comparison, 4)
+```
+
+Use the exact Bernoulli option when the observed outcome is genuinely binary.
+Use the bounded-outcome options when the outcome is continuous or an index
+already scaled to `[0, 1]`.
+
+## Inspect the folded-binomial sufficient statistic
+
+The exact Bernoulli bounds are functions of the folded count in each arm.
+
+```{r folded-counts}
+fit_auto$confidence_set$treatment$statistic
+fit_auto$confidence_set$control$statistic
+```

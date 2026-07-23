@@ -7,5 +7,97 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Placeholder vignette using simulated bounded pilot data.
+This vignette shows the basic two-arm CMR workflow with a simulated bounded
+pilot outcome. The pilot outcome is assumed to have already been rescaled to
+the unit interval.
 
+```{r setup}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(cmrdesign)
+```
+
+## Simulate a pilot
+
+The treatment arm has a slightly higher mean and lower variance in this
+simulation. CMR uses the pilot only to choose the main-wave treatment
+assignment probability.
+
+```{r simulate-pilot}
+set.seed(101)
+
+n_pilot <- 160
+d <- rbinom(n_pilot, size = 1, prob = 0.5)
+y <- numeric(n_pilot)
+y[d == 1] <- rbeta(sum(d == 1), shape1 = 5, shape2 = 3)
+y[d == 0] <- rbeta(sum(d == 0), shape1 = 2.2, shape2 = 2.2)
+
+pilot_summary <- aggregate(y, by = list(treatment = d), FUN = function(x) {
+  c(mean = mean(x), variance = var(x), n = length(x))
+})
+pilot_summary
+```
+
+## Compute the CMR assignment
+
+The default bounded-outcome confidence rectangle uses the
+Maurer-Pontil-style empirical variance bounds for outcomes in `[0, 1]`.
+
+```{r bounded-cmr}
+fit_bounded <- cmr_two_arm(y, d, method = "bounded", alpha = 0.05)
+
+fit_bounded$pi
+round(fit_bounded$rectangle, 4)
+fit_bounded$U_CMR
+fit_bounded$binding
+```
+
+Here `$pi` is the main-wave probability assigned to treatment. The rectangle
+contains lower and upper confidence bounds for the treatment and control
+variances. The CMR certificate `$U_CMR` is the worst-case regret over the two
+least favorable corners of that rectangle.
+
+```{r inspect-pilot-fields}
+fit_bounded$pilot$n
+round(fit_bounded$pilot$vhat, 4)
+fit_bounded$joint_error_bound
+```
+
+## Compare confidence-set methods
+
+The package exposes the bounded/MP and MTR variance confidence sets through the
+same interface. The MTR option implements the Martinez-Taboada-Ramdas one-sided
+variance bounds.
+
+```{r compare-methods}
+methods <- c("bounded", "mp", "mtr")
+
+comparison <- do.call(rbind, lapply(methods, function(method) {
+  fit <- cmr_two_arm(y, d, method = method, alpha = 0.05)
+  c(
+    pi = fit$pi,
+    U_CMR = fit$U_CMR,
+    v_l1 = fit$rectangle[["v_l1"]],
+    v_u1 = fit$rectangle[["v_u1"]],
+    v_l0 = fit$rectangle[["v_l0"]],
+    v_u0 = fit$rectangle[["v_u0"]]
+  )
+}))
+rownames(comparison) <- methods
+
+round(comparison, 4)
+```
+
+`"bounded"` and `"mp"` are synonyms. In applications, use the method that
+matches the confidence set you want to report, and record the method in the
+analysis plan.
+
+## Work from a precomputed rectangle
+
+If the rectangle was computed elsewhere, the CMR rule can be applied directly.
+
+```{r from-rectangle}
+manual_fit <- cmr_two_arm_from_rectangle(fit_bounded$rectangle)
+
+manual_fit$pi
+manual_fit$U_CMR
+```
