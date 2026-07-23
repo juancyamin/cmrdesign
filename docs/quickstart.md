@@ -52,4 +52,6 @@ folded-binomial rectangles for raw 0/1 outcomes and Maurer-Pontil
 bounded-outcome rectangles otherwise. If you normalize a non-unit-scale outcome,
 `auto` still checks the raw values first. Use `method="mtr"` to request the
 Martinez-Taboada-Ramdas bounded-outcome confidence sequence bounds; MTR uses
-the supplied pilot row order.
+the supplied pilot row order. Use `method="unbounded"` with `psi` for the
+two-arm unbounded-outcome extension when outcomes are raw finite values rather
+than bounded-scale outcomes.

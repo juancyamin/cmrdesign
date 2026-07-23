@@ -57,6 +57,19 @@ interval in each arm is widened by the user-supplied bridge constant `zeta`,
 clipped to the feasible `[0, 0.5]` standard-deviation range, and squared back
 into a variance interval before applying two-arm CMR.
 
+## Unbounded Outcomes
+
+`cmr_unbounded(y, d, psi, ...)` and `cmr_two_arm(..., method = "unbounded",
+psi = ...)` implement the two-arm unbounded-outcome extension. This path uses
+raw finite numeric outcomes and a user-supplied kurtosis bound `psi >= 1`,
+either common across arms or supplied separately for treatment and control.
+
+Within each arm, the function preserves row order, forms consecutive pairs,
+computes half squared pair differences, and builds a median-of-means variance
+interval. If the pilot is too small for the requested confidence level, the
+relative radius is at least one, or the MoM variance estimate is zero, the
+function returns balance with no finite certificate.
+
 ## Confidence Rectangles
 
 Implemented variance rectangles are:
@@ -65,6 +78,8 @@ Implemented variance rectangles are:
 - Exact folded-binomial Bernoulli bounds: `method = "bernoulli"`.
 - Martinez-Taboada-Ramdas sequential bounded-outcome bounds:
   `method = "mtr"`.
+- Unbounded-outcome median-of-means bounds: `method = "unbounded"`, with
+  required `psi`.
 
 See `spec/math_spec.md` for formulas and `spec/api_spec.md` for the
 cross-language contract.

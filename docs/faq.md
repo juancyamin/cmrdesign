@@ -16,6 +16,12 @@ If the outcome is bounded on a known scale, pass `normalize = TRUE` in R or
 `normalize=True` in Python. You may also provide the bounds explicitly with
 `lower` and `upper`.
 
+If the outcome is not assumed bounded, use the two-arm unbounded extension:
+`cmr_unbounded(y, d, psi, ...)` or `cmr_two_arm(..., method = "unbounded",
+psi = ...)`. This requires a kurtosis bound `psi >= 1` and may return balance
+with no finite certificate when the pilot is too small for the requested
+confidence level.
+
 ## What if my binary outcome is coded as 1/2, Yes/No, or 2/5?
 
 Recode it to 0/1 before using `method = "auto"`, or explicitly use
@@ -27,6 +33,9 @@ outcomes.
 
 Yes. MTR is sequential. Use the pilot's natural, randomization, or collection
 order. Do not sort rows by outcome before calling an MTR method.
+
+The unbounded method also depends on row order within each arm because it forms
+consecutive outcome pairs for the median-of-means variance estimate.
 
 ## What does `U_CMR` mean?
 

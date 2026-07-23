@@ -13,10 +13,12 @@ as breaking unless this file is updated at the same time.
   replication, and teaching.
 - R and Python should expose the same conceptual API. Language idioms may differ:
   R uses `na.rm`; Python uses `na_rm`.
-- All outcomes used by the variance-bound routines are on the bounded scale
-  `[0, 1]`. For non-unit bounded outcomes, users should set `normalize = TRUE`
-  in R or `normalize=True` in Python. When `method = "auto"` and
-  normalization is requested, dispatch is based on the raw outcome values before
+- Bounded-outcome variance routines use outcomes on the bounded scale `[0, 1]`.
+  For non-unit bounded outcomes, users should set `normalize = TRUE` in R or
+  `normalize=True` in Python. When `method = "auto"` and normalization is
+  requested, dispatch is based on the raw outcome values before normalization.
+- The unbounded-outcome routine uses raw finite numeric outcomes and requires a
+  user-supplied kurtosis bound `psi`; it does not use bounded-scale
   normalization.
 - Confidence-set construction and CMR assignment are separable: every applied
   `cmr_*()` function should be reproducible from its corresponding
@@ -42,10 +44,33 @@ Core options:
 - `beta = NULL`/`None` for equal endpoint error allocation.
 - `correction = "bonferroni"` or `"sidak_arms"`.
 - `normalize = FALSE`/`False`, with optional `lower` and `upper`.
+- `psi` is required only when `method = "unbounded"`.
 
 Return: treatment share `pi`, CMR certificate `U_CMR`/`u_cmr`, rectangle,
 confidence-set details, pilot sample sizes, pilot variances, method, alpha,
 beta, and diagnostics.
+
+### `cmr_unbounded(y, d, psi, ...)`
+
+Purpose: two-arm CMR for raw finite outcomes that are not assumed bounded but
+have known arm-specific kurtosis bounds.
+
+Required inputs:
+
+- `y`: pilot outcome vector.
+- `d`: pilot assignment indicator, with treatment `1` and control `0`.
+- `psi`: scalar or treatment/control pair with values at least `1`.
+
+Core options:
+
+- `alpha = 0.05`.
+- Missing-data option: `na.rm` in R, `na_rm` in Python.
+
+Return: the same two-arm fields as `cmr_two_arm()`, plus MoM block diagnostics
+`rho`, `k`, `b`, and active/fallback status. If the pilot is too small, the
+relative radius is at least one, or the MoM variance estimate is zero, the
+function returns `pi = 1/2`, `U_CMR = Inf`, `rectangle = NULL`/`None`, and
+`no_finite_certificate = TRUE` in diagnostics.
 
 ### `cmr_multiarm(y, arm, ...)`
 
@@ -152,6 +177,7 @@ workflow.
 - `rectangle_two_arm()` / `rectangle_binary()`.
 - `rectangle_bounded_binary()`.
 - `rectangle_bernoulli_binary()`.
+- `rectangle_unbounded()`.
 - `rectangle_multiarm()`.
 - `rectangle_stratified()`.
 - `rectangle_multiple_outcomes()`.
@@ -160,6 +186,7 @@ workflow.
 ### CMR From Rectangle
 
 - `cmr_two_arm_from_rectangle()` / `cmr_binary_from_rectangle()`.
+- `cmr_unbounded_from_rectangle()`.
 - `cmr_multiarm_from_rectangle()`.
 - `cmr_stratified_from_rectangle()`.
 
@@ -168,6 +195,7 @@ workflow.
 - `variance_bounds_maurer_pontil()`.
 - `variance_bounds_martinez_taboada_ramdas()`.
 - `variance_bounds_bernoulli_exact()`.
+- `variance_bounds_unbounded_mom()`.
 - `folded_binomial_pmf()`.
 - `folded_binomial_tails()`.
 
@@ -195,12 +223,16 @@ Accepted method aliases:
   pilot observations as an ordered sequence; users should pass the natural
   pilot order, randomization order, or collection order, and should not sort
   observations by outcome.
+- `"unbounded"`, `"unbounded_mom"`, `"median_of_means"`, `"mom"`: two-arm
+  unbounded-outcome median-of-means bounds. Users must provide `psi`. Pilot
+  order matters because consecutive observations within each arm are paired.
 
 Stored canonical method names:
 
 - `"bounded"`.
 - `"bernoulli"`.
 - `"martinez_taboada_ramdas"`.
+- `"unbounded_mom"`.
 
 ## Non-Contract Helpers
 

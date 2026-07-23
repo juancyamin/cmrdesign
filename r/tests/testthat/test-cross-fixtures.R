@@ -96,7 +96,8 @@ testthat::test_that("fixture schema is valid", {
     "pilot_planning.json",
     "proxy.json",
     "rectangles_binary.json",
-    "stratified.json"
+    "stratified.json",
+    "unbounded.json"
   )
   fixtures <- lapply(fixture_names, .fixture)
   testthat::expect_true(all(vapply(fixtures, function(x) x$schema_version == 1L, logical(1))))
@@ -188,6 +189,48 @@ testthat::test_that("MTR fixtures match implementation", {
     method = fit_case$input$method
   )
   .expect_close(.two_summary(fit), fit_case$expected, fixture$tolerance)
+})
+
+testthat::test_that("unbounded fixtures match implementation", {
+  fixture <- .fixture("unbounded.json")
+  bounds_case <- .case(fixture, "variance_bounds_pair_blocks")
+  bounds <- variance_bounds_unbounded_mom(
+    unlist(bounds_case$input$y),
+    alpha = bounds_case$input$alpha,
+    psi = bounds_case$input$psi
+  )
+  .expect_close(bounds, bounds_case$expected, fixture$tolerance)
+
+  fit_case <- .case(fixture, "two_arm_unbounded")
+  rect <- rectangle_unbounded(
+    y = unlist(fit_case$input$y),
+    d = unlist(fit_case$input$d),
+    alpha = fit_case$input$alpha,
+    psi = fit_case$input$psi
+  )
+  fit <- cmr_two_arm(
+    y = unlist(fit_case$input$y),
+    d = unlist(fit_case$input$d),
+    alpha = fit_case$input$alpha,
+    method = fit_case$input$method,
+    psi = fit_case$input$psi
+  )
+  actual <- list(
+    rectangle = rect$rectangle,
+    n = rect$n,
+    vhat = rect$vhat,
+    rho = rect$rho,
+    k = rect$k,
+    b = rect$b,
+    psi = rect$psi,
+    joint_error_bound = rect$joint_error_bound,
+    active = rect$active,
+    status = rect$status,
+    pi = fit$pi,
+    U_CMR = fit$U_CMR,
+    method = fit$method
+  )
+  .expect_close(actual, fit_case$expected, fixture$tolerance)
 })
 
 testthat::test_that("Bernoulli fixtures match implementation", {

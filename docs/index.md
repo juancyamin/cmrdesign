@@ -12,8 +12,8 @@ by Juan C. Yamin.
 Start with:
 
 - [Quickstart](quickstart.md) for the shortest two-arm example.
-- [Choosing A Method](choosing_methods.md) for `auto`, bounded, Bernoulli, and
-  MTR confidence rectangles.
+- [Choosing A Method](choosing_methods.md) for `auto`, bounded, Bernoulli, MTR,
+  and unbounded confidence rectangles.
 - [Methods](methods.md) for the implemented CMR rules and extensions.
 - [Pilot Planning](pilot_planning.md) for Appendix E-style pilot/main-wave
   sizing screens.

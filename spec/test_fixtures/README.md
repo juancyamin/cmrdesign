@@ -15,6 +15,8 @@ Each fixture should define:
 
 Case inputs should be small, deterministic, and easy to inspect. Case expected
 outputs should avoid solver-specific internals unless the tolerance is explicit.
+Unbounded-outcome cases may include longer raw outcome vectors because row
+order and consecutive pairing are part of the median-of-means input.
 
 Closed-form two-arm, full-rectangle, collapsed-rectangle, and planning cases
 should use tight tolerances. General multi-arm or stratified numerical solver

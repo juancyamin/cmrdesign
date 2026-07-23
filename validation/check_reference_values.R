@@ -99,6 +99,59 @@ reference_mp_bounds <- function(y, beta_l, beta_u) {
   c(L = max(0, min(lower, 0.25)), U = max(0, min(upper, 0.25)), vhat = vhat)
 }
 
+reference_unbounded_mom_bounds <- function(y, alpha, psi) {
+  k <- ceiling(8 * log(2 / alpha))
+  n_pairs <- floor(length(y) / 2)
+  b <- floor(n_pairs / k)
+  if (b < 1) {
+    return(list(
+      active = FALSE,
+      status = "pilot_too_small",
+      L = NA_real_,
+      U = Inf,
+      vhat = NA_real_,
+      rho = Inf,
+      k = k,
+      b = b,
+      n_pairs = n_pairs,
+      used_pairs = 0
+    ))
+  }
+
+  pair_index <- seq_len(n_pairs)
+  paired <- 0.5 * (y[2 * pair_index] - y[2 * pair_index - 1])^2
+  used_pairs <- k * b
+  block_means <- vapply(seq_len(k), function(j) {
+    lo <- (j - 1) * b + 1
+    hi <- j * b
+    mean(paired[lo:hi])
+  }, numeric(1))
+  vhat <- stats::median(block_means)
+  rho <- sqrt(2 * (psi + 1) / b)
+  if (rho >= 1) {
+    return(list(active = FALSE, status = "relative_error_at_least_one",
+                L = NA_real_, U = Inf, vhat = vhat, rho = rho,
+                k = k, b = b, n_pairs = n_pairs, used_pairs = used_pairs))
+  }
+  if (vhat <= 0) {
+    return(list(active = FALSE, status = "zero_mom_variance",
+                L = NA_real_, U = Inf, vhat = vhat, rho = rho,
+                k = k, b = b, n_pairs = n_pairs, used_pairs = used_pairs))
+  }
+  list(
+    active = TRUE,
+    status = "active",
+    L = vhat / (1 + rho),
+    U = vhat / (1 - rho),
+    vhat = vhat,
+    rho = rho,
+    k = k,
+    b = b,
+    n_pairs = n_pairs,
+    used_pairs = used_pairs
+  )
+}
+
 reference_bernoulli_rho <- function(v) {
   if (v >= 0.25) {
     return(0.5)
@@ -157,6 +210,28 @@ run_check("MTR archived old-implementation reference values", {
     "MTR alpha lower mean",
     tolerance = 1e-15
   )
+})
+
+run_check("unbounded MoM formula and fallback", {
+  y <- rep(c(0, 2), 180)
+  expected <- reference_unbounded_mom_bounds(y, alpha = 0.05, psi = 1)
+  bounds <- variance_bounds_unbounded_mom(y, alpha = 0.05, psi = 1)
+  expect_close(bounds$L, expected$L, "unbounded L", tolerance = 1e-12)
+  expect_close(bounds$U, expected$U, "unbounded U", tolerance = 1e-12)
+  expect_close(bounds$vhat, expected$vhat, "unbounded vhat", tolerance = 1e-12)
+  expect_close(bounds$statistic$rho, expected$rho, "unbounded rho", tolerance = 1e-12)
+  expect_equal(bounds$status, expected$status, "unbounded active status")
+
+  rect <- c(v_l1 = 1, v_u1 = 4, v_l0 = 9, v_u0 = 16)
+  expected_cmr <- reference_two_arm_cmr(rect)
+  fit <- cmr_unbounded_from_rectangle(rect)
+  expect_close(fit$pi, expected_cmr$pi, "unbounded two-arm pi", tolerance = 1e-12)
+  expect_close(fit$U_CMR, expected_cmr$U_CMR, "unbounded two-arm U_CMR", tolerance = 1e-12)
+
+  small <- variance_bounds_unbounded_mom(rep(c(0, 2), 20), alpha = 0.05, psi = 1)
+  expect_equal(small$status, "pilot_too_small", "unbounded small-pilot status")
+  inactive <- cmr_unbounded(rep(c(0, 2), 20), rep(c(1, 0), each = 20), psi = 1)
+  expect_equal(is.infinite(inactive$U_CMR), TRUE, "unbounded inactive certificate")
 })
 
 run_check("exact Bernoulli folded-binomial formula", {

@@ -7,6 +7,11 @@ import math
 from .core import assign_neyman, regret
 from .rectangles import check_binary_rectangle, rectangle_two_arm
 from .results import CMRResult
+from .unbounded import (
+    check_unbounded_method_options,
+    cmr_unbounded,
+    is_unbounded_method,
+)
 
 
 def binary_rectangle_corners(rectangle) -> dict[str, dict[str, float]]:
@@ -107,10 +112,27 @@ def cmr_two_arm(
     normalize: bool = False,
     lower=None,
     upper=None,
+    psi=None,
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> CMRResult:
     """Estimate the two-arm CMR assignment from pilot outcomes and assignments."""
+
+    if is_unbounded_method(method):
+        check_unbounded_method_options(
+            beta=beta,
+            correction=correction,
+            normalize=normalize,
+            lower=lower,
+            upper=upper,
+        )
+        return cmr_unbounded(
+            y=y,
+            d=d,
+            psi=psi,
+            alpha=alpha,
+            na_rm=na_rm,
+        )
 
     confidence_set = rectangle_two_arm(
         y=y,
@@ -122,6 +144,7 @@ def cmr_two_arm(
         normalize=normalize,
         lower=lower,
         upper=upper,
+        psi=psi,
         na_rm=na_rm,
         tol=tol,
     )

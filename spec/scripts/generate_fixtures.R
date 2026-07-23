@@ -194,6 +194,53 @@ write_fixture(
   )
 )
 
+unbounded_y_bounds <- rep(c(0, 2), 180)
+unbounded_bounds <- variance_bounds_unbounded_mom(unbounded_y_bounds, alpha = 0.05, psi = 1)
+unbounded_y1 <- rep(c(0, 2), 180)
+unbounded_y0 <- rep(c(0, 4), 180)
+unbounded_y <- c(unbounded_y1, unbounded_y0)
+unbounded_d <- c(rep(1, length(unbounded_y1)), rep(0, length(unbounded_y0)))
+unbounded_rect <- rectangle_unbounded(unbounded_y, unbounded_d, alpha = 0.05, psi = 1)
+unbounded_fit <- cmr_two_arm(unbounded_y, unbounded_d, alpha = 0.05,
+                             method = "unbounded", psi = 1)
+write_fixture(
+  "unbounded.json",
+  "Unbounded-outcome median-of-means variance bounds and applied CMR.",
+  list(
+    list(
+      name = "variance_bounds_pair_blocks",
+      input = list(y = as.list(unbounded_y_bounds), alpha = 0.05, psi = 1),
+      expected = list(L = scalar(unbounded_bounds$L), U = scalar(unbounded_bounds$U),
+                      vhat = scalar(unbounded_bounds$vhat), n = scalar(unbounded_bounds$n),
+                      method = unbounded_bounds$method, active = unbounded_bounds$active,
+                      status = unbounded_bounds$status,
+                      statistic = list(k = scalar(unbounded_bounds$statistic$k),
+                                       b = scalar(unbounded_bounds$statistic$b),
+                                       n_pairs = scalar(unbounded_bounds$statistic$n_pairs),
+                                       used_pairs = scalar(unbounded_bounds$statistic$used_pairs),
+                                       rho = scalar(unbounded_bounds$statistic$rho)))
+    ),
+    list(
+      name = "two_arm_unbounded",
+      input = list(y = as.list(unbounded_y), d = as.list(unbounded_d),
+                   alpha = 0.05, method = "unbounded", psi = 1),
+      expected = list(rectangle = rectangle_list(unbounded_rect$rectangle),
+                      n = num_list(unbounded_rect$n),
+                      vhat = num_list(unbounded_rect$vhat),
+                      rho = num_list(unbounded_rect$rho),
+                      k = num_list(unbounded_rect$k),
+                      b = num_list(unbounded_rect$b),
+                      psi = num_list(unbounded_rect$psi),
+                      joint_error_bound = scalar(unbounded_rect$joint_error_bound),
+                      active = unbounded_rect$active,
+                      status = unbounded_rect$status,
+                      pi = scalar(unbounded_fit$pi),
+                      U_CMR = scalar(unbounded_fit$U_CMR),
+                      method = unbounded_fit$method)
+    )
+  )
+)
+
 bern_pmf <- folded_binomial_pmf(0.10, 4)
 bern_y <- c(0, 1, 0, 1, 1, 0, 0, 1)
 bern_bounds <- variance_bounds_bernoulli_exact(bern_y, beta_l = 0.0125, beta_u = 0.0125)

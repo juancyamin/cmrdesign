@@ -78,6 +78,14 @@ Proxy/delayed outcomes:
 - widened primary-outcome rectangle.
 - bridge assumption text.
 
+Unbounded outcomes:
+
+- `psi` kurtosis bounds by arm.
+- `rho`, `k`, and `b` median-of-means diagnostics by arm.
+- `active` and `status` fields describing whether a finite rectangle was built.
+- `no_finite_certificate = TRUE` in diagnostics when the rule falls back to
+  balance with `U_CMR = Inf` and `rectangle = NULL`/`None`.
+
 Planning:
 
 - activation threshold.

@@ -24,6 +24,7 @@ print(fit.U_CMR)
 - Exact Bernoulli folded-binomial rectangles.
 - Maurer-Pontil bounded-outcome rectangles.
 - Martinez-Taboada-Ramdas (MTR) rectangles.
+- Two-arm unbounded-outcome median-of-means rectangles.
 - Shared-control multi-arm CMR.
 - Stratified CMR.
 - Multiple-outcome CMR for weighted-index and co-primary workflows.

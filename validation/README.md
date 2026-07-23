@@ -13,6 +13,8 @@ that are not regenerated from the package implementation:
 - closed-form two-arm CMR from the mathematical formula;
 - MTR variance-bound values copied from the archived old implementation
   regression test in the parent replication package;
+- unbounded-outcome median-of-means formulas, including the finite-rectangle
+  and no-finite-certificate fallback paths;
 - exact Bernoulli folded-binomial formulas;
 - collapsed shared-control multi-arm and stratified reductions to known
   Neyman allocations;

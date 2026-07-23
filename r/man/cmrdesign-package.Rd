@@ -31,6 +31,8 @@
 \alias{cmr_stratified_from_rectangle}
 \alias{cmr_two_arm}
 \alias{cmr_two_arm_from_rectangle}
+\alias{cmr_unbounded}
+\alias{cmr_unbounded_from_rectangle}
 \alias{coverage_indicator}
 \alias{folded_binomial_pmf}
 \alias{folded_binomial_tails}
@@ -52,6 +54,7 @@
 \alias{rectangle_proxy}
 \alias{rectangle_stratified}
 \alias{rectangle_two_arm}
+\alias{rectangle_unbounded}
 \alias{regret}
 \alias{saving_vs_balance}
 \alias{share_of_oracle_gain}
@@ -62,6 +65,7 @@
 \alias{variance_bounds_bernoulli_exact}
 \alias{variance_bounds_martinez_taboada_ramdas}
 \alias{variance_bounds_maurer_pontil}
+\alias{variance_bounds_unbounded_mom}
 \alias{variance_objective}
 \docType{package}
 \title{Conditional Minimax Regret Design Rules}
@@ -72,7 +76,7 @@ experiments.
 \details{
 The package exposes applied CMR functions for two-arm, shared-control
 multi-arm, stratified, multiple-outcome, proxy/delayed-outcome, and
-pilot-planning workflows, with bounded-outcome, Bernoulli, and MTR confidence
-rectangles.
+pilot-planning workflows, with bounded-outcome, Bernoulli, MTR, and two-arm
+unbounded-outcome confidence rectangles.
 }
 \keyword{package}

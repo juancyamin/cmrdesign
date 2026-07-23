@@ -7,6 +7,8 @@
   proxy/delayed-outcome, and Appendix E pilot-planning workflows.
 - Added Maurer-Pontil bounded-outcome, exact folded-binomial Bernoulli, and
   Martinez-Taboada-Ramdas confidence rectangles.
+- Added two-arm unbounded-outcome median-of-means confidence rectangles with
+  bounded-kurtosis input `psi`.
 - Added numeric cross-language JSON fixtures generated from the R reference
   implementation and read by both R and Python tests.
 - Added closed-form shortcuts for collapsed and full multi-arm/stratified

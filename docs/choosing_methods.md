@@ -12,6 +12,8 @@ outcome scale and the intended interpretation.
   coded as 0/1.
 - Use `method = "mtr"` when you specifically want the
   Martinez-Taboada-Ramdas sequential bounded-outcome bounds.
+- Use `method = "unbounded"` only for two-arm raw finite outcomes when you are
+  willing to supply a kurtosis bound `psi`.
 
 ## `auto`
 
@@ -50,6 +52,19 @@ The parity fixtures verify that the R and Python implementations agree. The
 separate scripts in `validation/` add provenance checks against archived MTR
 reference values and formula-based extension checks. Keep both layers green
 before a journal, CRAN, or PyPI release milestone.
+
+## Unbounded Outcomes
+
+`method = "unbounded"` and aliases `unbounded_mom`, `median_of_means`, and
+`mom` use the two-arm unbounded-outcome extension. Unlike bounded methods, this
+path does not normalize the outcome to `[0, 1]` and does not cap variance
+endpoints at `1/4`.
+
+You must pass `psi`, a scalar or treatment/control pair of kurtosis bounds with
+values at least `1`. The calculation preserves the pilot row order within each
+arm because consecutive observations are paired. If the pilot is too small or
+the relative radius is too large, the function returns the balanced assignment
+and marks that no finite CMR certificate is available.
 
 ## Direct Rectangles
 

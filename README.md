@@ -21,8 +21,9 @@ by Juan C. Yamin.
 - Provide applied functions that take pilot data and return CMR allocations.
 - Support two-arm, shared-control multi-arm, stratified, multiple-outcome, and
   proxy/delayed-outcome designs.
-- Include bounded-outcome Maurer-Pontil, Martinez-Taboada-Ramdas (MTR), and
-  exact Bernoulli folded-binomial confidence rectangles.
+- Include bounded-outcome Maurer-Pontil, Martinez-Taboada-Ramdas (MTR), exact
+  Bernoulli folded-binomial, and two-arm unbounded-outcome confidence
+  rectangles.
 - Include Appendix E-style pilot planning tools for activation thresholds,
   break-even screens, and pilot/main-wave sizing diagnostics.
 - Keep R and Python implementations aligned through a shared mathematical and
@@ -52,6 +53,7 @@ R:
 
 ```r
 cmr_two_arm(y, d, alpha = 0.05, method = "auto")
+cmr_unbounded(y, d, psi, alpha = 0.05)
 cmr_multiarm(y, arm, control_arm = 0, alpha = 0.05, method = "auto")
 cmr_stratified(y, d, strata, strata_share, alpha = 0.05, method = "auto")
 cmr_multiple_outcomes(y, d, weights, estimand = "coprimary", alpha = 0.05)
@@ -63,6 +65,7 @@ Python:
 
 ```python
 cmr_two_arm(y, d, alpha=0.05, method="auto")
+cmr_unbounded(y, d, psi, alpha=0.05)
 cmr_multiarm(y, arm, control_arm=0, alpha=0.05, method="auto")
 cmr_stratified(y, d, strata, strata_share, alpha=0.05, method="auto")
 cmr_multiple_outcomes(y, d, weights, estimand="coprimary", alpha=0.05)
@@ -77,8 +80,8 @@ The initial local repository includes:
 - R reference implementation with deterministic `testthat` coverage.
 - Python implementation with standard-library `unittest` coverage.
 - Simulated examples for the main two-arm rule, MTR, Bernoulli outcomes,
-  multi-arm designs, stratified designs, multiple outcomes, proxy outcomes, and
-  pilot planning.
+  unbounded outcomes, multi-arm designs, stratified designs, multiple outcomes,
+  proxy outcomes, and pilot planning.
 - Shared specs and numeric JSON fixtures used by both R and Python to check
   cross-language parity.
 - Separate validation/provenance checks for formula-based cases, extension

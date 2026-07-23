@@ -64,6 +64,7 @@ class CrossFixtureTests(unittest.TestCase):
             "proxy.json",
             "rectangles_binary.json",
             "stratified.json",
+            "unbounded.json",
         }
         found = {path.name for path in cls.root.glob("*.json")}
         if found != expected:
@@ -138,6 +139,38 @@ class CrossFixtureTests(unittest.TestCase):
         fit_case = case_by_name(fixture, "two_arm_mtr")
         fit = cmr.cmr_two_arm(**fit_case["input"])
         assert_close(self, two_arm_expected(fit), fit_case["expected"], tol)
+
+    def test_unbounded_fixtures(self):
+        fixture = self.fixtures["unbounded.json"]
+        tol = fixture["tolerance"]
+        bounds_case = case_by_name(fixture, "variance_bounds_pair_blocks")
+        bounds = cmr.variance_bounds_unbounded_mom(**bounds_case["input"])
+        assert_close(self, bounds, bounds_case["expected"], tol)
+
+        fit_case = case_by_name(fixture, "two_arm_unbounded")
+        rect = cmr.rectangle_unbounded(
+            y=fit_case["input"]["y"],
+            d=fit_case["input"]["d"],
+            alpha=fit_case["input"]["alpha"],
+            psi=fit_case["input"]["psi"],
+        )
+        fit = cmr.cmr_two_arm(**fit_case["input"])
+        actual = {
+            "rectangle": rect.rectangle,
+            "n": rect.n,
+            "vhat": rect.vhat,
+            "rho": rect.extra["rho"],
+            "k": rect.extra["k"],
+            "b": rect.extra["b"],
+            "psi": rect.extra["psi"],
+            "joint_error_bound": rect.joint_error_bound,
+            "active": rect.extra["active"],
+            "status": rect.extra["status"],
+            "pi": fit.pi,
+            "U_CMR": fit.U_CMR,
+            "method": fit.method,
+        }
+        assert_close(self, actual, fit_case["expected"], tol)
 
     def test_bernoulli_fixtures(self):
         fixture = self.fixtures["bernoulli_exact.json"]

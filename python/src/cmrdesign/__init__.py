@@ -53,6 +53,12 @@ from .two_arm import (
     cmr_two_arm,
     cmr_two_arm_from_rectangle,
 )
+from .unbounded import (
+    cmr_unbounded,
+    cmr_unbounded_from_rectangle,
+    rectangle_unbounded,
+    variance_bounds_unbounded_mom,
+)
 from .variance_bounds import (
     folded_binomial_pmf,
     folded_binomial_tails,
@@ -89,6 +95,8 @@ __all__ = [
     "cmr_stratified_from_rectangle",
     "cmr_two_arm",
     "cmr_two_arm_from_rectangle",
+    "cmr_unbounded",
+    "cmr_unbounded_from_rectangle",
     "folded_binomial_pmf",
     "folded_binomial_tails",
     "multiarm_oracle_variance",
@@ -107,6 +115,7 @@ __all__ = [
     "rectangle_proxy",
     "rectangle_stratified",
     "rectangle_two_arm",
+    "rectangle_unbounded",
     "regret",
     "stratified_oracle_variance",
     "stratified_rectangle_vertices",
@@ -115,5 +124,6 @@ __all__ = [
     "variance_bounds_bernoulli_exact",
     "variance_bounds_martinez_taboada_ramdas",
     "variance_bounds_maurer_pontil",
+    "variance_bounds_unbounded_mom",
     "variance_objective",
 ]

@@ -8,6 +8,11 @@ from collections.abc import Mapping
 import numpy as np
 
 from .results import RectangleResult
+from .unbounded import (
+    check_unbounded_method_options,
+    is_unbounded_method,
+    rectangle_unbounded,
+)
 from .validation import (
     check_alpha,
     check_probability,
@@ -34,6 +39,10 @@ def canonical_method(method: str, y=None) -> str:
         "bernoulli_exact": "bernoulli",
         "martinez_taboada_ramdas": "martinez_taboada_ramdas",
         "mtr": "martinez_taboada_ramdas",
+        "unbounded": "unbounded_mom",
+        "unbounded_mom": "unbounded_mom",
+        "median_of_means": "unbounded_mom",
+        "mom": "unbounded_mom",
     }
     if method == "auto":
         if y is None:
@@ -43,7 +52,7 @@ def canonical_method(method: str, y=None) -> str:
         cmr_error(
             "`method` must be one of 'auto', 'bounded', 'bernoulli', "
             "'maurer_pontil', 'mp', 'bernoulli_exact', "
-            "'martinez_taboada_ramdas', or 'mtr'."
+            "'martinez_taboada_ramdas', 'mtr', or 'unbounded'."
         )
     return aliases[method]
 
@@ -216,6 +225,8 @@ def rectangle_bounded_binary(
     resolved_method = canonical_method(method, y=np.asarray(y, dtype=float))
     if resolved_method == "bernoulli":
         cmr_error("Use `rectangle_bernoulli_binary()` for exact Bernoulli bounds.")
+    if resolved_method == "unbounded_mom":
+        cmr_error("Use `rectangle_unbounded()` for unbounded-outcome bounds.")
     beta = _resolve_beta(alpha, beta=beta, correction=correction)
     pilot = split_binary_pilot(y, d, na_rm=na_rm, check_outcome=not normalize)
     normalization = None
@@ -317,10 +328,27 @@ def rectangle_two_arm(
     normalize: bool = False,
     lower=None,
     upper=None,
+    psi=None,
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> RectangleResult:
     """Build a two-arm confidence rectangle, choosing Bernoulli bounds when possible."""
+
+    if is_unbounded_method(method):
+        check_unbounded_method_options(
+            beta=beta,
+            correction=correction,
+            normalize=normalize,
+            lower=lower,
+            upper=upper,
+        )
+        return rectangle_unbounded(
+            y=y,
+            d=d,
+            psi=psi,
+            alpha=alpha,
+            na_rm=na_rm,
+        )
 
     pilot = split_binary_pilot(y, d, na_rm=na_rm, check_outcome=not normalize)
     resolved_method = canonical_method(method, y=pilot["y"])

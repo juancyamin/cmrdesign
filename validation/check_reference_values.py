@@ -103,6 +103,70 @@ def reference_mp_bounds(y, beta_l: float, beta_u: float) -> dict[str, float]:
     }
 
 
+def reference_unbounded_mom_bounds(y, alpha: float, psi: float) -> dict:
+    y_arr = np.asarray(y, dtype=float)
+    k = math.ceil(8 * math.log(2 / alpha))
+    n_pairs = y_arr.size // 2
+    b = n_pairs // k
+    if b < 1:
+        return {
+            "active": False,
+            "status": "pilot_too_small",
+            "L": math.nan,
+            "U": math.inf,
+            "vhat": math.nan,
+            "rho": math.inf,
+            "k": k,
+            "b": b,
+            "n_pairs": n_pairs,
+            "used_pairs": 0,
+        }
+
+    paired = 0.5 * (y_arr[1 : 2 * n_pairs : 2] - y_arr[0 : 2 * n_pairs : 2]) ** 2
+    used_pairs = k * b
+    block_means = paired[:used_pairs].reshape(k, b).mean(axis=1)
+    vhat = float(np.median(block_means))
+    rho = math.sqrt(2 * (psi + 1) / b)
+    if rho >= 1:
+        return {
+            "active": False,
+            "status": "relative_error_at_least_one",
+            "L": math.nan,
+            "U": math.inf,
+            "vhat": vhat,
+            "rho": rho,
+            "k": k,
+            "b": b,
+            "n_pairs": n_pairs,
+            "used_pairs": used_pairs,
+        }
+    if vhat <= 0:
+        return {
+            "active": False,
+            "status": "zero_mom_variance",
+            "L": math.nan,
+            "U": math.inf,
+            "vhat": vhat,
+            "rho": rho,
+            "k": k,
+            "b": b,
+            "n_pairs": n_pairs,
+            "used_pairs": used_pairs,
+        }
+    return {
+        "active": True,
+        "status": "active",
+        "L": vhat / (1 + rho),
+        "U": vhat / (1 - rho),
+        "vhat": vhat,
+        "rho": rho,
+        "k": k,
+        "b": b,
+        "n_pairs": n_pairs,
+        "used_pairs": used_pairs,
+    }
+
+
 def reference_bernoulli_rho(v: float) -> float:
     if v >= 0.25:
         return 0.5
@@ -169,6 +233,28 @@ def check_mtr_archived_values() -> None:
         "MTR alpha lower mean",
         tol=1e-15,
     )
+
+
+def check_unbounded_formula() -> None:
+    y = [0, 2] * 180
+    expected = reference_unbounded_mom_bounds(y, alpha=0.05, psi=1)
+    bounds = cmr.variance_bounds_unbounded_mom(y, alpha=0.05, psi=1)
+    assert_close(bounds["L"], expected["L"], "unbounded L", tol=1e-12)
+    assert_close(bounds["U"], expected["U"], "unbounded U", tol=1e-12)
+    assert_close(bounds["vhat"], expected["vhat"], "unbounded vhat", tol=1e-12)
+    assert_close(bounds["statistic"]["rho"], expected["rho"], "unbounded rho", tol=1e-12)
+    assert_equal(bounds["status"], expected["status"], "unbounded active status")
+
+    rect = {"v_l1": 1, "v_u1": 4, "v_l0": 9, "v_u0": 16}
+    expected_cmr = reference_two_arm_cmr(rect)
+    fit = cmr.cmr_unbounded_from_rectangle(rect)
+    assert_close(fit.pi, expected_cmr["pi"], "unbounded two-arm pi", tol=1e-12)
+    assert_close(fit.u_cmr, expected_cmr["u_cmr"], "unbounded two-arm U_CMR", tol=1e-12)
+
+    small = cmr.variance_bounds_unbounded_mom([0, 2] * 20, alpha=0.05, psi=1)
+    assert_equal(small["status"], "pilot_too_small", "unbounded small-pilot status")
+    inactive = cmr.cmr_unbounded([0, 2] * 20, [1] * 20 + [0] * 20, psi=1)
+    assert_equal(math.isinf(inactive.U_CMR), True, "unbounded inactive certificate")
 
 
 def check_bernoulli_formula() -> None:
@@ -312,6 +398,7 @@ def main() -> int:
     checks = [
         ("two-arm closed-form CMR", check_two_arm_closed_form),
         ("MTR archived old-implementation reference values", check_mtr_archived_values),
+        ("unbounded MoM formula and fallback", check_unbounded_formula),
         ("exact Bernoulli folded-binomial formula", check_bernoulli_formula),
         ("collapsed shared-control multi-arm reduces to Neyman", check_multiarm_collapsed),
         ("collapsed stratified rectangle reduces to stratified Neyman", check_stratified_collapsed),

@@ -208,17 +208,37 @@ rectangle_binary <- function(y,
                              alpha = 0.05,
                              method = c("auto", "bounded", "bernoulli",
                                         "maurer_pontil", "mp", "bernoulli_exact",
-                                        "martinez_taboada_ramdas", "mtr"),
+                                        "martinez_taboada_ramdas", "mtr",
+                                        "unbounded", "unbounded_mom",
+                                        "median_of_means", "mom"),
                              beta = NULL,
                              correction = c("bonferroni", "sidak_arms"),
                              normalize = FALSE,
                              lower = NULL,
                              upper = NULL,
+                             psi = NULL,
                              na.rm = TRUE,
                              tol = 1e-11) {
   method <- match.arg(method)
   correction <- match.arg(correction)
   pilot <- .cmr_split_binary_pilot(y, d, na.rm = na.rm)
+
+  if (.cmr_is_unbounded_method(method)) {
+    .cmr_check_unbounded_unused_options(
+      beta = beta,
+      correction = correction,
+      normalize = normalize,
+      lower = lower,
+      upper = upper
+    )
+    return(rectangle_unbounded(
+      y = pilot$y,
+      d = pilot$d,
+      psi = psi,
+      alpha = alpha,
+      na.rm = FALSE
+    ))
+  }
 
   resolved_method <- switch(
     method,
@@ -263,12 +283,15 @@ rectangle_two_arm <- function(y,
                               alpha = 0.05,
                               method = c("auto", "bounded", "bernoulli",
                                          "maurer_pontil", "mp", "bernoulli_exact",
-                                         "martinez_taboada_ramdas", "mtr"),
+                                         "martinez_taboada_ramdas", "mtr",
+                                         "unbounded", "unbounded_mom",
+                                         "median_of_means", "mom"),
                               beta = NULL,
                               correction = c("bonferroni", "sidak_arms"),
                               normalize = FALSE,
                               lower = NULL,
                               upper = NULL,
+                              psi = NULL,
                               na.rm = TRUE,
                               tol = 1e-11) {
   rectangle_binary(
@@ -281,6 +304,7 @@ rectangle_two_arm <- function(y,
     normalize = normalize,
     lower = lower,
     upper = upper,
+    psi = psi,
     na.rm = na.rm,
     tol = tol
   )

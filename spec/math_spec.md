@@ -64,7 +64,9 @@ larger of the two off-diagonal regrets at `pi_CMR`.
 
 ## Confidence Rectangles
 
-All implemented confidence rectangles are variance rectangles on `[0, 1/4]`.
+Most implemented confidence rectangles are variance rectangles on `[0, 1/4]`
+for outcomes bounded in `[0, 1]`. The unbounded-outcome extension below uses
+finite nonnegative variance rectangles that are not capped at `1/4`.
 
 ### Maurer-Pontil Bounded-Outcome Bounds
 
@@ -111,6 +113,45 @@ canonical MTR calculation. It checks R/Python parity, but it is not independent
 mathematical validation of the original MTR routine; before journal, CRAN, or
 PyPI release, keep a separate provenance check against the paper code or an
 archived independent implementation.
+
+### Unbounded Outcomes With Bounded Kurtosis
+
+The unbounded extension is currently implemented for two-arm designs. It
+requires a user-supplied arm-specific kurtosis bound `psi_d >= 1`.
+
+For each arm, preserve the pilot order and form consecutive pairs. From pair
+`i`, compute
+
+```text
+Z_i = (Y_{2i} - Y_{2i-1})^2 / 2.
+```
+
+Discard one outcome if the arm has an odd sample size. Let
+
+```text
+k = ceiling(8 log(2 / alpha)),
+b = floor(floor(m / 2) / k).
+```
+
+If `b < 1`, the pilot is too small for this bound. Otherwise, use the first
+`k b` paired values, split them into `k` consecutive blocks of size `b`, and
+set `v_hat` to the median of the `k` block means. The relative radius is
+
+```text
+rho = sqrt(2 (psi_d + 1) / b).
+```
+
+If `rho >= 1` or `v_hat = 0`, the package returns the balanced assignment
+`pi = 1/2` with no finite CMR certificate. Otherwise the arm interval is
+
+```text
+L_d = v_hat / (1 + rho),
+U_d = v_hat / (1 - rho).
+```
+
+The two arm intervals form a finite nonnegative variance rectangle, and the
+same closed-form two-arm CMR formula is applied. Equal relative radii across
+arms reduce the assignment to feasible Neyman using the MoM variance estimates.
 
 ### Exact Bernoulli Folded-Binomial Bounds
 
