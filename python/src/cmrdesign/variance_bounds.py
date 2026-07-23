@@ -16,21 +16,39 @@ from .validation import (
 )
 
 
-def sample_variance_01(y) -> float:
-    y = clean_outcome_01(y)
+def _clean_bound_outcome_01(y, na_rm: bool = True) -> np.ndarray:
+    try:
+        arr = np.asarray(y, dtype=float)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("`y` must be numeric.") from exc
+    missing = np.isnan(arr)
+    if np.any(missing):
+        if not na_rm:
+            cmr_error("`y` cannot contain missing values when `na_rm=False`.")
+        arr = arr[~missing]
+    return clean_outcome_01(arr)
+
+
+def sample_variance_01(y, na_rm: bool = True) -> float:
+    y = _clean_bound_outcome_01(y, na_rm=na_rm)
     if y.size < 2:
         cmr_error("At least two observations are required to estimate a variance.")
     return float(np.clip(np.var(y, ddof=1), 0, 0.25))
 
 
-def variance_bounds_maurer_pontil(y, beta_l: float, beta_u: float) -> dict:
+def variance_bounds_maurer_pontil(
+    y,
+    beta_l: float,
+    beta_u: float,
+    na_rm: bool = True,
+) -> dict:
     beta_l = check_tail_error(beta_l, "beta_l")
     beta_u = check_tail_error(beta_u, "beta_u")
-    y = clean_outcome_01(y)
+    y = _clean_bound_outcome_01(y, na_rm=na_rm)
     m = y.size
     if m < 2:
         cmr_error("At least two observations are required.")
-    vhat = sample_variance_01(y)
+    vhat = sample_variance_01(y, na_rm=False)
     sdhat = math.sqrt(vhat)
     if beta_l <= 0:
         lower = 0.0
@@ -202,14 +220,15 @@ def variance_bounds_martinez_taboada_ramdas(
     c5: float = 2,
     cs: bool = False,
     tilde_cs: bool = True,
+    na_rm: bool = True,
 ) -> dict:
     beta_l = check_tail_error(beta_l, "beta_l")
     beta_u = check_tail_error(beta_u, "beta_u")
-    y = clean_outcome_01(y)
+    y = _clean_bound_outcome_01(y, na_rm=na_rm)
     m = y.size
     if m < 2:
         cmr_error("At least two observations are required.")
-    vhat = sample_variance_01(y)
+    vhat = sample_variance_01(y, na_rm=False)
     upper_result = (
         {"center": math.nan, "radius": math.nan, "upper": 0.25}
         if beta_u <= 0
@@ -271,8 +290,8 @@ def folded_sample_variance(j: int, m: int) -> float:
     return j * (m - j) / (m * (m - 1))
 
 
-def folded_count(y) -> dict:
-    y = clean_outcome_01(y)
+def folded_count(y, na_rm: bool = True) -> dict:
+    y = _clean_bound_outcome_01(y, na_rm=na_rm)
     if not is_dummy(y):
         cmr_error("Bernoulli exact bounds require a 0/1 outcome.")
     m = y.size
@@ -358,10 +377,16 @@ def bernoulli_lower_bound(j: int, m: int, beta_l: float, tol: float = 1e-11) -> 
     return float(np.clip(lo, 0, 0.25))
 
 
-def variance_bounds_bernoulli_exact(y, beta_l: float, beta_u: float, tol: float = 1e-11) -> dict:
+def variance_bounds_bernoulli_exact(
+    y,
+    beta_l: float,
+    beta_u: float,
+    tol: float = 1e-11,
+    na_rm: bool = True,
+) -> dict:
     beta_l = check_tail_error(beta_l, "beta_l")
     beta_u = check_tail_error(beta_u, "beta_u")
-    fc = folded_count(y)
+    fc = folded_count(y, na_rm=na_rm)
     raw_vhat = folded_sample_variance(fc["j"], fc["m"])
     return {
         "L": bernoulli_lower_bound(fc["j"], fc["m"], beta_l, tol=tol),
@@ -373,9 +398,16 @@ def variance_bounds_bernoulli_exact(y, beta_l: float, beta_u: float, tol: float 
     }
 
 
-def variance_bounds_by_method(y, beta_l: float, beta_u: float, method: str, tol: float = 1e-11) -> dict:
+def variance_bounds_by_method(
+    y,
+    beta_l: float,
+    beta_u: float,
+    method: str,
+    tol: float = 1e-11,
+    na_rm: bool = True,
+) -> dict:
     if method == "bernoulli":
-        return variance_bounds_bernoulli_exact(y, beta_l, beta_u, tol=tol)
+        return variance_bounds_bernoulli_exact(y, beta_l, beta_u, tol=tol, na_rm=na_rm)
     if method == "martinez_taboada_ramdas":
-        return variance_bounds_martinez_taboada_ramdas(y, beta_l, beta_u)
-    return variance_bounds_maurer_pontil(y, beta_l, beta_u)
+        return variance_bounds_martinez_taboada_ramdas(y, beta_l, beta_u, na_rm=na_rm)
+    return variance_bounds_maurer_pontil(y, beta_l, beta_u, na_rm=na_rm)

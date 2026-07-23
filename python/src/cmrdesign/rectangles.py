@@ -377,3 +377,5 @@ def rectangle_two_arm(
 
 
 rectangle_binary = rectangle_two_arm
+rectangle_bounded_two_arm = rectangle_bounded_binary
+rectangle_bernoulli_two_arm = rectangle_bernoulli_binary

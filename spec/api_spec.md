@@ -179,8 +179,8 @@ workflow.
 ### Rectangle Constructors
 
 - `rectangle_two_arm()` / `rectangle_binary()`.
-- `rectangle_bounded_binary()`.
-- `rectangle_bernoulli_binary()`.
+- `rectangle_bounded_binary()` / `rectangle_bounded_two_arm()`.
+- `rectangle_bernoulli_binary()` / `rectangle_bernoulli_two_arm()`.
 - `rectangle_unbounded()`.
 - `rectangle_multiarm()`.
 - `rectangle_stratified()`.
@@ -202,6 +202,10 @@ workflow.
 - `variance_bounds_unbounded_mom()`.
 - `folded_binomial_pmf()`.
 - `folded_binomial_tails()`.
+
+The bounded, MTR, and Bernoulli one-arm variance-bound helpers accept
+language-idiomatic missing-data controls (`na.rm` in R and `na_rm` in Python).
+They drop missing observations by default and error when that option is false.
 
 ### Core Objectives
 
@@ -238,9 +242,16 @@ Stored canonical method names:
 - `"martinez_taboada_ramdas"`.
 - `"unbounded_mom"`.
 
-## Non-Contract Helpers
+## Secondary Helper Surface
 
-The R package currently exports some baseline/design-diagnostic helpers used
-during development, such as balanced allocation and regularized Neyman
-benchmarks. They are useful, but they are not part of the cross-language CMR
-contract unless they are later added to this spec.
+The initial public release treats the CMR functions, rectangle constructors,
+from-rectangle solvers, variance-bound helpers, planning functions, and core
+objective functions above as the cross-language contract.
+
+The R package also exports documented secondary helpers for simulation-free
+design diagnostics and baseline comparisons, including balanced allocations,
+regularized Neyman benchmarks, boundary/coverage indicators, and oracle-gain
+summaries. These are useful for teaching and audit notebooks, but Python parity
+is not required for the initial applied API. If a secondary helper becomes part
+of the cross-language contract, it should be promoted into the expert-function
+sections above and added to both implementations.

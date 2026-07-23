@@ -30,8 +30,10 @@ from .proxy import (
 )
 from .rectangles import (
     rectangle_bernoulli_binary,
+    rectangle_bernoulli_two_arm,
     rectangle_binary,
     rectangle_bounded_binary,
+    rectangle_bounded_two_arm,
     rectangle_two_arm,
 )
 from .results import CMRResult, RectangleResult
@@ -107,8 +109,10 @@ __all__ = [
     "pilot_plan",
     "pilot_viability_band",
     "rectangle_bernoulli_binary",
+    "rectangle_bernoulli_two_arm",
     "rectangle_binary",
     "rectangle_bounded_binary",
+    "rectangle_bounded_two_arm",
     "rectangle_delayed_outcome",
     "rectangle_multiarm",
     "rectangle_multiple_outcomes",

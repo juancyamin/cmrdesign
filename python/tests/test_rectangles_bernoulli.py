@@ -13,6 +13,18 @@ class BernoulliRectangleTests(unittest.TestCase):
                 self.assertAlmostEqual(float(sum(pmf)), 1.0, places=12)
                 self.assertGreaterEqual(float(min(pmf)), -1e-14)
 
+    def test_exact_bounds_drop_missing_by_default(self):
+        y = [0, 1, float("nan"), 1, 0]
+        bounds = cmr.variance_bounds_bernoulli_exact(y, beta_l=0.05, beta_u=0.05)
+        self.assertEqual(bounds["n"], 4)
+        with self.assertRaisesRegex(ValueError, "na_rm=False"):
+            cmr.variance_bounds_bernoulli_exact(
+                y,
+                beta_l=0.05,
+                beta_u=0.05,
+                na_rm=False,
+            )
+
     def test_one_sided_coverage_holds_on_grid(self):
         beta_l = 0.05
         beta_u = 0.05
@@ -43,6 +55,9 @@ class BernoulliRectangleTests(unittest.TestCase):
         d = [1, 1, 1, 1, 0, 0, 0, 0]
         rect = cmr.rectangle_two_arm(y_two_valued, d, alpha=0.05, method="auto", normalize=True)
         self.assertEqual(rect.method, "bounded")
+
+    def test_bernoulli_two_arm_alias_is_exported(self):
+        self.assertIs(cmr.rectangle_bernoulli_two_arm, cmr.rectangle_bernoulli_binary)
 
 
 if __name__ == "__main__":

@@ -13,6 +13,13 @@ class MaurerPontilRectangleTests(unittest.TestCase):
         self.assertEqual(bounds["method"], "bounded")
         self.assertEqual(bounds["n"], len(y))
 
+    def test_variance_bounds_drop_missing_by_default(self):
+        y = [0, 1, float("nan"), 0, 1]
+        bounds = cmr.variance_bounds_maurer_pontil(y, beta_l=0.05, beta_u=0.05)
+        self.assertEqual(bounds["n"], 4)
+        with self.assertRaisesRegex(ValueError, "na_rm=False"):
+            cmr.variance_bounds_maurer_pontil(y, beta_l=0.05, beta_u=0.05, na_rm=False)
+
     def test_bounded_two_arm_rectangle_splits_arms(self):
         y = [0, 1, 0, 1, 0.2, 0.3, 0.4, 0.5]
         d = [1, 1, 1, 1, 0, 0, 0, 0]
@@ -24,6 +31,9 @@ class MaurerPontilRectangleTests(unittest.TestCase):
         self.assertLessEqual(rect.rectangle["v_l0"], rect.rectangle["v_u0"])
         self.assertEqual(rect.n, {"n1": 4, "n0": 4})
         self.assertEqual(rect.method, "bounded")
+
+    def test_bounded_two_arm_alias_is_exported(self):
+        self.assertIs(cmr.rectangle_bounded_two_arm, cmr.rectangle_bounded_binary)
 
 
 if __name__ == "__main__":

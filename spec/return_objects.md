@@ -102,5 +102,5 @@ Planning:
   or arm counts.
 - Solver internals should be visible in diagnostics but should not be part of
   the applied interpretation unless a user opts into expert review.
-- Printed output can be improved later without changing the data fields
-  specified here.
+- Printed output should remain compact and audit-oriented, and future display
+  refinements should not change the data fields specified here.
