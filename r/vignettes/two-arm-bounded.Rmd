@@ -9,7 +9,8 @@ vignette: >
 
 This vignette shows the basic two-arm CMR workflow with a simulated bounded
 pilot outcome. The pilot outcome is assumed to have already been rescaled to
-the unit interval.
+the unit interval. The goal is to choose the main-wave assignment share, not to
+estimate a treatment effect.
 
 ```{r setup}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
@@ -54,7 +55,8 @@ fit_bounded$binding
 Here `$pi` is the main-wave probability assigned to treatment. The rectangle
 contains lower and upper confidence bounds for the treatment and control
 variances. The CMR certificate `$U_CMR` is the worst-case regret over the two
-least favorable corners of that rectangle.
+least favorable corners of that rectangle; it is not a treatment-effect
+confidence interval.
 
 ```{r inspect-pilot-fields}
 fit_bounded$pilot$n

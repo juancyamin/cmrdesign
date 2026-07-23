@@ -9,7 +9,8 @@ vignette: >
 
 This vignette shows how to use CMR when the pilot outcome is binary. Binary
 outcomes support the exact folded-binomial variance bounds in addition to the
-general bounded-outcome bounds.
+general bounded-outcome bounds. The outcome should be coded as `0` and `1` for
+the exact Bernoulli method.
 
 ```{r setup}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
@@ -68,6 +69,9 @@ round(comparison, 4)
 Use the exact Bernoulli option when the observed outcome is genuinely binary.
 Use the bounded-outcome options when the outcome is continuous or an index
 already scaled to `[0, 1]`.
+
+As in the other workflows, `$pi` is the main-wave assignment share and
+`$U_CMR` is a regret certificate, not a treatment-effect confidence interval.
 
 ## Inspect the folded-binomial sufficient statistic
 

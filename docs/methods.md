@@ -4,12 +4,29 @@ CMR chooses the main-wave allocation that minimizes the largest regret over a
 confidence set for the unknown outcome variances. The package separates that
 workflow into two steps:
 
-1. Build a variance confidence rectangle from pilot data.
-2. Solve the CMR assignment rule for that rectangle.
+1. Build arm, cell, or outcome-specific variance confidence intervals from
+   pilot data.
+2. Solve the CMR assignment rule for the resulting variance rectangle.
 
 The applied `cmr_*()` functions perform both steps. The `rectangle_*()` and
-`cmr_*_from_rectangle()` functions expose the two steps separately for auditing
-and replication.
+`cmr_*_from_rectangle()` functions expose the two steps separately for
+auditing, teaching, and replication checks.
+
+## Function Map
+
+| Applied design | Function | Main result |
+| --- | --- | --- |
+| One treatment and one control | `cmr_two_arm(y, d, ...)` | Treatment share `pi` |
+| Two-arm raw unbounded outcomes | `cmr_unbounded(y, d, psi, ...)` | Treatment share `pi` |
+| Multiple treatments with one shared control | `cmr_multiarm(y, arm, ...)` | Named assignment shares over all arms |
+| Known strata in the target population | `cmr_stratified(y, d, strata, strata_share, ...)` | Cell shares, stratum sampling margins, treatment shares within strata |
+| Multiple outcomes per unit | `cmr_multiple_outcomes(y, d, weights, estimand, ...)` | Treatment share `pi` for an index or co-primary objective |
+| Proxy or delayed primary outcome | `cmr_proxy(proxy_y, d, zeta, ...)` | Treatment share `pi` after bridge widening |
+| Pilot/main-wave planning before data collection | `cmr_plan(n, sigma1, sigma0, ...)` | Feasible pilot-size screen and suggested pilot size |
+
+Most result objects include `pi`, `U_CMR`, `rectangle` or `confidence_set`,
+`pilot`, `method`, and `diagnostics`. `U_CMR` is a design certificate, not a
+treatment-effect confidence interval.
 
 ## Two-Arm CMR
 
@@ -19,7 +36,8 @@ has a closed form using the lower and upper variance endpoints for treatment
 and control.
 
 Aliases `cmr_binary()` and `rectangle_binary()` are provided for binary-outcome
-workflows.
+workflows. For raw finite outcomes without a known bound, use
+`cmr_unbounded()` or `cmr_two_arm(..., method = "unbounded", psi = ...)`.
 
 ## Shared-Control Multi-Arm CMR
 
@@ -29,6 +47,10 @@ treatment arms in the objective. Collapsed and full rectangles use closed-form
 shortcuts; general rectangles are solved over rectangle vertices with numerical
 optimization and a certificate check.
 
+The outcome vector `y` still has one entry per pilot unit. The companion `arm`
+vector labels each row's arm. The returned `pi` is a named vector over the
+standardized control arm `"0"` and all treatment arms.
+
 ## Stratified CMR
 
 `cmr_stratified(y, d, strata, strata_share, ...)` allocates across
@@ -36,6 +58,11 @@ treatment/control cells inside target-population strata. The returned object
 includes total sampling shares by stratum and treatment shares within stratum.
 Collapsed and full rectangles use closed-form shortcuts; general rectangles are
 solved over cell-variance vertices.
+
+`strata_share` should describe the target population, not just the realized
+pilot composition, unless those are intentionally the same. The returned
+`pi_matrix` is often the clearest applied object: rows are treatment/control
+and columns are strata.
 
 For general multi-arm and stratified rectangles, the certificate `U_CMR` is the
 authoritative cross-language quantity. When the regret surface is nearly flat,
@@ -58,6 +85,12 @@ workflows:
 
 Weights are normalized internally to sum to one.
 
+Here `y` is a matrix or data frame with one row per pilot unit and one column
+per outcome. The treatment vector `d` has one entry per row. For co-primary
+workflows, the result keeps outcome-specific confidence bounds in
+`confidence_set$outcome_bounds` in R and
+`confidence_set.extra["outcome_bounds"]` in Python.
+
 ## Proxy Or Delayed Outcomes
 
 `cmr_proxy(proxy_y, d, zeta, ...)` and `cmr_delayed_outcome()` handle pilot data
@@ -65,6 +98,10 @@ that observe a proxy or delayed-primary outcome. The proxy standard-deviation
 interval in each arm is widened by the user-supplied bridge constant `zeta`,
 clipped to the feasible `[0, 0.5]` standard-deviation range, and squared back
 into a variance interval before applying two-arm CMR.
+
+`zeta` is an identifying/design assumption supplied by the researcher. It is
+not estimated by the function. The reported rectangle is the widened
+primary-outcome rectangle; the original proxy rectangle is kept for audit.
 
 ## Unbounded Outcomes
 
@@ -79,6 +116,20 @@ interval. If the pilot is too small for the requested confidence level, the
 relative radius is at least one, or the MoM variance estimate is zero, the
 function returns balance with no finite certificate.
 
+The unbounded method is not currently implemented for multi-arm, stratified,
+multiple-outcome, or proxy designs.
+
+## Pilot Planning
+
+`cmr_plan(n, sigma1, sigma0, ...)` is used before the pilot is collected. It
+implements Appendix E-style screens using planning standard deviations or
+variances. The output reports the activation threshold, break-even cap,
+feasible even pilot sizes, a default suggested pilot size, and diagnostics for
+an optional `desired_pilot`.
+
+This is a planning screen, not a guarantee that adaptation will help in every
+realized experiment.
+
 ## Confidence Rectangles
 
 Implemented variance rectangles are:
@@ -89,6 +140,9 @@ Implemented variance rectangles are:
   `method = "mtr"`.
 - Unbounded-outcome median-of-means bounds: `method = "unbounded"`, with
   required `psi`.
+
+See [Choosing A Method](choosing_methods.md) for when each interval method is
+appropriate.
 
 See `spec/math_spec.md` for formulas and `spec/api_spec.md` for the
 cross-language contract.

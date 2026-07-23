@@ -41,16 +41,25 @@ print(fit.U_CMR)
 ## Implemented Surface
 
 - `cmr_two_arm()` and `cmr_binary()`.
-- Exact Bernoulli folded-binomial rectangles.
-- Maurer-Pontil bounded-outcome rectangles.
-- Martinez-Taboada-Ramdas (MTR) rectangles.
-- Two-arm unbounded-outcome median-of-means rectangles.
-- Shared-control multi-arm CMR.
-- Stratified CMR.
-- Multiple-outcome CMR for weighted-index and co-primary workflows.
-- Proxy/delayed-outcome CMR bridge widening.
+- `method="auto"` for the applied bounded/binary default.
+- Maurer-Pontil bounded-outcome variance rectangles.
+- Exact Bernoulli folded-binomial variance rectangles.
+- Martinez-Taboada-Ramdas (MTR) bounded-outcome rectangles.
+- Two-arm unbounded-outcome median-of-means rectangles via `cmr_unbounded()`.
+- Shared-control multi-arm CMR via `cmr_multiarm()`.
+- Stratified CMR via `cmr_stratified()`.
+- Multiple-outcome CMR for weighted-index and co-primary workflows via
+  `cmr_multiple_outcomes()`.
+- Proxy/delayed-outcome CMR bridge widening via `cmr_proxy()`.
 - Appendix E pilot-planning helpers via `cmr_plan()`.
 - Expert rectangle helpers via `rectangle_*()` and `cmr_*_from_rectangle()`.
+
+See the repository-level docs for applied guidance:
+
+- `docs/quickstart.md`
+- `docs/choosing_methods.md`
+- `docs/methods.md`
+- `docs/pilot_planning.md`
 
 From the repository root, run local checks with:
 

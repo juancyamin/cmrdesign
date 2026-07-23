@@ -9,6 +9,8 @@ vignette: >
 
 This vignette shows the CMR extensions for multiple bounded outcomes. Outcomes
 can be combined into a weighted index or protected as coprimary outcomes.
+The outcome object `y` is a matrix with one row per pilot unit and one column
+per outcome.
 
 ```{r setup}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")

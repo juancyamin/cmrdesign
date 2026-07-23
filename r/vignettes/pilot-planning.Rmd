@@ -10,7 +10,8 @@ vignette: >
 This vignette shows the pilot-planning helpers motivated by Appendix E. These
 functions are screening tools: they identify pilot sizes that pass necessary
 conditions for assignment adaptation to be worthwhile, before any pilot data
-are observed.
+are observed. They do not guarantee that pilot-based CMR will improve every
+realized experiment.
 
 ```{r setup}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")

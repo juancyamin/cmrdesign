@@ -10,7 +10,8 @@ vignette: >
 This vignette shows the proxy-outcome extension. The pilot observes a short-run
 proxy, and the researcher supplies a bridge constant `zeta` that limits how far
 the primary-outcome standard deviation can be from the proxy standard deviation
-within each arm.
+within each arm. The bridge constant is part of the design assumption, not a
+quantity estimated by `cmrdesign`.
 
 ```{r setup}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")

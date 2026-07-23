@@ -151,6 +151,8 @@ All examples use simulated data.
 - [FAQ](docs/faq.md): input conventions and common edge cases.
 - [R examples](examples/r) and [Python examples](examples/python): simulated
   examples for each supported design.
+- R vignettes in [r/vignettes](r/vignettes): applied tutorials for the core
+  two-arm rule, confidence-method variants, extensions, and pilot planning.
 
 ## For Contributors
 
