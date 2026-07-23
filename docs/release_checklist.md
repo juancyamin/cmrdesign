@@ -84,6 +84,25 @@ Use TestPyPI before PyPI for the first public upload.
 
 ## R Release Dry Run
 
+R-universe registry:
+
+- Registry repository:
+  <https://github.com/juancyamin/juancyamin.r-universe.dev>.
+- Manifest entry:
+  `{"package":"cmrdesign","url":"https://github.com/juancyamin/cmrdesign","subdir":"r"}`.
+- Confirm the R-universe GitHub App is installed for `juancyamin`. R-universe
+  recommends installing it on all repositories; selected repositories should at
+  least include `cmrdesign` and `juancyamin.r-universe.dev`.
+- Wait for the package to appear at <https://juancyamin.r-universe.dev>, then
+  test installation from a clean R session:
+
+```r
+install.packages(
+  "cmrdesign",
+  repos = c("https://juancyamin.r-universe.dev", "https://cloud.r-project.org")
+)
+```
+
 Before CRAN submission, run:
 
 ```bash

@@ -34,7 +34,16 @@ by Juan C. Yamin.
 The package is currently distributed from GitHub while the API is still in the
 pre-release `0.0.0.9000` series.
 
-R:
+R via R-universe, after the first R-universe build completes:
+
+```r
+install.packages(
+  "cmrdesign",
+  repos = c("https://juancyamin.r-universe.dev", "https://cloud.r-project.org")
+)
+```
+
+R development version from GitHub:
 
 ```r
 install.packages("remotes")
@@ -98,7 +107,8 @@ The package currently includes:
    caveats.
 3. Keep expanding independent validation against any newly archived paper-code
    release, especially for MTR.
-4. Prepare R-universe, PyPI/TestPyPI, and eventually CRAN releases.
+4. Monitor the first R-universe build, then prepare TestPyPI/PyPI and
+   eventually CRAN releases.
 
 ## Repository Layout
 

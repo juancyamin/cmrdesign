@@ -3,9 +3,18 @@
 This page shows the shortest path from simulated pilot data to a CMR assignment
 and certificate.
 
-## Install From GitHub
+## Install
 
-R:
+R via R-universe, after the first R-universe build completes:
+
+```r
+install.packages(
+  "cmrdesign",
+  repos = c("https://juancyamin.r-universe.dev", "https://cloud.r-project.org")
+)
+```
+
+R development version from GitHub:
 
 ```r
 install.packages("remotes")
