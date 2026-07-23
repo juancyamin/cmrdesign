@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.0.9000
+## 0.0.0.9000 (unreleased)
 
 - Initial R and Python implementations of applied CMR design rules.
 - Added two-arm, shared-control multi-arm, stratified, multiple-outcome,

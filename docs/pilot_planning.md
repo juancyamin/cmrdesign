@@ -24,14 +24,16 @@ Core options:
 
 The returned object reports:
 
-- `activation_threshold`: smallest even pilot size that clears the method's
-  basic activation condition.
-- `break_even_share`: design-only break-even pilot share implied by
-  `sigma1` and `sigma0`.
-- `feasible_even_pilots`: even pilot sizes that clear the screen.
+- `band$activation_threshold` in R or `plan["band"]["activation_threshold"]`
+  in Python: smallest even pilot size that clears the method's basic activation
+  condition.
+- `band$break_even_share` / `plan["band"]["break_even_share"]`: design-only
+  break-even pilot share implied by `sigma1` and `sigma0`.
+- `band$feasible_pilot_sizes` / `plan["band"]["feasible_pilot_sizes"]`: even
+  pilot sizes that clear the screen.
 - `suggested_pilot`: default recommendation within the feasible set.
-- `two_thirds_power_default`: the rounded even version of `n^(2/3)`.
-- `desired_pilot_status`: diagnostics for a user-supplied pilot size.
+- `default_two_thirds_power`: the rounded even version of `n^(2/3)`.
+- `desired_status`: diagnostics for a user-supplied pilot size.
 
 ## Accounting Choice
 

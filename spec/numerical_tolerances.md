@@ -13,5 +13,11 @@ Default tolerances:
 - General multi-arm/stratified numerical-solver fixture comparison tolerance:
   case-specific, currently `1e-6` for the asymmetric solver fixtures.
 
+For general multi-arm and stratified numerical solver paths, `U_CMR` is the
+most stable cross-language comparison target. On nearly flat regret surfaces,
+more than one allocation can be effectively tied, so element-wise `pi`
+comparisons should use well-conditioned cases or looser tolerances than
+closed-form two-arm cases.
+
 All fixture files should include a top-level `tolerance`; individual cases may
 override it with their own `tolerance` field.

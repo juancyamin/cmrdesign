@@ -185,7 +185,8 @@ Two-arm equal Sidak-by-arm allocation uses
 
 for each one-sided endpoint.
 
-For multi-arm, the default endpoint error is `alpha / (2 * number_of_arms)`.
+For multi-arm, the default endpoint error is
+`alpha / (2 * number_of_arms)`, where `number_of_arms` includes the control arm.
 For stratified, it is `alpha / (4 * number_of_strata)`. For co-primary multiple
 outcomes, it is `alpha / (4 * number_of_outcomes)`.
 

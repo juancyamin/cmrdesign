@@ -75,7 +75,7 @@ cmr_plan(n, sigma1, sigma0, alpha=0.05, method="bounded")
 
 ## Status
 
-The initial local repository includes:
+The package currently includes:
 
 - R reference implementation with deterministic `testthat` coverage.
 - Python implementation with standard-library `unittest` coverage.
@@ -90,7 +90,7 @@ The initial local repository includes:
   and full no-information rectangles, plus numerical solvers for general
   multi-arm and stratified rectangles.
 
-## Development Order From Here
+## Roadmap
 
 1. Keep GitHub Actions green for R, Python, cross-language fixtures, and
    validation/provenance checks.

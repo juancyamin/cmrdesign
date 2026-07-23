@@ -14,10 +14,11 @@ Implementation contributions should include:
 Useful local checks:
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests -v
+python -m pip install -e python
+python -m unittest discover -s python/tests -v
 ```
 
-from `python/`, and
+from the repository root, and
 
 ```bash
 R CMD build --no-build-vignettes r

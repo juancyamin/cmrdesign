@@ -37,6 +37,15 @@ includes total sampling shares by stratum and treatment shares within stratum.
 Collapsed and full rectangles use closed-form shortcuts; general rectangles are
 solved over cell-variance vertices.
 
+For general multi-arm and stratified rectangles, the certificate `U_CMR` is the
+authoritative cross-language quantity. When the regret surface is nearly flat,
+multiple allocations can be essentially tied, so tiny solver differences may
+move `pi` more than they move `U_CMR`.
+
+The general vertex method enumerates variance-rectangle vertices, so it is
+intended for a modest number of arms or stratified cells. Very large
+hyperrectangles can hit the `max_vertices` cap by construction.
+
 ## Multiple Outcomes
 
 `cmr_multiple_outcomes(y, d, weights, estimand, ...)` supports two applied

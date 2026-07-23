@@ -94,6 +94,10 @@ a different `control_arm`, it is internally mapped to `"0"`.
 Variance objective weights: the control arm has weight equal to the number of
 treatment arms; each treatment arm has weight one.
 
+Endpoint error allocation is Bonferroni for multi-arm, stratified, and
+co-primary multiple-outcome workflows. The `"sidak_arms"` correction is exposed
+only for two-arm and proxy/delayed-outcome workflows.
+
 ### `cmr_stratified(y, d, strata, strata_share, ...)`
 
 Purpose: pilot-informed allocation across treatment/control cells within

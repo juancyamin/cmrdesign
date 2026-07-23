@@ -3,7 +3,8 @@
 GitHub Actions workflows for the public repository:
 
 - `python.yml`: installs the Python package and runs the `unittest` suite.
-- `r.yml`: installs R test dependencies and runs `R CMD check`.
+- `r.yml`: installs R test dependencies, executes vignette chunks, and runs
+  `R CMD check`.
 - `fixtures.yml`: regenerates shared JSON fixtures, checks for fixture drift,
   allowing declared numerical tolerances, and runs cross-language fixture tests
   in both R and Python.
@@ -11,5 +12,5 @@ GitHub Actions workflows for the public repository:
   generated parity fixtures, including archived MTR values and formula-based
   extension checks.
 
-Documentation build checks can be added once the public documentation site is
-chosen.
+Full documentation-site build checks can be added once the public documentation
+site is chosen.

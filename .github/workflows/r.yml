@@ -18,6 +18,19 @@ jobs:
           working-directory: r
           extra-packages: any::testthat, any::jsonlite, any::knitr, any::rmarkdown
 
+      - name: Install package for vignette chunks
+        run: R CMD INSTALL r
+
+      - name: Run vignette chunks
+        run: |
+          for (file in list.files("r/vignettes", pattern = "[.]Rmd$", full.names = TRUE)) {
+            message("Running vignette chunks: ", file)
+            script <- tempfile(fileext = ".R")
+            knitr::purl(file, output = script, quiet = TRUE)
+            source(script, echo = TRUE)
+          }
+        shell: Rscript {0}
+
       - name: Check package
         run: |
           R CMD build --no-build-vignettes r

@@ -31,8 +31,9 @@ print(fit.U_CMR)
 - Proxy/delayed-outcome CMR bridge widening.
 - Appendix E pilot-planning helpers via `cmr_plan()`.
 
-Run local checks with:
+From the repository root, run local checks with:
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests -v
+python -m pip install -e python
+python -m unittest discover -s python/tests -v
 ```
