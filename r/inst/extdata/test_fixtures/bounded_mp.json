@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "source": "R reference implementation",
+  "generated_by": "spec/scripts/generate_fixtures.R",
+  "purpose": "Maurer-Pontil bounded-outcome variance bounds and two-arm rectangle.",
+  "tolerance": 1e-10,
+  "cases": [
+    {
+      "name": "variance_bounds_rep_01",
+      "input": {
+        "y": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "beta_l": 0.012500000000000001,
+        "beta_u": 0.012500000000000001
+      },
+      "expected": {
+        "L": 0.027864743697126975,
+        "U": 0.25,
+        "vhat": 0.25,
+        "n": 80,
+        "method": "bounded"
+      }
+    },
+    {
+      "name": "two_arm_rectangle",
+      "input": {
+        "y": [
+          0,
+          1,
+          0,
+          1,
+          0.20000000000000001,
+          0.29999999999999999,
+          0.40000000000000002,
+          0.5
+        ],
+        "d": [
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "alpha": 0.10000000000000001,
+        "method": "bounded"
+      },
+      "expected": {
+        "rectangle": {
+          "v_l1": 0,
+          "v_u1": 0.25,
+          "v_l0": 0,
+          "v_u0": 0.25
+        },
+        "n": {
+          "n1": 4,
+          "n0": 4
+        },
+        "vhat": {
+          "vhat1": 0.25,
+          "vhat0": 0.016666666666666666
+        },
+        "beta": {
+          "beta_l1": 0.025000000000000001,
+          "beta_u1": 0.025000000000000001,
+          "beta_l0": 0.025000000000000001,
+          "beta_u0": 0.025000000000000001
+        },
+        "joint_error_bound": 0.10000000000000001,
+        "pi": 0.5,
+        "U_CMR": 0.25,
+        "method": "bounded"
+      }
+    },
+    {
+      "name": "auto_normalize_raw_two_value",
+      "input": {
+        "y": [
+          2,
+          5,
+          2,
+          5,
+          5,
+          2,
+          5,
+          2
+        ],
+        "d": [
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "alpha": 0.050000000000000003,
+        "method": "auto",
+        "normalize": true
+      },
+      "expected": {
+        "rectangle": {
+          "v_l1": 0,
+          "v_u1": 0.25,
+          "v_l0": 0,
+          "v_u0": 0.25
+        },
+        "method": "bounded",
+        "pi": 0.5,
+        "U_CMR": 0.25
+      }
+    }
+  ]
+}

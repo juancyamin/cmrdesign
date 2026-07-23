@@ -1,10 +1,20 @@
 .fixture_dir <- function() {
+  package_dir <- system.file(
+    "extdata", "test_fixtures",
+    package = "cmrdesign",
+    mustWork = FALSE
+  )
   candidates <- c(
+    file.path(getwd(), "spec", "test_fixtures"),
     file.path(getwd(), "..", "spec", "test_fixtures"),
     file.path(getwd(), "..", "..", "..", "spec", "test_fixtures"),
-    file.path(getwd(), "spec", "test_fixtures")
+    package_dir
   )
-  candidates[file.exists(candidates)][[1L]]
+  candidates <- candidates[nzchar(candidates) & dir.exists(candidates)]
+  if (length(candidates) == 0L) {
+    stop("Could not locate CMR fixture files.", call. = FALSE)
+  }
+  candidates[[1L]]
 }
 
 .fixture <- function(filename) {

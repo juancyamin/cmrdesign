@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "source": "R reference implementation",
+  "generated_by": "spec/scripts/generate_fixtures.R",
+  "purpose": "Multiple-outcome weighted-index and co-primary rectangle cases.",
+  "tolerance": 1e-10,
+  "cases": [
+    {
+      "name": "weighted_index",
+      "input": {
+        "y": [
+          [0.10000000000000001, 0.20000000000000001],
+          [0.90000000000000002, 0.69999999999999996],
+          [0.20000000000000001, 0.29999999999999999],
+          [0.80000000000000004, 0.90000000000000002],
+          [0.29999999999999999, 0.40000000000000002],
+          [0.40000000000000002, 0.29999999999999999],
+          [0.5, 0.69999999999999996],
+          [0.59999999999999998, 0.5]
+        ],
+        "d": [
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "weights": [
+          0.25,
+          0.75
+        ],
+        "estimand": "index",
+        "method": "bounded"
+      },
+      "expected": {
+        "pi": 0.5,
+        "U_CMR": 0.25,
+        "rectangle": {
+          "v_l1": 0,
+          "v_u1": 0.25,
+          "v_l0": 0,
+          "v_u0": 0.25
+        },
+        "method": "bounded"
+      }
+    },
+    {
+      "name": "coprimary_bernoulli",
+      "input": {
+        "y": [
+          [0, 1],
+          [1, 0],
+          [0, 1],
+          [1, 0],
+          [1, 0],
+          [0, 1],
+          [0, 1],
+          [1, 0]
+        ],
+        "d": [
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "weights": [
+          0.40000000000000002,
+          0.59999999999999998
+        ],
+        "estimand": "coprimary",
+        "method": "bernoulli"
+      },
+      "expected": {
+        "rectangle": {
+          "v_l1": 0.032274861216137651,
+          "v_u1": 0.25,
+          "v_l0": 0.032274861216137651,
+          "v_u0": 0.25
+        },
+        "joint_error_bound": 0.050000000000000003,
+        "vhat": {
+          "vhat1": 0.25,
+          "vhat0": 0.25
+        },
+        "beta": 0.0062500000000000003,
+        "method": "bernoulli"
+      }
+    }
+  ]
+}

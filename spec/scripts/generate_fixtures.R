@@ -18,6 +18,9 @@ if (!dir.exists(file.path(repo_root, "r", "R"))) {
   repo_root <- normalizePath(getwd())
 }
 fixture_dir <- file.path(repo_root, "spec", "test_fixtures")
+r_fixture_dir <- file.path(repo_root, "r", "inst", "extdata", "test_fixtures")
+dir.create(fixture_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(r_fixture_dir, recursive = TRUE, showWarnings = FALSE)
 
 source_files <- sort(list.files(file.path(repo_root, "r", "R"), pattern = "[.]R$", full.names = TRUE))
 for (file in source_files) {
@@ -76,10 +79,12 @@ write_fixture <- function(filename, purpose, cases, tolerance = 1e-10) {
     tolerance = tolerance,
     cases = cases
   )
-  path <- file.path(fixture_dir, filename)
   json <- jsonlite::toJSON(payload, auto_unbox = TRUE, pretty = TRUE, digits = 16, null = "null")
-  writeLines(json, path)
-  message("wrote ", path)
+  for (target_dir in c(fixture_dir, r_fixture_dir)) {
+    path <- file.path(target_dir, filename)
+    writeLines(json, path)
+    message("wrote ", path)
+  }
 }
 
 two_full <- c(v_l1 = 0, v_u1 = 0.25, v_l0 = 0, v_u0 = 0.25)

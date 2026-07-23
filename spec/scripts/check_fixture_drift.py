@@ -13,6 +13,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_DIR = ROOT / "spec" / "test_fixtures"
+R_FIXTURE_DIR = ROOT / "r" / "inst" / "extdata" / "test_fixtures"
 
 
 def load_head(path: Path) -> Any:
@@ -89,7 +90,8 @@ def compare(expected: Any, actual: Any, path: tuple[Any, ...], root: Any, errors
 
 def main() -> int:
     failures: list[str] = []
-    for path in sorted(FIXTURE_DIR.glob("*.json")):
+    fixture_paths = sorted(FIXTURE_DIR.glob("*.json"))
+    for path in fixture_paths:
         expected = load_head(path)
         actual = json.loads(path.read_text(encoding="utf-8"))
         errors: list[str] = []
@@ -99,6 +101,25 @@ def main() -> int:
             failures.extend(f"  - {error}" for error in errors[:20])
             if len(errors) > 20:
                 failures.append(f"  - ... {len(errors) - 20} more differences")
+
+        r_path = R_FIXTURE_DIR / path.name
+        if not r_path.exists():
+            failures.append(f"{r_path.relative_to(ROOT)} is missing")
+            continue
+        r_actual = json.loads(r_path.read_text(encoding="utf-8"))
+        r_errors: list[str] = []
+        compare(actual, r_actual, (), actual, r_errors)
+        if r_errors:
+            failures.append(f"{r_path.relative_to(ROOT)} does not match {path.relative_to(ROOT)}")
+            failures.extend(f"  - {error}" for error in r_errors[:20])
+            if len(r_errors) > 20:
+                failures.append(f"  - ... {len(r_errors) - 20} more differences")
+
+    expected_names = {path.name for path in fixture_paths}
+    if R_FIXTURE_DIR.exists():
+        extra_names = {path.name for path in R_FIXTURE_DIR.glob("*.json")} - expected_names
+        for name in sorted(extra_names):
+            failures.append(f"{(R_FIXTURE_DIR / name).relative_to(ROOT)} has no spec/test_fixtures counterpart")
 
     if failures:
         print("Fixture drift exceeded declared tolerances:")

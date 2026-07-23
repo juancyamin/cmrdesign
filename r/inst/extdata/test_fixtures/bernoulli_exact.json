@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "source": "R reference implementation",
+  "generated_by": "spec/scripts/generate_fixtures.R",
+  "purpose": "Exact Bernoulli folded-binomial PMF, bounds, and auto dispatch.",
+  "tolerance": 1e-10,
+  "cases": [
+    {
+      "name": "folded_pmf_m4_v010",
+      "input": {
+        "v": 0.10000000000000001,
+        "m": 4
+      },
+      "expected": {
+        "pmf": [
+          0.62,
+          0.32000000000000001,
+          0.059999999999999998
+        ]
+      }
+    },
+    {
+      "name": "variance_bounds_binary",
+      "input": {
+        "y": [
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        "beta_l": 0.012500000000000001,
+        "beta_u": 0.012500000000000001
+      },
+      "expected": {
+        "L": 0.1155987114761956,
+        "U": 0.25,
+        "vhat": 0.25,
+        "n": 8,
+        "method": "bernoulli"
+      }
+    },
+    {
+      "name": "auto_dispatch_two_arm",
+      "input": {
+        "y": [
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        "d": [
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "alpha": 0.050000000000000003,
+        "method": "auto"
+      },
+      "expected": {
+        "pi": 0.5,
+        "U_CMR": 0.08200004326106726,
+        "rectangle": {
+          "v_l1": 0.045643546458450146,
+          "v_u1": 0.25,
+          "v_l0": 0.045643546458450146,
+          "v_u0": 0.25
+        },
+        "method": "bernoulli"
+      }
+    }
+  ]
+}
