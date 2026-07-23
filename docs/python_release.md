@@ -3,8 +3,8 @@
 This page records the Python packaging path for `cmrdesign`. It is for
 maintainers preparing TestPyPI or PyPI releases, not for ordinary applied use.
 
-The package is currently in the development version series `0.0.0.9000`.
-Before the first public upload, make an explicit version decision:
+The Python package is currently prepared for the alpha version `0.1.0a1`.
+For future releases, make an explicit version decision:
 
 - Keep `0.0.0.9000` only for local/GitHub development builds.
 - Use `0.1.0a1` for a first public pre-release.

@@ -22,7 +22,9 @@ simulation output.
 
 ## Installation
 
-The package is currently in the pre-release `0.0.0.9000` series.
+The R package is currently in the development `0.0.0.9000` series. The first
+Python alpha candidate is `0.1.0a1`; until it is uploaded, install Python from
+GitHub.
 
 R via R-universe:
 

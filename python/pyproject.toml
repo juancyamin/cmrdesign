@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cmrdesign"
-version = "0.0.0.9000"
+version = "0.1.0a1"
 description = "Conditional Minimax Regret design rules for pilot-informed experiments"
 readme = "README.md"
 requires-python = ">=3.10"
