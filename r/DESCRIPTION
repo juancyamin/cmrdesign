@@ -1,0 +1,24 @@
+Package: cmrdesign
+Title: Conditional Minimax Regret Design Rules
+Version: 0.0.0.9000
+Authors@R: c(
+    person(given = "Juan", family = "Yamin Silva", role = c("aut", "cre"), email = "juan_yamin_silva@brown.edu")
+  )
+Author: Juan Yamin Silva [aut, cre]
+Maintainer: Juan Yamin Silva <juan_yamin_silva@brown.edu>
+Description: Implements Conditional Minimax Regret design rules for pilot-informed experimental assignment, including two-arm, multi-arm, stratified, multiple-outcome, proxy-outcome, and pilot-planning tools.
+License: MIT + file LICENSE
+URL: https://github.com/juancyamin/cmrdesign
+BugReports: https://github.com/juancyamin/cmrdesign/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.0
+VignetteBuilder: knitr
+Imports:
+    stats
+Suggests:
+    testthat (>= 3.0.0),
+    jsonlite,
+    knitr,
+    rmarkdown
+Config/testthat/edition: 3

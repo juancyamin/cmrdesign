@@ -1,0 +1,11 @@
+---
+title: "Binary Outcomes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Binary Outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Placeholder vignette using simulated Bernoulli pilot data.
+

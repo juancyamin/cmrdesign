@@ -1,0 +1,11 @@
+---
+title: "Multiple Outcomes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Multiple Outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Placeholder vignette using simulated multiple-outcome pilot data.
+

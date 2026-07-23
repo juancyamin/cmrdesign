@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "source": "R reference implementation",
+  "generated_by": "spec/scripts/generate_fixtures.R",
+  "purpose": "Appendix E activation thresholds, break-even, and pilot-plan statuses.",
+  "tolerance": 9.9999999999999998e-13,
+  "cases": [
+    {
+      "name": "activation_thresholds",
+      "input": {
+        "alpha": [
+          0.050000000000000003,
+          0.10000000000000001,
+          0.01
+        ]
+      },
+      "expected": {
+        "bounded_005": 72,
+        "bounded_010": 60,
+        "bounded_001": 96,
+        "bernoulli_005": 4
+      }
+    },
+    {
+      "name": "design_only_break_even",
+      "input": {
+        "n": 1000,
+        "sigma1": 0.5,
+        "sigma0": 0.25,
+        "alpha": 0.050000000000000003,
+        "method": "bounded",
+        "desired_pilot": 100,
+        "accounting": "design_only"
+      },
+      "expected": {
+        "activation_threshold": 72,
+        "break_even_share": 0.10000000000000001,
+        "break_even_total": 100,
+        "default_two_thirds_power": 100,
+        "suggested_pilot": 72,
+        "desired_status": "above_break_even_cap",
+        "min_feasible": 72,
+        "max_feasible": 98
+      }
+    },
+    {
+      "name": "pooled_keeps_activation",
+      "input": {
+        "n": 1000,
+        "sigma1": 0.5,
+        "sigma0": 0.25,
+        "alpha": 0.050000000000000003,
+        "method": "bounded",
+        "desired_pilot": 100,
+        "accounting": "pooled"
+      },
+      "expected": {
+        "activation_threshold": 72,
+        "break_even_total": "Inf",
+        "default_two_thirds_power": 100,
+        "desired_status": "inside_viability_band"
+      }
+    }
+  ]
+}

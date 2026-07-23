@@ -1,0 +1,27 @@
+# R
+.Rhistory
+.RData
+.Ruserdata
+r/*.Rcheck/
+*.Rcheck/
+*.tar.gz
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+python/.venv/
+python/dist/
+python/build/
+python/*.egg-info/
+
+# Docs/build artifacts
+docs/_site/
+docs/site/
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/

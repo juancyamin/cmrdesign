@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "source": "R reference implementation",
+  "generated_by": "spec/scripts/generate_fixtures.R",
+  "purpose": "Stratified objective, general rectangle, one-stratum reduction, and full rectangle.",
+  "tolerance": 1e-08,
+  "cases": [
+    {
+      "name": "known_variance_neyman",
+      "input": {
+        "variances": {
+          "treatment": {
+            "A": 0.040000000000000001,
+            "B": 0.16
+          },
+          "control": {
+            "A": 0.089999999999999997,
+            "B": 0.01
+          }
+        },
+        "strata_share": {
+          "A": 0.40000000000000002,
+          "B": 0.59999999999999998
+        }
+      },
+      "expected": {
+        "pi": {
+          "1:A": 0.16,
+          "0:A": 0.24000000000000002,
+          "1:B": 0.47999999999999998,
+          "0:B": 0.12
+        },
+        "objective": 0.25,
+        "oracle": 0.25,
+        "regret": 0
+      }
+    },
+    {
+      "name": "one_stratum_reduction",
+      "input": {
+        "rectangle": {
+          "lower": {
+            "treatment": [
+              0.01
+            ],
+            "control": [
+              0.040000000000000001
+            ]
+          },
+          "upper": {
+            "treatment": [
+              0.089999999999999997
+            ],
+            "control": [
+              0.16
+            ]
+          }
+        },
+        "strata_share": {
+          "A": 1
+        }
+      },
+      "expected": {
+        "pi": {
+          "1:A": 0.40000000014425341,
+          "0:A": 0.59999999985574659
+        },
+        "U_CMR": 0.041666666721763501
+      }
+    },
+    {
+      "name": "general_asymmetric_2_strata",
+      "tolerance": 9.9999999999999995e-07,
+      "input": {
+        "rectangle": {
+          "lower": {
+            "treatment": {
+              "A": 0.01,
+              "B": 0.040000000000000001
+            },
+            "control": {
+              "A": 0.02,
+              "B": 0.029999999999999999
+            }
+          },
+          "upper": {
+            "treatment": {
+              "A": 0.080000000000000002,
+              "B": 0.12
+            },
+            "control": {
+              "A": 0.089999999999999997,
+              "B": 0.10000000000000001
+            }
+          }
+        },
+        "strata_share": {
+          "A": 0.40000000000000002,
+          "B": 0.59999999999999998
+        }
+      },
+      "expected": {
+        "pi": {
+          "1:A": 0.16146880318844337,
+          "0:A": 0.18619839857356318,
+          "1:B": 0.3441523427601873,
+          "0:B": 0.30818045547780609
+        },
+        "U_CMR": 0.025249979254714672
+      }
+    },
+    {
+      "name": "full_rectangle_representative_balance",
+      "input": {
+        "rectangle": {
+          "lower": {
+            "treatment": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "control": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            }
+          },
+          "upper": {
+            "treatment": {
+              "A": 0.25,
+              "B": 0.25,
+              "C": 0.25
+            },
+            "control": {
+              "A": 0.25,
+              "B": 0.25,
+              "C": 0.25
+            }
+          }
+        },
+        "strata_share": {
+          "A": 0.20000000000000001,
+          "B": 0.29999999999999999,
+          "C": 0.5
+        }
+      },
+      "expected": {
+        "pi": {
+          "1:A": 0.10000000000000001,
+          "0:A": 0.10000000000000001,
+          "1:B": 0.14999999999999999,
+          "0:B": 0.14999999999999999,
+          "1:C": 0.25,
+          "0:C": 0.25
+        },
+        "U_CMR": 0.25,
+        "sampling_margin": {
+          "A": 0.20000000000000001,
+          "B": 0.29999999999999999,
+          "C": 0.5
+        },
+        "treatment_margin": {
+          "A": 0.5,
+          "B": 0.5,
+          "C": 0.5
+        },
+        "full_rectangle": true
+      }
+    }
+  ]
+}

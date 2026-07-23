@@ -1,0 +1,11 @@
+---
+title: "Proxy Outcomes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Proxy Outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Placeholder vignette using simulated proxy pilot data and bridge constants.
+

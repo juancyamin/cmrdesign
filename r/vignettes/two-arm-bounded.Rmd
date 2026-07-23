@@ -1,0 +1,11 @@
+---
+title: "Two-Arm Bounded Outcomes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Two-Arm Bounded Outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Placeholder vignette using simulated bounded pilot data.
+

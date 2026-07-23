@@ -1,0 +1,78 @@
+# cmrdesign
+
+`cmrdesign` provides R and Python implementations of Conditional Minimax
+Regret (CMR) design rules for applied researchers.
+
+The repository is intentionally scoped to software implementation only. It will
+not contain paper replication scripts, empirical calibration workflows, raw
+research data, simulation tables, or paper-specific figures.
+
+## Goals
+
+- Provide applied functions that take pilot data and return CMR allocations.
+- Support two-arm, shared-control multi-arm, stratified, multiple-outcome, and
+  proxy/delayed-outcome designs.
+- Include bounded-outcome Maurer-Pontil, Martinez-Taboada-Ramdas (MTR), and
+  exact Bernoulli folded-binomial confidence rectangles.
+- Include Appendix E-style pilot planning tools for activation thresholds,
+  break-even screens, and pilot/main-wave sizing diagnostics.
+- Keep R and Python implementations aligned through a shared mathematical and
+  API specification plus cross-language fixtures.
+
+## Current User API
+
+R:
+
+```r
+cmr_two_arm(y, d, alpha = 0.05, method = "auto")
+cmr_multiarm(y, arm, control_arm = 0, alpha = 0.05, method = "auto")
+cmr_stratified(y, d, strata, strata_share, alpha = 0.05, method = "auto")
+cmr_multiple_outcomes(y, d, weights, estimand = "coprimary", alpha = 0.05)
+cmr_proxy(proxy_y, d, zeta, alpha = 0.05, method = "auto")
+cmr_plan(n, sigma1, sigma0, alpha = 0.05, method = "bounded")
+```
+
+Python:
+
+```python
+cmr_two_arm(y, d, alpha=0.05, method="auto")
+cmr_multiarm(y, arm, control_arm=0, alpha=0.05, method="auto")
+cmr_stratified(y, d, strata, strata_share, alpha=0.05, method="auto")
+cmr_multiple_outcomes(y, d, weights, estimand="coprimary", alpha=0.05)
+cmr_proxy(proxy_y, d, zeta, alpha=0.05, method="auto")
+cmr_plan(n, sigma1, sigma0, alpha=0.05, method="bounded")
+```
+
+## Status
+
+The initial local repository includes:
+
+- R reference implementation with deterministic `testthat` coverage.
+- Python implementation with standard-library `unittest` coverage.
+- Simulated examples for the main two-arm rule, MTR, Bernoulli outcomes,
+  multi-arm designs, stratified designs, multiple outcomes, proxy outcomes, and
+  pilot planning.
+- Shared specs and numeric JSON fixtures used by both R and Python to check
+  cross-language parity.
+- Closed-form shortcuts for two-arm, collapsed multi-arm/stratified rectangles,
+  and full no-information rectangles, plus numerical solvers for general
+  multi-arm and stratified rectangles.
+
+## Development Order From Here
+
+1. Fill in public repository metadata, maintainer contact details, and release
+   URLs.
+2. Expand user-facing docs and vignettes around input conventions and inference
+   caveats.
+3. Run GitHub Actions checks for both languages once the repository is pushed.
+4. Prepare R-universe, PyPI/TestPyPI, and eventually CRAN releases.
+
+## Repository Layout
+
+```text
+spec/      Shared math/API specs and cross-language fixtures.
+r/         R package.
+python/    Python package.
+examples/  Simulated examples in R and Python.
+docs/      User-facing documentation.
+```

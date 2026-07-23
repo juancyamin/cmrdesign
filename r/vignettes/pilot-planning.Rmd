@@ -1,0 +1,11 @@
+---
+title: "Pilot Planning"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Pilot Planning}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Placeholder vignette for Appendix E planning tools.
+

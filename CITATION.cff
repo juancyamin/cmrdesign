@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: "cmrdesign"
+message: "If you use cmrdesign, please cite the accompanying software and methods paper."
+type: software
+authors:
+  - family-names: "Yamin Silva"
+    given-names: "Juan"
+license: MIT
+repository-code: "https://github.com/juancyamin/cmrdesign"
+version: "0.0.0.9000"
+date-released: "2026-07-23"

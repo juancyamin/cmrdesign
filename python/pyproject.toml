@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cmrdesign"
+version = "0.0.0.9000"
+description = "Conditional Minimax Regret design rules for pilot-informed experiments"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+  { name = "Juan Yamin Silva", email = "juan_yamin_silva@brown.edu" }
+]
+dependencies = [
+  "numpy"
+]
+
+[project.urls]
+Homepage = "https://github.com/juancyamin/cmrdesign"
+Repository = "https://github.com/juancyamin/cmrdesign"
+Issues = "https://github.com/juancyamin/cmrdesign/issues"
+
+[project.optional-dependencies]
+dev = [
+  "ruff"
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"

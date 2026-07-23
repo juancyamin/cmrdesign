@@ -1,0 +1,24 @@
+name: R
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+
+      - name: Install test dependencies
+        run: |
+          install.packages(c("testthat", "jsonlite", "knitr", "rmarkdown"), repos = "https://cloud.r-project.org")
+        shell: Rscript {0}
+
+      - name: Check package
+        run: |
+          R CMD build --no-build-vignettes r
+          R CMD check --no-manual --ignore-vignettes cmrdesign_*.tar.gz

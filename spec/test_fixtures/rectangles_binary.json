@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "source": "R reference implementation",
+  "generated_by": "spec/scripts/generate_fixtures.R",
+  "purpose": "Closed-form two-arm CMR rectangle cases.",
+  "tolerance": 9.9999999999999998e-13,
+  "cases": [
+    {
+      "name": "full_rectangle",
+      "input": {
+        "rectangle": {
+          "v_l1": 0,
+          "v_u1": 0.25,
+          "v_l0": 0,
+          "v_u0": 0.25
+        }
+      },
+      "expected": {
+        "pi": 0.5,
+        "U_CMR": 0.25,
+        "rectangle": {
+          "v_l1": 0,
+          "v_u1": 0.25,
+          "v_l0": 0,
+          "v_u0": 0.25
+        },
+        "method": null,
+        "diagnostics": {
+          "full_rectangle": true,
+          "collapsed_rectangle": false
+        }
+      }
+    },
+    {
+      "name": "collapsed_rectangle",
+      "input": {
+        "rectangle": {
+          "v_l1": 0.040000000000000001,
+          "v_u1": 0.040000000000000001,
+          "v_l0": 0.089999999999999997,
+          "v_u0": 0.089999999999999997
+        }
+      },
+      "expected": {
+        "pi": 0.40000000000000002,
+        "U_CMR": 0,
+        "rectangle": {
+          "v_l1": 0.040000000000000001,
+          "v_u1": 0.040000000000000001,
+          "v_l0": 0.089999999999999997,
+          "v_u0": 0.089999999999999997
+        },
+        "method": null,
+        "diagnostics": {
+          "full_rectangle": false,
+          "collapsed_rectangle": true
+        }
+      }
+    },
+    {
+      "name": "asymmetric_rectangle",
+      "input": {
+        "rectangle": {
+          "v_l1": 0.01,
+          "v_u1": 0.089999999999999997,
+          "v_l0": 0.040000000000000001,
+          "v_u0": 0.16
+        }
+      },
+      "expected": {
+        "pi": 0.40000000000000002,
+        "U_CMR": 0.041666666666666699,
+        "rectangle": {
+          "v_l1": 0.01,
+          "v_u1": 0.089999999999999997,
+          "v_l0": 0.040000000000000001,
+          "v_u0": 0.16
+        },
+        "method": null,
+        "corner_regrets": {
+          "treatment_high_control_low": 0.04166666666666665,
+          "treatment_low_control_high": 0.041666666666666699
+        }
+      }
+    },
+    {
+      "name": "all_zero_rectangle",
+      "input": {
+        "rectangle": {
+          "v_l1": 0,
+          "v_u1": 0,
+          "v_l0": 0,
+          "v_u0": 0
+        }
+      },
+      "expected": {
+        "pi": 0.5,
+        "U_CMR": 0,
+        "rectangle": {
+          "v_l1": 0,
+          "v_u1": 0,
+          "v_l0": 0,
+          "v_u0": 0
+        },
+        "method": null
+      }
+    }
+  ]
+}
