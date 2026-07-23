@@ -23,6 +23,9 @@ as breaking unless this file is updated at the same time.
 - Confidence-set construction and CMR assignment are separable: every applied
   `cmr_*()` function should be reproducible from its corresponding
   `rectangle_*()` result.
+- Public export drift is checked in `r/tests/testthat/test-public-api.R` and
+  `python/tests/test_public_api.py`. Any export addition, removal, or rename
+  should update this specification and those tests together.
 
 ## Main Applied Functions
 
@@ -176,6 +179,10 @@ necessary-not-sufficient caveat.
 Expert functions are public but should not be presented as the primary applied
 workflow.
 
+Python also exposes `CMRResult` and `RectangleResult` as public result
+containers. R exposes S3 list classes through returned objects and methods
+rather than standalone constructor classes.
+
 ### Rectangle Constructors
 
 - `rectangle_two_arm()` / `rectangle_binary()`.
@@ -248,10 +255,30 @@ The initial public release treats the CMR functions, rectangle constructors,
 from-rectangle solvers, variance-bound helpers, planning functions, and core
 objective functions above as the cross-language contract.
 
-The R package also exports documented secondary helpers for simulation-free
-design diagnostics and baseline comparisons, including balanced allocations,
-regularized Neyman benchmarks, boundary/coverage indicators, and oracle-gain
-summaries. These are useful for teaching and audit notebooks, but Python parity
-is not required for the initial applied API. If a secondary helper becomes part
-of the cross-language contract, it should be promoted into the expert-function
-sections above and added to both implementations.
+The R package also exports documented secondary helpers for design diagnostics
+and baseline comparisons. These remain public in R for the initial release, but
+they are not part of the cross-language CMR contract and Python parity is not
+required yet.
+
+R-only secondary baseline helpers:
+
+- `assign_balance()`.
+- `assign_multiarm_balance()`.
+- `assign_stratified_balance()`.
+- `assign_feasible_neyman()`.
+- `assign_trimmed_neyman()`.
+- `assign_additive_regularized_neyman()`.
+- `assign_exponential_regularized_neyman()`.
+
+R-only secondary diagnostic helpers:
+
+- `coverage_indicator()`.
+- `certificate_valid()`.
+- `boundary_indicator()`.
+- `boundary_rate()`.
+- `saving_vs_balance()`.
+- `share_of_oracle_gain()`.
+
+If a secondary helper becomes part of the cross-language contract, it should be
+promoted into the expert-function sections above, added to both
+implementations, and added to the Python public API test.

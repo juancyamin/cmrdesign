@@ -1,11 +1,11 @@
-# API Freeze Review
+# Public API Review
 
 Date: 2026-07-23
 
-This note records the pre-freeze review of the CMR-focused public API for the
-R and Python implementations. It is not a release announcement; it is the
-decision trail for what should be treated as stable before packaging polish,
-PyPI/CRAN preparation, or formal versioning.
+This note records the pre-release review of the CMR-focused public API for the
+R and Python implementations. It is not an API freeze or a release
+announcement; it is the decision trail for what should be treated as reviewed
+before packaging polish, PyPI/CRAN preparation, or formal versioning.
 
 ## Scope Reviewed
 
@@ -22,7 +22,23 @@ its extensions:
 - Proxy/delayed-outcome designs.
 - Appendix E-style pilot/main-wave planning screens.
 
-## Freeze-Ready Surface
+## Current Review Status
+
+The public API was rechecked after CI was green on the documentation pass. The
+review compared:
+
+- R exports in `r/NAMESPACE`.
+- Python public symbols in `python/src/cmrdesign/__init__.py`.
+- Applied function names, aliases, and defaults.
+- Return-object fields in `spec/return_objects.md`.
+- User-facing docs in `README.md` and `docs/`.
+
+Public export drift is now guarded by:
+
+- `r/tests/testthat/test-public-api.R`.
+- `python/tests/test_public_api.py`.
+
+## Reviewed Applied Surface
 
 The recommended applied entry points are aligned conceptually across R and
 Python:
@@ -107,4 +123,3 @@ Before declaring the API frozen for an initial release branch or tag:
 - Re-read examples to confirm all examples use simulated data.
 - Confirm README and quickstart examples link to the paper:
   <https://arxiv.org/abs/2607.16982>.
-

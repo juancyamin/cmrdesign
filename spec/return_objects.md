@@ -25,6 +25,15 @@ Python implementation: `CMRResult` is a dataclass with `extra` for
 extension-specific audit fields. R implementation: CMR results are S3 lists
 with extension-specific entries at top level.
 
+The object systems are intentionally language-specific. The stable contract is
+the conceptual field set, not byte-for-byte object equality:
+
+- R users inspect list fields with `$`, for example `fit$pi`,
+  `fit$confidence_set`, or `fit$sampling_margin`.
+- Python users inspect dataclass attributes, for example `fit.pi`,
+  `fit.confidence_set`, or `fit.extra["sampling_margin"]`.
+- Python provides `fit.U_CMR` as a compatibility alias for `fit.u_cmr`.
+
 ## Rectangle Results
 
 Required conceptual fields:
@@ -54,7 +63,7 @@ treatment row `1` and control row `0`, or equivalent named mappings in Python.
 Multi-arm:
 
 - arm labels.
-- vertices and binding vertices for expert audit.
+- vertices, vertex regrets, and binding vertices for expert audit.
 - solver diagnostics.
 
 Stratified:
@@ -62,7 +71,7 @@ Stratified:
 - cell allocations named `1:<stratum>` and `0:<stratum>`.
 - sampling margins by stratum.
 - treatment margins by stratum.
-- vertices and binding vertices for expert audit.
+- vertices, vertex regrets, and binding vertices for expert audit.
 
 Multiple outcomes:
 

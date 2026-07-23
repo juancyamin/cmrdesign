@@ -10,7 +10,7 @@ been reviewed and that package examples remain simulated-data examples only.
   `CITATION.cff`, and `CHANGELOG.md`.
 - Confirm the paper link is present in the root README, package metadata, and
   citation file: <https://arxiv.org/abs/2607.16982>.
-- Confirm the API freeze review is current:
+- Confirm the public API review is current:
   `spec/api_freeze_review.md`.
 - Confirm examples do not depend on paper replication data or simulations.
 
