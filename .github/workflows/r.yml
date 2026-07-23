@@ -16,7 +16,17 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           working-directory: r
-          extra-packages: any::testthat, any::jsonlite, any::knitr, any::rmarkdown, any::roxygen2
+          extra-packages: any::testthat, any::jsonlite, any::knitr, any::rmarkdown, any::remotes
+
+      - name: Install roxygen2 version used for generated docs
+        run: |
+          remotes::install_version(
+            "roxygen2",
+            version = "7.3.2",
+            repos = "https://cloud.r-project.org",
+            upgrade = "never"
+          )
+        shell: Rscript {0}
 
       - name: Check generated R documentation
         run: |

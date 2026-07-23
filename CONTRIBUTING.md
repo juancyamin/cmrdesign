@@ -25,7 +25,8 @@ Rscript -e 'roxygen2::roxygenise("r")'
 git status --short r/NAMESPACE r/man
 ```
 
-to regenerate R documentation and confirm it is committed, then
+to regenerate R documentation with the `RoxygenNote` version in
+`r/DESCRIPTION` and confirm it is committed, then
 
 ```bash
 R CMD build --no-build-vignettes r
