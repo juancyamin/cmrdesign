@@ -3,6 +3,21 @@
 This page shows the shortest path from simulated pilot data to a CMR assignment
 and certificate.
 
+## Install From GitHub
+
+R:
+
+```r
+install.packages("remotes")
+remotes::install_github("juancyamin/cmrdesign", subdir = "r")
+```
+
+Python:
+
+```bash
+python -m pip install "cmrdesign @ git+https://github.com/juancyamin/cmrdesign.git#subdirectory=python"
+```
+
 ## R
 
 ```r

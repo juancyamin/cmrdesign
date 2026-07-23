@@ -17,10 +17,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install R dependencies
-        run: |
-          install.packages(c("testthat", "jsonlite"), repos = "https://cloud.r-project.org")
-        shell: Rscript {0}
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: r
+          extra-packages: any::testthat, any::jsonlite
 
       - name: Install R package
         run: R CMD INSTALL r
@@ -34,7 +34,7 @@ jobs:
         run: Rscript spec/scripts/generate_fixtures.R
 
       - name: Check fixture drift
-        run: git diff --exit-code spec/test_fixtures
+        run: python spec/scripts/check_fixture_drift.py
 
       - name: Run Python fixture tests
         run: python -m unittest discover -s python/tests -p "test_cross_fixtures.py" -v

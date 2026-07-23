@@ -5,6 +5,10 @@ pilot-informed experiments in R and Python. The package is focused on applied
 implementation: pass pilot data, get a main-wave allocation and a regret
 certificate.
 
+The package accompanies
+[When and How to Pilot: Design Rules for Two-Wave Experiments](https://arxiv.org/abs/2607.16982)
+by Juan C. Yamin.
+
 Start with:
 
 - [Quickstart](quickstart.md) for the shortest two-arm example.

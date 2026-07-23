@@ -1,11 +1,19 @@
 # cmrdesign
 
+[![Python](https://github.com/juancyamin/cmrdesign/actions/workflows/python.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/python.yml)
+[![R](https://github.com/juancyamin/cmrdesign/actions/workflows/r.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/r.yml)
+[![Fixtures](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml)
+
 `cmrdesign` provides R and Python implementations of Conditional Minimax
 Regret (CMR) design rules for applied researchers.
 
 The repository is intentionally scoped to software implementation only. It will
 not contain paper replication scripts, empirical calibration workflows, raw
 research data, simulation tables, or paper-specific figures.
+
+The methods are developed in
+[When and How to Pilot: Design Rules for Two-Wave Experiments](https://arxiv.org/abs/2607.16982)
+by Juan C. Yamin.
 
 ## Goals
 
@@ -18,6 +26,24 @@ research data, simulation tables, or paper-specific figures.
   break-even screens, and pilot/main-wave sizing diagnostics.
 - Keep R and Python implementations aligned through a shared mathematical and
   API specification plus cross-language fixtures.
+
+## Installation
+
+The package is currently distributed from GitHub while the API is still in the
+pre-release `0.0.0.9000` series.
+
+R:
+
+```r
+install.packages("remotes")
+remotes::install_github("juancyamin/cmrdesign", subdir = "r")
+```
+
+Python:
+
+```bash
+python -m pip install "cmrdesign @ git+https://github.com/juancyamin/cmrdesign.git#subdirectory=python"
+```
 
 ## Current User API
 
@@ -60,11 +86,10 @@ The initial local repository includes:
 
 ## Development Order From Here
 
-1. Fill in public repository metadata, maintainer contact details, and release
-   URLs.
+1. Keep GitHub Actions green for R, Python, and cross-language fixtures.
 2. Expand user-facing docs and vignettes around input conventions and inference
    caveats.
-3. Run GitHub Actions checks for both languages once the repository is pushed.
+3. Add independent validation checks against the paper code, especially for MTR.
 4. Prepare R-universe, PyPI/TestPyPI, and eventually CRAN releases.
 
 ## Repository Layout

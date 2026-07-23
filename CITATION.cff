@@ -9,3 +9,12 @@ license: MIT
 repository-code: "https://github.com/juancyamin/cmrdesign"
 version: "0.0.0.9000"
 date-released: "2026-07-23"
+preferred-citation:
+  type: article
+  title: "When and How to Pilot: Design Rules for Two-Wave Experiments"
+  authors:
+    - family-names: "Yamin"
+      given-names: "Juan C."
+  year: 2026
+  doi: "10.48550/arXiv.2607.16982"
+  url: "https://arxiv.org/abs/2607.16982"
