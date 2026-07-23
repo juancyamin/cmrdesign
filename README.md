@@ -3,6 +3,7 @@
 [![Python](https://github.com/juancyamin/cmrdesign/actions/workflows/python.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/python.yml)
 [![R](https://github.com/juancyamin/cmrdesign/actions/workflows/r.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/r.yml)
 [![Fixtures](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml)
+[![Validation](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml)
 
 `cmrdesign` provides R and Python implementations of Conditional Minimax
 Regret (CMR) design rules for applied researchers.
@@ -80,22 +81,27 @@ The initial local repository includes:
   pilot planning.
 - Shared specs and numeric JSON fixtures used by both R and Python to check
   cross-language parity.
+- Separate validation/provenance checks for formula-based cases, extension
+  identities, Appendix E planning, and archived MTR reference values.
 - Closed-form shortcuts for two-arm, collapsed multi-arm/stratified rectangles,
   and full no-information rectangles, plus numerical solvers for general
   multi-arm and stratified rectangles.
 
 ## Development Order From Here
 
-1. Keep GitHub Actions green for R, Python, and cross-language fixtures.
+1. Keep GitHub Actions green for R, Python, cross-language fixtures, and
+   validation/provenance checks.
 2. Expand user-facing docs and vignettes around input conventions and inference
    caveats.
-3. Add independent validation checks against the paper code, especially for MTR.
+3. Keep expanding independent validation against any newly archived paper-code
+   release, especially for MTR.
 4. Prepare R-universe, PyPI/TestPyPI, and eventually CRAN releases.
 
 ## Repository Layout
 
 ```text
 spec/      Shared math/API specs and cross-language fixtures.
+validation/ Reference/provenance checks separate from parity fixtures.
 r/         R package.
 python/    Python package.
 examples/  Simulated examples in R and Python.

@@ -46,9 +46,10 @@ observations as an ordered sequence. Pass the natural pilot order,
 randomization order, or data-collection order; do not sort observations by
 outcome before calling the function.
 
-The current MTR fixtures verify R/Python parity for this package's
-implementation. They should be supplemented with provenance checks against the
-paper code before a journal or public release milestone.
+The parity fixtures verify that the R and Python implementations agree. The
+separate scripts in `validation/` add provenance checks against archived MTR
+reference values and formula-based extension checks. Keep both layers green
+before a journal, CRAN, or PyPI release milestone.
 
 ## Direct Rectangles
 
