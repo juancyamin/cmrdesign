@@ -15,6 +15,7 @@ pilot-planning workflows.
 Useful links:
 \itemize{
   \item \url{https://github.com/juancyamin/cmrdesign}
+  \item \url{https://arxiv.org/abs/2607.16982}
   \item Report bugs at \url{https://github.com/juancyamin/cmrdesign/issues}
 }
 
