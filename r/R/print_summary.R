@@ -100,20 +100,90 @@
   invisible(x)
 }
 
+#' Print and summarize CMR results
+#'
+#' Compact display methods for CMR result objects. These methods show the
+#' allocation, CMR certificate, method, sample size, and status without dumping
+#' nested confidence-set internals.
+#'
+#' @param x,object A CMR result object or summary object.
+#' @param ... Reserved for future extensions.
+#'
+#' @return
+#' `print()` methods return the original object invisibly. `summary()` methods
+#' return a compact list of class `summary.cmr_result`.
+#'
+#' @examples
+#' set.seed(13)
+#' d <- rep(c(1, 0), each = 20)
+#' y <- c(rbeta(20, 2, 6), rbeta(20, 4, 4))
+#' fit <- cmr_two_arm(y, d)
+#' print(fit)
+#' summary(fit)
+#'
+#' @family CMR rules
+#' @method print cmr_two_arm
+#' @export
 print.cmr_two_arm <- .cmr_print_result
+
+#' @rdname print.cmr_two_arm
+#' @method print cmr_unbounded
+#' @export
 print.cmr_unbounded <- .cmr_print_result
+
+#' @rdname print.cmr_two_arm
+#' @method print cmr_proxy
+#' @export
 print.cmr_proxy <- .cmr_print_result
+
+#' @rdname print.cmr_two_arm
+#' @method print cmr_multiple_outcomes
+#' @export
 print.cmr_multiple_outcomes <- .cmr_print_result
+
+#' @rdname print.cmr_two_arm
+#' @method print cmr_multiarm
+#' @export
 print.cmr_multiarm <- .cmr_print_result
+
+#' @rdname print.cmr_two_arm
+#' @method print cmr_stratified
+#' @export
 print.cmr_stratified <- .cmr_print_result
 
+#' @rdname print.cmr_two_arm
+#' @method summary cmr_two_arm
+#' @export
 summary.cmr_two_arm <- function(object, ...) .cmr_summary_result(object)
+
+#' @rdname print.cmr_two_arm
+#' @method summary cmr_unbounded
+#' @export
 summary.cmr_unbounded <- function(object, ...) .cmr_summary_result(object)
+
+#' @rdname print.cmr_two_arm
+#' @method summary cmr_proxy
+#' @export
 summary.cmr_proxy <- function(object, ...) .cmr_summary_result(object)
+
+#' @rdname print.cmr_two_arm
+#' @method summary cmr_multiple_outcomes
+#' @export
 summary.cmr_multiple_outcomes <- function(object, ...) .cmr_summary_result(object)
+
+#' @rdname print.cmr_two_arm
+#' @method summary cmr_multiarm
+#' @export
 summary.cmr_multiarm <- function(object, ...) .cmr_summary_result(object)
+
+#' @rdname print.cmr_two_arm
+#' @method summary cmr_stratified
+#' @export
 summary.cmr_stratified <- function(object, ...) .cmr_summary_result(object)
 
+#' @rdname print.cmr_two_arm
+#' @method print summary.cmr_result
+#' @export
 print.summary.cmr_result <- function(x, ...) {
   cat("<summary.", x$type, ">\n", sep = "")
   cat("  pi: ", .cmr_format_vector(x$pi), "\n", sep = "")

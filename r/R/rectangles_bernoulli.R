@@ -40,6 +40,25 @@
   list(j = as.integer(j), x = as.integer(x), m = as.integer(m))
 }
 
+#' Folded-binomial distribution for Bernoulli sample variances
+#'
+#' Probability mass and tail probabilities for the folded count that determines
+#' the exact Bernoulli sample variance.
+#'
+#' @param v Bernoulli variance in `[0, 1/4]`.
+#' @param m Arm sample size, at least 2.
+#'
+#' @return
+#' `folded_binomial_pmf()` returns a named probability vector over folded
+#' counts `0, ..., floor(m / 2)`. `folded_binomial_tails()` returns a list with
+#' lower and upper cumulative tail probabilities.
+#'
+#' @examples
+#' folded_binomial_pmf(v = 0.20, m = 8)
+#' folded_binomial_tails(v = 0.20, m = 8)
+#'
+#' @family rectangle helpers
+#' @export
 folded_binomial_pmf <- function(v, m) {
   v <- .cmr_check_variance(v, "v")
   if (length(v) != 1L) {
@@ -58,6 +77,8 @@ folded_binomial_pmf <- function(v, m) {
   pmf
 }
 
+#' @rdname folded_binomial_pmf
+#' @export
 folded_binomial_tails <- function(v, m) {
   pmf <- folded_binomial_pmf(v, m)
   list(
@@ -130,6 +151,28 @@ folded_binomial_tails <- function(v, m) {
   .cmr_clip(lo, 0, 0.25)
 }
 
+#' Exact Bernoulli variance bounds
+#'
+#' Exact one-arm variance confidence bounds for Bernoulli outcomes using the
+#' folded-binomial distribution of the sample variance.
+#'
+#' @param y One-arm Bernoulli outcomes coded as `0` and `1`.
+#' @param beta_l One-sided endpoint error for the lower variance bound.
+#' @param beta_u One-sided endpoint error for the upper variance bound.
+#' @param na.rm If `TRUE`, drop missing outcomes.
+#' @param tol Numerical tolerance for endpoint inversion.
+#'
+#' @return
+#' A list with lower bound `L`, upper bound `U`, folded-binomial variance
+#' estimate `vhat`, method name, sample size `n`, and folded-count details in
+#' `statistic`.
+#'
+#' @examples
+#' y <- c(1, 0, 1, 1, 0, 0, 1, 0)
+#' variance_bounds_bernoulli_exact(y, beta_l = 0.025, beta_u = 0.025)
+#'
+#' @family rectangle helpers
+#' @export
 variance_bounds_bernoulli_exact <- function(y,
                                             beta_l,
                                             beta_u,
@@ -157,6 +200,44 @@ variance_bounds_bernoulli_exact <- function(y,
   )
 }
 
+#' Two-arm confidence rectangles
+#'
+#' Construct a two-arm variance confidence rectangle from pilot data. These are
+#' expert helpers used by `cmr_two_arm()` and related extension functions.
+#'
+#' @param y Pilot outcomes.
+#' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
+#' @param alpha Target joint error level.
+#' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
+#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#' @param beta Optional endpoint error allocation. If `NULL`, error is split
+#'   according to `correction`.
+#' @param correction Endpoint error correction, either `"bonferroni"` or
+#'   `"sidak_arms"` for two-arm workflows.
+#' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
+#'   computing variances.
+#' @param lower,upper Optional lower and upper outcome bounds used when
+#'   `normalize = TRUE`.
+#' @param psi Bounded-kurtosis parameter used only when `method` is an
+#'   unbounded-outcome method.
+#' @param na.rm If `TRUE`, drop rows with missing `y` or `d`.
+#' @param tol Numerical tolerance for exact Bernoulli bound inversion.
+#'
+#' @return
+#' A rectangle object. Bounded and Bernoulli methods return a
+#' `cmr_binary_rectangle`; unbounded methods return a
+#' `cmr_unbounded_rectangle`. The object contains the numeric `rectangle`,
+#' one-arm bound details, endpoint error allocation, pilot sample sizes and
+#' variance estimates, and method metadata.
+#'
+#' @examples
+#' d <- rep(c(1, 0), each = 6)
+#' y <- c(1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1)
+#' rectangle_two_arm(y, d, method = "bernoulli")
+#' rectangle_binary(y, d, method = "auto")
+#'
+#' @family rectangle helpers
+#' @export
 rectangle_bernoulli_binary <- function(y,
                                        d,
                                        alpha = 0.05,
@@ -203,6 +284,8 @@ rectangle_bernoulli_binary <- function(y,
   )
 }
 
+#' @rdname rectangle_bernoulli_binary
+#' @export
 rectangle_binary <- function(y,
                              d,
                              alpha = 0.05,
@@ -278,6 +361,8 @@ rectangle_binary <- function(y,
   )
 }
 
+#' @rdname rectangle_bernoulli_binary
+#' @export
 rectangle_two_arm <- function(y,
                               d,
                               alpha = 0.05,
@@ -294,6 +379,8 @@ rectangle_two_arm <- function(y,
                               psi = NULL,
                               na.rm = TRUE,
                               tol = 1e-11) {
+  method <- match.arg(method)
+  correction <- match.arg(correction)
   rectangle_binary(
     y = y,
     d = d,
@@ -310,6 +397,8 @@ rectangle_two_arm <- function(y,
   )
 }
 
+#' @rdname rectangle_bounded_binary
+#' @export
 rectangle_bounded_two_arm <- function(y,
                                       d,
                                       alpha = 0.05,
@@ -321,6 +410,8 @@ rectangle_bounded_two_arm <- function(y,
                                       lower = NULL,
                                       upper = NULL,
                                       na.rm = TRUE) {
+  method <- match.arg(method)
+  correction <- match.arg(correction)
   rectangle_bounded_binary(
     y = y,
     d = d,
@@ -335,4 +426,6 @@ rectangle_bounded_two_arm <- function(y,
   )
 }
 
+#' @rdname rectangle_bernoulli_binary
+#' @export
 rectangle_bernoulli_two_arm <- rectangle_bernoulli_binary

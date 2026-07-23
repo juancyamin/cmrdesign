@@ -17,3 +17,7 @@
   smooth-max and direct-search refinement, with asymmetric solver fixtures.
 - Documented raw-scale `method = "auto"` dispatch before normalization and MTR
   row-order sensitivity.
+- Added roxygen-generated R help pages with runnable examples and a CI drift
+  check for generated R documentation.
+- Fixed R proxy and two-arm rectangle wrappers so default `method` choices are
+  resolved before forwarding.

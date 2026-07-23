@@ -29,6 +29,26 @@
   sqrt(floor(m_arm^2 / 4) / (m_arm * (m_arm - 1)))
 }
 
+#' Pilot-size activation thresholds
+#'
+#' Compute simple method-specific pilot-size activation thresholds for the
+#' Appendix E-style pilot-planning screen.
+#'
+#' @param alpha Target error level.
+#' @param max_total_pilot Largest total pilot size to search.
+#' @param min_arm_size Minimum pilot observations per arm.
+#'
+#' @return
+#' Total pilot size threshold. `activation_threshold_bounded()` returns `Inf`
+#' if no even pilot size up to `max_total_pilot` clears the bounded-outcome
+#' activation condition. `activation_threshold_bernoulli()` returns `4`.
+#'
+#' @examples
+#' activation_threshold_bounded(alpha = 0.05, max_total_pilot = 200)
+#' activation_threshold_bernoulli(alpha = 0.05)
+#'
+#' @family pilot planning
+#' @export
 activation_threshold_bounded <- function(alpha = 0.05,
                                          max_total_pilot = 10000L,
                                          min_arm_size = 2L) {
@@ -50,11 +70,33 @@ activation_threshold_bounded <- function(alpha = 0.05,
   2L * m_arm[first]
 }
 
+#' @rdname activation_threshold_bounded
+#' @export
 activation_threshold_bernoulli <- function(alpha = 0.05) {
   .cmr_check_alpha(alpha)
   4L
 }
 
+#' Break-even pilot share
+#'
+#' Compute the design-only break-even pilot share implied by treatment and
+#' control standard deviations.
+#'
+#' @param sigma1 Treatment-arm standard deviation, or variance when
+#'   `input = "variance"`.
+#' @param sigma0 Control-arm standard deviation, or variance when
+#'   `input = "variance"`.
+#' @param input Whether `sigma1` and `sigma0` are standard deviations (`"sd"`)
+#'   or variances (`"variance"`).
+#'
+#' @return Numeric break-even share in `[0, 0.5]`.
+#'
+#' @examples
+#' break_even_pilot_share(sigma1 = 0.35, sigma0 = 0.20)
+#' break_even_pilot_share(sigma1 = 0.35^2, sigma0 = 0.20^2, input = "variance")
+#'
+#' @family pilot planning
+#' @export
 break_even_pilot_share <- function(sigma1,
                                    sigma0,
                                    input = c("sd", "variance")) {
@@ -78,6 +120,35 @@ break_even_pilot_share <- function(sigma1,
   seq.int(4L, max_even, by = 2L)
 }
 
+#' Pilot viability band
+#'
+#' Compute a necessary viability screen for pilot sizes before choosing a
+#' pilot/main-wave split.
+#'
+#' @param n Total experimental sample size across pilot and main wave.
+#' @param sigma1 Treatment-arm standard deviation, or variance when
+#'   `input = "variance"`.
+#' @param sigma0 Control-arm standard deviation, or variance when
+#'   `input = "variance"`.
+#' @param alpha Target error level.
+#' @param method Planning method, either `"bounded"` or `"bernoulli"`.
+#' @param input Whether `sigma1` and `sigma0` are standard deviations (`"sd"`)
+#'   or variances (`"variance"`).
+#' @param accounting `"design_only"` applies the break-even pilot-share cap;
+#'   `"pooled"` ignores that cap.
+#' @param strict_upper If `TRUE`, feasible pilot sizes must be strictly below
+#'   the design-only break-even cap.
+#'
+#' @return
+#' A list of class `cmr_pilot_viability_band` with total sample size, standard
+#' deviations, method, break-even share and total, activation threshold,
+#' feasible even pilot sizes, and min/max feasible pilot sizes.
+#'
+#' @examples
+#' pilot_viability_band(n = 1000, sigma1 = 0.35, sigma0 = 0.20)
+#'
+#' @family pilot planning
+#' @export
 pilot_viability_band <- function(n,
                                  sigma1,
                                  sigma0,
@@ -135,6 +206,29 @@ pilot_viability_band <- function(n,
   out
 }
 
+#' Pilot/main-wave planning summary
+#'
+#' Summarize the pilot-size viability band and a default pilot-size suggestion.
+#'
+#' @inheritParams pilot_viability_band
+#' @param desired_pilot Optional user-proposed pilot size to classify.
+#'
+#' @return
+#' A list of class `cmr_pilot_plan` with `band`, `suggested_pilot`,
+#' `default_two_thirds_power`, `desired_pilot`, `desired_status`, a text
+#' recommendation, and a caveat that the screen is necessary rather than
+#' sufficient.
+#'
+#' @examples
+#' cmr_plan(
+#'   n = 1000,
+#'   sigma1 = 0.35,
+#'   sigma0 = 0.20,
+#'   desired_pilot = 100
+#' )
+#'
+#' @family pilot planning
+#' @export
 pilot_plan <- function(n,
                        sigma1,
                        sigma0,
@@ -210,4 +304,6 @@ pilot_plan <- function(n,
   out
 }
 
+#' @rdname pilot_plan
+#' @export
 cmr_plan <- pilot_plan

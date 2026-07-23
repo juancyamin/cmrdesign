@@ -1,5 +1,25 @@
 # Proxy or delayed-primary-outcome Conditional Minimax Regret rule.
 
+#' Proxy or delayed-outcome CMR assignment
+#'
+#' Estimate a proxy-outcome rectangle, widen it using the bridge radius `zeta`,
+#' and return the CMR treatment share for the primary-outcome design.
+#'
+#' @inheritParams rectangle_proxy
+#'
+#' @return
+#' A list of class `cmr_proxy` and `cmr_two_arm` with treatment share `pi`,
+#' CMR certificate `U_CMR`, widened confidence rectangle, pilot summaries,
+#' `zeta`, bridge diagnostics, endpoint error allocation, and method metadata.
+#'
+#' @examples
+#' set.seed(12)
+#' d <- rep(c(1, 0), each = 30)
+#' proxy_y <- c(rbeta(30, 2, 6), rbeta(30, 4, 4))
+#' cmr_proxy(proxy_y, d, zeta = 0.05)
+#'
+#' @family CMR rules
+#' @export
 cmr_proxy <- function(proxy_y,
                       d,
                       zeta,
@@ -14,6 +34,8 @@ cmr_proxy <- function(proxy_y,
                       upper = NULL,
                       na.rm = TRUE,
                       tol = 1e-11) {
+  method <- match.arg(method)
+  correction <- match.arg(correction)
   confidence_set <- rectangle_proxy(
     proxy_y = proxy_y,
     d = d,
@@ -51,4 +73,6 @@ cmr_proxy <- function(proxy_y,
   out
 }
 
+#' @rdname cmr_proxy
+#' @export
 cmr_delayed_outcome <- cmr_proxy

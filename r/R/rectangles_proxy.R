@@ -30,6 +30,43 @@
   )
 }
 
+#' Proxy or delayed-outcome confidence rectangle
+#'
+#' Construct a primary-outcome variance rectangle by estimating a proxy-outcome
+#' rectangle and widening each arm's standard-deviation interval by `zeta`.
+#'
+#' @param proxy_y Pilot proxy or delayed-primary outcomes.
+#' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
+#' @param zeta Nonnegative standard-deviation bridge radius. Provide a scalar
+#'   shared across arms or a treatment/control pair.
+#' @param alpha Target joint error level.
+#' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
+#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#' @param beta Optional endpoint error allocation. If `NULL`, error is split
+#'   according to `correction`.
+#' @param correction Endpoint error correction, either `"bonferroni"` or
+#'   `"sidak_arms"`.
+#' @param normalize If `TRUE`, normalize bounded proxy outcomes to `[0, 1]`
+#'   before computing variances.
+#' @param lower,upper Optional lower and upper outcome bounds used when
+#'   `normalize = TRUE`.
+#' @param na.rm If `TRUE`, drop rows with missing `proxy_y` or `d`.
+#' @param tol Numerical tolerance for exact Bernoulli bound inversion.
+#'
+#' @return
+#' A list of class `cmr_proxy_rectangle` and `cmr_binary_rectangle` with the
+#' widened primary-outcome rectangle, the underlying proxy confidence set,
+#' `zeta`, bridge metadata, endpoint error allocation, pilot summaries, and
+#' method metadata.
+#'
+#' @examples
+#' set.seed(11)
+#' d <- rep(c(1, 0), each = 30)
+#' proxy_y <- c(rbeta(30, 2, 6), rbeta(30, 4, 4))
+#' rectangle_proxy(proxy_y, d, zeta = 0.05)
+#'
+#' @family rectangle helpers
+#' @export
 rectangle_proxy <- function(proxy_y,
                             d,
                             zeta,
@@ -44,6 +81,7 @@ rectangle_proxy <- function(proxy_y,
                             upper = NULL,
                             na.rm = TRUE,
                             tol = 1e-11) {
+  method <- match.arg(method)
   correction <- match.arg(correction)
   zeta <- .cmr_check_zeta_pair(zeta)
   proxy_set <- rectangle_two_arm(
@@ -109,4 +147,6 @@ rectangle_proxy <- function(proxy_y,
   out
 }
 
+#' @rdname rectangle_proxy
+#' @export
 rectangle_delayed_outcome <- rectangle_proxy

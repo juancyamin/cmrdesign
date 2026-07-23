@@ -105,6 +105,35 @@
   weights
 }
 
+#' Multi-arm variance objectives and Neyman allocation
+#'
+#' Helper functions for shared-control multi-arm variance objectives, oracle
+#' values, Neyman allocations, regret, and rectangle vertices.
+#'
+#' @param pi Named assignment-share vector over all arms, including control
+#'   arm `"0"`.
+#' @param variances Named variance vector over all arms, including control arm
+#'   `"0"`.
+#' @param rectangle Multi-arm variance rectangle, either a matrix/data frame
+#'   with `lower` and `upper` columns or a named vector with entries like
+#'   `v_l0`, `v_u0`, `v_l1`, `v_u1`.
+#' @param max_vertices Maximum number of hyperrectangle vertices to enumerate.
+#'
+#' @return
+#' Numeric objective/regret values, named assignment vectors, or a vertex matrix.
+#' `assign_multiarm_neyman()` returns total assignment shares over control and
+#' all treatment arms. `multiarm_rectangle_vertices()` returns one row per
+#' variance-rectangle vertex.
+#'
+#' @examples
+#' variances <- c("0" = 0.05, "1" = 0.10, "2" = 0.04)
+#' pi <- assign_multiarm_neyman(variances)
+#' multiarm_variance_objective(pi, variances)
+#' multiarm_regret(pi, variances)
+#'
+#' @family assignment helpers
+#' @family rectangle helpers
+#' @export
 multiarm_variance_objective <- function(pi, variances) {
   variances <- .cmr_check_multiarm_variances(variances)
   pi <- .cmr_check_simplex(pi, "pi")
@@ -122,12 +151,16 @@ multiarm_variance_objective <- function(pi, variances) {
   .cmr_inverse_share_sums(pi, A)
 }
 
+#' @rdname multiarm_variance_objective
+#' @export
 multiarm_oracle_variance <- function(variances) {
   variances <- .cmr_check_multiarm_variances(variances)
   weights <- .cmr_multiarm_weights(names(variances))
   sum(sqrt(weights * variances))^2
 }
 
+#' @rdname multiarm_variance_objective
+#' @export
 assign_multiarm_neyman <- function(variances) {
   variances <- .cmr_check_multiarm_variances(variances)
   weights <- .cmr_multiarm_weights(names(variances))
@@ -141,10 +174,14 @@ assign_multiarm_neyman <- function(variances) {
   out
 }
 
+#' @rdname multiarm_variance_objective
+#' @export
 multiarm_regret <- function(pi, variances) {
   multiarm_variance_objective(pi, variances) - multiarm_oracle_variance(variances)
 }
 
+#' @rdname multiarm_variance_objective
+#' @export
 multiarm_rectangle_vertices <- function(rectangle, max_vertices = 65536L) {
   rectangle <- .cmr_check_multiarm_rectangle(rectangle)
   lower <- rectangle[, "lower"]
@@ -154,6 +191,35 @@ multiarm_rectangle_vertices <- function(rectangle, max_vertices = 65536L) {
   .cmr_hyperrectangle_vertices(lower, upper, max_vertices = max_vertices)
 }
 
+#' Multi-arm CMR from a variance rectangle
+#'
+#' Compute a shared-control multi-arm CMR allocation from a supplied variance
+#' rectangle.
+#'
+#' @param rectangle Multi-arm variance rectangle, either a matrix/data frame
+#'   with `lower` and `upper` columns or a named vector with entries like
+#'   `v_l0`, `v_u0`, `v_l1`, `v_u1`.
+#' @param control Optional list of solver controls for the general vertex
+#'   epigraph solver.
+#' @param max_vertices Maximum number of hyperrectangle vertices to enumerate.
+#'
+#' @return
+#' A list of class `cmr_multiarm` with named assignment shares `pi`, regret
+#' certificate `U_CMR`, checked rectangle, enumerated vertices, vertex regrets,
+#' binding vertices, and solver diagnostics. For collapsed or full rectangles,
+#' closed-form shortcuts are used.
+#'
+#' @examples
+#' rect <- c(
+#'   v_l0 = 0.02, v_u0 = 0.08,
+#'   v_l1 = 0.04, v_u1 = 0.12,
+#'   v_l2 = 0.01, v_u2 = 0.07
+#' )
+#' cmr_multiarm_from_rectangle(rect)
+#'
+#' @family CMR rules
+#' @family rectangle helpers
+#' @export
 cmr_multiarm_from_rectangle <- function(rectangle,
                                         control = list(),
                                         max_vertices = 65536L) {
@@ -232,6 +298,43 @@ cmr_multiarm_from_rectangle <- function(rectangle,
   out
 }
 
+#' Shared-control multi-arm CMR assignment
+#'
+#' Estimate arm-specific variance confidence intervals from pilot data and
+#' return the shared-control multi-arm CMR assignment.
+#'
+#' @param y Pilot outcomes.
+#' @param arm Pilot arm labels. The control arm is identified by `control_arm`
+#'   and internally standardized to `"0"`.
+#' @param alpha Target joint error level.
+#' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
+#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#' @param beta Optional endpoint error allocation. If `NULL`, Bonferroni error
+#'   is split across all lower and upper arm endpoints.
+#' @param control_arm Label identifying the control arm in `arm`.
+#' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
+#'   computing variances.
+#' @param lower,upper Optional lower and upper outcome bounds used when
+#'   `normalize = TRUE`.
+#' @param na.rm If `TRUE`, drop rows with missing `y` or `arm`.
+#' @param tol Numerical tolerance for exact Bernoulli bound inversion.
+#' @param solver_control Optional list of solver controls for the general
+#'   vertex epigraph solver.
+#' @param max_vertices Maximum number of hyperrectangle vertices to enumerate.
+#'
+#' @return
+#' A list of class `cmr_multiarm` with named assignment shares `pi` over all
+#' arms, CMR certificate `U_CMR`, confidence set, pilot summaries, endpoint
+#' error allocation, and diagnostics.
+#'
+#' @examples
+#' set.seed(5)
+#' arm <- rep(c(0, 1, 2), each = 20)
+#' y <- c(rbeta(20, 4, 4), rbeta(20, 2, 6), rbeta(20, 5, 3))
+#' cmr_multiarm(y, arm, method = "bounded")
+#'
+#' @family CMR rules
+#' @export
 cmr_multiarm <- function(y,
                          arm,
                          alpha = 0.05,

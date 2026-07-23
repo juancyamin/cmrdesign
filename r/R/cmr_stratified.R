@@ -149,6 +149,38 @@
   )
 }
 
+#' Stratified variance objectives and Neyman allocation
+#'
+#' Helper functions for stratified two-arm variance objectives, oracle values,
+#' Neyman allocations, regret, and rectangle vertices.
+#'
+#' @param pi Assignment shares for each treatment/control by stratum cell. A
+#'   vector should be named like `"1:A"` and `"0:A"`, or a `2 x S` matrix with
+#'   treatment and control rows.
+#' @param variances Cell variances as a `2 x S` matrix or data frame with
+#'   treatment and control rows.
+#' @param strata_share Named stratum population shares that sum to one.
+#' @param rectangle Stratified variance rectangle, a list with `lower` and
+#'   `upper` `2 x S` matrices.
+#' @param max_vertices Maximum number of hyperrectangle vertices to enumerate.
+#'
+#' @return
+#' Numeric objective/regret values, named assignment vectors, or a vertex matrix.
+#' `assign_stratified_neyman()` returns total assignment shares over
+#' treatment/control by stratum cells.
+#'
+#' @examples
+#' strata_share <- c(A = 0.4, B = 0.6)
+#' variances <- rbind(
+#'   treatment = c(A = 0.10, B = 0.04),
+#'   control = c(A = 0.05, B = 0.08)
+#' )
+#' pi <- assign_stratified_neyman(variances, strata_share)
+#' stratified_variance_objective(pi, variances, strata_share)
+#'
+#' @family assignment helpers
+#' @family rectangle helpers
+#' @export
 stratified_variance_objective <- function(pi, variances, strata_share) {
   checked <- .cmr_check_stratified_variances(variances, strata_share)
   pi <- .cmr_check_stratified_pi(pi, checked$strata_share)
@@ -156,11 +188,15 @@ stratified_variance_objective <- function(pi, variances, strata_share) {
   .cmr_inverse_share_sums(pi, A)
 }
 
+#' @rdname stratified_variance_objective
+#' @export
 stratified_oracle_variance <- function(variances, strata_share) {
   checked <- .cmr_check_stratified_variances(variances, strata_share)
   sum(sqrt(checked$weights * checked$vector))^2
 }
 
+#' @rdname stratified_variance_objective
+#' @export
 assign_stratified_neyman <- function(variances, strata_share) {
   checked <- .cmr_check_stratified_variances(variances, strata_share)
   scores <- sqrt(checked$weights * checked$vector)
@@ -173,11 +209,15 @@ assign_stratified_neyman <- function(variances, strata_share) {
   out
 }
 
+#' @rdname stratified_variance_objective
+#' @export
 stratified_regret <- function(pi, variances, strata_share) {
   stratified_variance_objective(pi, variances, strata_share) -
     stratified_oracle_variance(variances, strata_share)
 }
 
+#' @rdname stratified_variance_objective
+#' @export
 stratified_rectangle_vertices <- function(rectangle,
                                           strata_share,
                                           max_vertices = 65536L) {
@@ -189,6 +229,36 @@ stratified_rectangle_vertices <- function(rectangle,
   )
 }
 
+#' Stratified CMR from a variance rectangle
+#'
+#' Compute a stratified CMR allocation from a supplied cell-level variance
+#' rectangle.
+#'
+#' @param rectangle Stratified variance rectangle, a list with `lower` and
+#'   `upper` `2 x S` matrices.
+#' @param strata_share Named stratum population shares that sum to one.
+#' @param control Optional list of solver controls for the general vertex
+#'   epigraph solver.
+#' @param max_vertices Maximum number of hyperrectangle vertices to enumerate.
+#'
+#' @return
+#' A list of class `cmr_stratified` with assignment shares `pi`, `pi_matrix`,
+#' stratum sampling margins, within-stratum treatment margins, CMR certificate
+#' `U_CMR`, checked rectangle, vertex diagnostics, and solver diagnostics.
+#'
+#' @examples
+#' strata_share <- c(A = 0.4, B = 0.6)
+#' rect <- list(
+#'   lower = rbind(treatment = c(A = 0.01, B = 0.04),
+#'                 control = c(A = 0.02, B = 0.03)),
+#'   upper = rbind(treatment = c(A = 0.08, B = 0.12),
+#'                 control = c(A = 0.09, B = 0.10))
+#' )
+#' cmr_stratified_from_rectangle(rect, strata_share)
+#'
+#' @family CMR rules
+#' @family rectangle helpers
+#' @export
 cmr_stratified_from_rectangle <- function(rectangle,
                                           strata_share,
                                           control = list(),
@@ -280,6 +350,47 @@ cmr_stratified_from_rectangle <- function(rectangle,
   out
 }
 
+#' Stratified CMR assignment
+#'
+#' Estimate cell-specific variance confidence intervals from pilot data and
+#' return the stratified CMR assignment across treatment/control by stratum
+#' cells.
+#'
+#' @param y Pilot outcomes.
+#' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
+#' @param strata Pilot stratum labels.
+#' @param strata_share Named stratum population shares that sum to one.
+#' @param alpha Target joint error level.
+#' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
+#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#' @param beta Optional endpoint error allocation. If `NULL`, Bonferroni error
+#'   is split across all lower and upper treatment/control by stratum endpoints.
+#' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
+#'   computing variances.
+#' @param lower,upper Optional lower and upper outcome bounds used when
+#'   `normalize = TRUE`.
+#' @param na.rm If `TRUE`, drop rows with missing `y`, `d`, or `strata`.
+#' @param tol Numerical tolerance for exact Bernoulli bound inversion.
+#' @param solver_control Optional list of solver controls for the general
+#'   vertex epigraph solver.
+#' @param max_vertices Maximum number of hyperrectangle vertices to enumerate.
+#'
+#' @return
+#' A list of class `cmr_stratified` with total cell assignment shares `pi`,
+#' matrix form `pi_matrix`, sampling and treatment margins, CMR certificate
+#' `U_CMR`, confidence set, pilot summaries, endpoint error allocation, and
+#' diagnostics.
+#'
+#' @examples
+#' set.seed(7)
+#' strata <- rep(c("A", "B"), each = 40)
+#' d <- rep(rep(c(1, 0), each = 20), 2)
+#' y <- c(rbeta(20, 2, 6), rbeta(20, 4, 4),
+#'        rbeta(20, 5, 3), rbeta(20, 3, 5))
+#' cmr_stratified(y, d, strata, strata_share = c(A = 0.45, B = 0.55))
+#'
+#' @family CMR rules
+#' @export
 cmr_stratified <- function(y,
                            d,
                            strata,

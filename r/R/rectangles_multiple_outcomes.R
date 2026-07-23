@@ -86,6 +86,44 @@
   beta
 }
 
+#' Multiple-outcome confidence rectangle
+#'
+#' Construct an effective two-arm variance rectangle for multiple outcomes.
+#' For `estimand = "index"`, outcomes are first combined using `weights`. For
+#' `estimand = "coprimary"`, one rectangle is built per outcome and combined
+#' conservatively using the outcome weights.
+#'
+#' @param y Pilot outcomes as a numeric matrix, data frame, or vector. Rows are
+#'   units and columns are outcomes.
+#' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
+#' @param weights Optional nonnegative outcome weights. If `NULL`, equal
+#'   weights are used.
+#' @param estimand Either `"coprimary"` or `"index"`.
+#' @param alpha Target joint error level.
+#' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
+#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#' @param beta Optional scalar endpoint error allocation.
+#' @param na.rm If `TRUE`, drop rows with missing `y` or `d`.
+#' @param tol Numerical tolerance for exact Bernoulli bound inversion.
+#'
+#' @return
+#' A list of class `cmr_multiple_outcomes_rectangle`. For `estimand = "index"`,
+#' this wraps the ordinary two-arm rectangle for the weighted index. For
+#' `estimand = "coprimary"`, it contains the effective two-arm `rectangle`,
+#' weights, outcome-specific bounds, pilot summaries, endpoint error allocation,
+#' and method metadata.
+#'
+#' @examples
+#' set.seed(9)
+#' d <- rep(c(1, 0), each = 20)
+#' y <- cbind(
+#'   y1 = c(rbeta(20, 2, 6), rbeta(20, 4, 4)),
+#'   y2 = c(rbeta(20, 5, 3), rbeta(20, 3, 5))
+#' )
+#' rectangle_multiple_outcomes(y, d, weights = c(0.6, 0.4))
+#'
+#' @family rectangle helpers
+#' @export
 rectangle_multiple_outcomes <- function(y,
                                         d,
                                         weights = NULL,

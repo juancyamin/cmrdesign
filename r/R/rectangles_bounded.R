@@ -36,6 +36,30 @@
   out
 }
 
+#' Bounded-outcome variance bounds
+#'
+#' One-arm distribution-free variance confidence bounds for outcomes in
+#' `[0, 1]`.
+#'
+#' @param y Pilot outcomes for one arm.
+#' @param beta_l One-sided endpoint error for the lower variance bound.
+#' @param beta_u One-sided endpoint error for the upper variance bound.
+#' @param na.rm If `TRUE`, drop missing outcomes.
+#' @param lower_alpha_split MTR split of the lower-tail error between variance
+#'   and mean components.
+#' @param c1,c2,c3,c4,c5 Martinez-Taboada-Ramdas tuning constants.
+#' @param cs,tilde_cs Logical flags for the MTR predictable-mixture variants.
+#'
+#' @return
+#' A list with lower bound `L`, upper bound `U`, sample variance `vhat`,
+#' method name, arm sample size `n`, and method-specific `statistic` details.
+#'
+#' @examples
+#' y <- c(0.10, 0.30, 0.40, 0.20, 0.70, 0.50)
+#' variance_bounds_maurer_pontil(y, beta_l = 0.025, beta_u = 0.025)
+#'
+#' @family rectangle helpers
+#' @export
 variance_bounds_maurer_pontil <- function(y,
                                           beta_l,
                                           beta_u,
@@ -301,6 +325,8 @@ variance_bounds_maurer_pontil <- function(y,
   )
 }
 
+#' @rdname variance_bounds_maurer_pontil
+#' @export
 variance_bounds_martinez_taboada_ramdas <- function(y,
                                                     beta_l,
                                                     beta_u,
@@ -432,6 +458,39 @@ variance_bounds_martinez_taboada_ramdas <- function(y,
   )
 }
 
+#' Bounded two-arm confidence rectangle
+#'
+#' Construct a two-arm variance confidence rectangle for bounded outcomes using
+#' Maurer-Pontil or Martinez-Taboada-Ramdas one-arm bounds.
+#'
+#' @param y Pilot outcomes.
+#' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
+#' @param alpha Target joint error level.
+#' @param method Bounded-outcome method. `"bounded"`, `"maurer_pontil"`, and
+#'   `"mp"` are synonyms; `"martinez_taboada_ramdas"` and `"mtr"` use MTR
+#'   bounds.
+#' @param beta Optional endpoint error allocation. If `NULL`, error is split
+#'   according to `correction`.
+#' @param correction Endpoint error correction, either `"bonferroni"` or
+#'   `"sidak_arms"`.
+#' @param normalize If `TRUE`, normalize outcomes to `[0, 1]` before computing
+#'   variances.
+#' @param lower,upper Optional lower and upper outcome bounds used when
+#'   `normalize = TRUE`.
+#' @param na.rm If `TRUE`, drop rows with missing `y` or `d`.
+#'
+#' @return
+#' A `cmr_binary_rectangle` list with `rectangle`, one-arm bound objects for
+#' treatment and control, endpoint error allocation, sample sizes, pilot
+#' variance estimates, normalization details, and method metadata.
+#'
+#' @examples
+#' d <- rep(c(1, 0), each = 5)
+#' y <- c(0.20, 0.40, 0.30, 0.10, 0.60, 0.50, 0.30, 0.20, 0.40, 0.10)
+#' rectangle_bounded_binary(y, d, method = "bounded")
+#'
+#' @family rectangle helpers
+#' @export
 rectangle_bounded_binary <- function(y,
                                      d,
                                      alpha = 0.05,

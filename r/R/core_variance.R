@@ -1,5 +1,34 @@
 # Core variance, oracle, Neyman, and regret functions.
 
+#' Two-arm variance objectives and Neyman allocation
+#'
+#' Helper functions for the two-arm variance objective, oracle variance,
+#' Neyman allocation, and regret. These are useful for checking CMR certificates
+#' and comparing CMR against oracle or feasible-Neyman benchmarks.
+#'
+#' @param pi Treatment assignment share. Values must lie in `[0, 1]`.
+#' @param v1 Treatment-arm outcome variance. For bounded or Bernoulli outcomes,
+#'   this must lie in `[0, 1/4]`.
+#' @param v0 Control-arm outcome variance. For bounded or Bernoulli outcomes,
+#'   this must lie in `[0, 1/4]`.
+#'
+#' @return
+#' Numeric vector after ordinary R recycling of `pi`, `v1`, and `v0`.
+#' `variance_objective()` returns `v1 / pi + v0 / (1 - pi)`,
+#' `oracle_variance()` returns the Neyman-oracle value
+#' `(sqrt(v1) + sqrt(v0))^2`, `assign_neyman()` returns the treatment share,
+#' and `regret()` returns excess variance relative to the oracle.
+#'
+#' @examples
+#' v1 <- 0.12
+#' v0 <- 0.04
+#' pi <- assign_neyman(v1, v0)
+#' variance_objective(pi, v1, v0)
+#' oracle_variance(v1, v0)
+#' regret(0.5, v1, v0)
+#'
+#' @family assignment helpers
+#' @export
 variance_objective <- function(pi, v1, v0) {
   pi <- .cmr_check_probability(pi, "pi", allow_boundary = TRUE)
   v1 <- .cmr_check_variance(v1, "v1")
@@ -24,6 +53,8 @@ variance_objective <- function(pi, v1, v0) {
   out
 }
 
+#' @rdname variance_objective
+#' @export
 oracle_variance <- function(v1, v0) {
   v1 <- .cmr_check_variance(v1, "v1")
   v0 <- .cmr_check_variance(v0, "v0")
@@ -31,6 +62,8 @@ oracle_variance <- function(v1, v0) {
   (sqrt(args$v1) + sqrt(args$v0))^2
 }
 
+#' @rdname variance_objective
+#' @export
 assign_neyman <- function(v1, v0) {
   v1 <- .cmr_check_variance(v1, "v1")
   v0 <- .cmr_check_variance(v0, "v0")
@@ -41,6 +74,8 @@ assign_neyman <- function(v1, v0) {
   ifelse(denom > 0, s1 / denom, 0.5)
 }
 
+#' @rdname variance_objective
+#' @export
 regret <- function(pi, v1, v0) {
   pi <- .cmr_check_probability(pi, "pi", allow_boundary = TRUE)
   v1 <- .cmr_check_variance(v1, "v1")

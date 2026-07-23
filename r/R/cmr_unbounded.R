@@ -140,6 +140,30 @@
   )
 }
 
+#' Unbounded-outcome median-of-means variance bounds
+#'
+#' Compute one-arm median-of-means variance bounds for raw numeric outcomes
+#' under a bounded-kurtosis input `psi`.
+#'
+#' @param y One-arm pilot outcomes.
+#' @param alpha Target one-arm error level.
+#' @param psi Bounded-kurtosis parameter. Must be at least 1.
+#' @param na.rm If `TRUE`, drop missing outcomes.
+#'
+#' @return
+#' A list with lower bound `L`, upper bound `U`, median-of-means variance
+#' estimate `vhat`, method name, sample size `n`, activation flag `active`,
+#' status string, and block-level statistic details. If the pilot is too small
+#' or the relative-error radius is too large, `active = FALSE`, `L = NA`, and
+#' `U = Inf`.
+#'
+#' @examples
+#' set.seed(2)
+#' y <- rnorm(200)
+#' variance_bounds_unbounded_mom(y, alpha = 0.05, psi = 3)
+#'
+#' @family rectangle helpers
+#' @export
 variance_bounds_unbounded_mom <- function(y,
                                           alpha = 0.05,
                                           psi = NULL,
@@ -283,6 +307,26 @@ variance_bounds_unbounded_mom <- function(y,
   out
 }
 
+#' Unbounded-outcome CMR from a variance rectangle
+#'
+#' Compute the closed-form two-arm CMR allocation for a supplied nonnegative
+#' variance rectangle for unbounded outcomes.
+#'
+#' @param rectangle Two-arm nonnegative variance rectangle with names `v_l1`,
+#'   `v_u1`, `v_l0`, and `v_u0`.
+#'
+#' @return
+#' A list of class `cmr_unbounded` and `cmr_two_arm` with treatment share `pi`,
+#' CMR certificate `U_CMR`, rectangle, corner regrets, binding diagnostics, and
+#' method metadata.
+#'
+#' @examples
+#' rect <- c(v_l1 = 0.5, v_u1 = 1.4, v_l0 = 0.2, v_u0 = 1.0)
+#' cmr_unbounded_from_rectangle(rect)
+#'
+#' @family CMR rules
+#' @family rectangle helpers
+#' @export
 cmr_unbounded_from_rectangle <- function(rectangle) {
   rectangle <- .cmr_check_unbounded_rectangle(rectangle)
 
@@ -347,6 +391,32 @@ cmr_unbounded_from_rectangle <- function(rectangle) {
   out
 }
 
+#' Unbounded-outcome confidence rectangle
+#'
+#' Construct a two-arm median-of-means variance rectangle for raw numeric
+#' outcomes under bounded-kurtosis inputs.
+#'
+#' @param y Pilot outcomes.
+#' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
+#' @param psi Bounded-kurtosis parameter, either a scalar shared across arms or
+#'   a treatment/control pair.
+#' @param alpha Target joint error level.
+#' @param na.rm If `TRUE`, drop rows with missing `y` or `d`.
+#'
+#' @return
+#' A list of class `cmr_unbounded_rectangle` with `rectangle` when active,
+#' one-arm treatment and control bound objects, pilot summaries, block
+#' diagnostics, `psi`, and `status`. If either arm is inactive, `rectangle` is
+#' `NULL` and `status` explains why.
+#'
+#' @examples
+#' set.seed(3)
+#' d <- rep(c(1, 0), each = 220)
+#' y <- c(rnorm(220, sd = 1.3), rnorm(220, sd = 0.8))
+#' rectangle_unbounded(y, d, psi = 3)
+#'
+#' @family rectangle helpers
+#' @export
 rectangle_unbounded <- function(y,
                                 d,
                                 psi = NULL,
@@ -414,6 +484,27 @@ rectangle_unbounded <- function(y,
   out
 }
 
+#' Unbounded-outcome CMR assignment
+#'
+#' Estimate a median-of-means variance rectangle from raw pilot outcomes and
+#' return the unbounded-outcome CMR assignment.
+#'
+#' @inheritParams rectangle_unbounded
+#'
+#' @return
+#' A list of class `cmr_unbounded` and `cmr_two_arm`. If both one-arm bounds are
+#' active, the object contains `pi`, finite `U_CMR`, rectangle, pilot summaries,
+#' and diagnostics. If the pilot is inactive, the function returns balance
+#' (`pi = 0.5`) with `U_CMR = Inf` and diagnostics explaining the fallback.
+#'
+#' @examples
+#' set.seed(4)
+#' d <- rep(c(1, 0), each = 220)
+#' y <- c(rnorm(220, sd = 1.3), rnorm(220, sd = 0.8))
+#' cmr_unbounded(y, d, psi = 3)
+#'
+#' @family CMR rules
+#' @export
 cmr_unbounded <- function(y,
                           d,
                           psi = NULL,

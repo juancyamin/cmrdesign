@@ -20,3 +20,11 @@ testthat::test_that("large proxy bridge returns the full primary variance space"
   testthat::expect_equal(fit$U_CMR, 0.25)
 })
 
+testthat::test_that("proxy wrappers resolve default method before forwarding", {
+  y <- c(0.1, 0.4, 0.2, 0.7, 0.3, 0.5, 0.2, 0.4)
+  d <- c(1, 1, 1, 1, 0, 0, 0, 0)
+
+  testthat::expect_s3_class(rectangle_proxy(y, d, zeta = 0.02), "cmr_proxy_rectangle")
+  testthat::expect_s3_class(cmr_proxy(y, d, zeta = 0.02), "cmr_proxy")
+  testthat::expect_s3_class(rectangle_two_arm(y, d), "cmr_binary_rectangle")
+})

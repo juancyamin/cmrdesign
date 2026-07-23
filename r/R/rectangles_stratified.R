@@ -148,6 +148,43 @@
   out
 }
 
+#' Stratified confidence rectangle
+#'
+#' Construct cell-specific variance confidence intervals for a stratified
+#' two-arm design.
+#'
+#' @param y Pilot outcomes.
+#' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
+#' @param strata Pilot stratum labels.
+#' @param strata_share Named stratum population shares that sum to one.
+#' @param alpha Target joint error level.
+#' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
+#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#' @param beta Optional endpoint error allocation. If `NULL`, Bonferroni error
+#'   is split across all lower and upper treatment/control by stratum endpoints.
+#' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
+#'   computing variances.
+#' @param lower,upper Optional lower and upper outcome bounds used when
+#'   `normalize = TRUE`.
+#' @param na.rm If `TRUE`, drop rows with missing `y`, `d`, or `strata`.
+#' @param tol Numerical tolerance for exact Bernoulli bound inversion.
+#'
+#' @return
+#' A list of class `cmr_stratified_rectangle` with lower and upper rectangle
+#' matrices, checked rectangle details, stratum shares, cell-level one-arm
+#' bound results, endpoint error allocation, sample sizes, pilot variance
+#' estimates, normalization details, and method metadata.
+#'
+#' @examples
+#' set.seed(8)
+#' strata <- rep(c("A", "B"), each = 24)
+#' d <- rep(rep(c(1, 0), each = 12), 2)
+#' y <- c(rbeta(12, 2, 6), rbeta(12, 4, 4),
+#'        rbeta(12, 5, 3), rbeta(12, 3, 5))
+#' rectangle_stratified(y, d, strata, strata_share = c(A = 0.45, B = 0.55))
+#'
+#' @family rectangle helpers
+#' @export
 rectangle_stratified <- function(y,
                                  d,
                                  strata,

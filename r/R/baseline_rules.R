@@ -3,11 +3,48 @@
 # Benchmarks are intentionally standalone functions, not outputs of CMR
 # functions. Simulation scripts should call these functions explicitly.
 
+#' Baseline and comparator assignment rules
+#'
+#' Standalone benchmark assignment rules for comparing CMR against balance,
+#' feasible Neyman, and simple regularized Neyman variants.
+#'
+#' @param n Number of assignment shares to return for `assign_balance()`.
+#' @param arms Either the number of treatment arms, excluding control, or a
+#'   vector of arm labels that includes control arm `"0"`.
+#' @param strata_share Named stratum population shares that sum to one.
+#' @param vhat1 Estimated treatment-arm variance or vector of estimates.
+#' @param vhat0 Estimated control-arm variance or vector of estimates.
+#' @param trim Lower and upper trimming amount for `assign_trimmed_neyman()`.
+#'   The returned share is clipped to `[trim, 1 - trim]`.
+#' @param nu Nonnegative additive regularization strength.
+#' @param tau Nonnegative exponent for exponential regularization.
+#' @param zero_guard How zero variance estimates are guarded in
+#'   `assign_exponential_regularized_neyman()`: `"any"` returns balance if
+#'   either arm variance is zero, `"both"` only if both are zero, and `"none"`
+#'   applies no extra guard.
+#'
+#' @return
+#' Numeric assignment shares. Two-arm functions return treatment shares.
+#' `assign_multiarm_balance()` returns a named vector over all arms, including
+#' control `"0"`. `assign_stratified_balance()` returns total assignment shares
+#' for treatment and control cells named like `"1:A"` and `"0:A"`.
+#'
+#' @examples
+#' assign_balance(3)
+#' assign_feasible_neyman(0.12, 0.04)
+#' assign_trimmed_neyman(0.12, 0.04, trim = 0.10)
+#' assign_multiarm_balance(2)
+#' assign_stratified_balance(c(A = 0.4, B = 0.6))
+#'
+#' @family assignment helpers
+#' @export
 assign_balance <- function(n = 1L) {
   n <- .cmr_check_scalar_integer(n, "n", lower = 1L)
   rep(0.5, n)
 }
 
+#' @rdname assign_balance
+#' @export
 assign_multiarm_balance <- function(arms) {
   if (length(arms) == 1L && is.numeric(arms)) {
     k <- .cmr_check_scalar_integer(arms, "arms", lower = 1L)
@@ -40,6 +77,8 @@ assign_multiarm_balance <- function(arms) {
   out
 }
 
+#' @rdname assign_balance
+#' @export
 assign_stratified_balance <- function(strata_share) {
   strata_share <- .cmr_check_strata_share(strata_share)
   out <- rep(strata_share / 2, each = 2L)
@@ -50,6 +89,8 @@ assign_stratified_balance <- function(strata_share) {
   out
 }
 
+#' @rdname assign_balance
+#' @export
 assign_feasible_neyman <- function(vhat1, vhat0) {
   assign_neyman(vhat1, vhat0)
 }
@@ -66,12 +107,16 @@ assign_cairafi_feasible_neyman <- function(vhat1, vhat0) {
   out
 }
 
+#' @rdname assign_balance
+#' @export
 assign_trimmed_neyman <- function(vhat1, vhat0, trim = 0.10) {
   trim <- .cmr_check_trim(trim)
   pi <- assign_feasible_neyman(vhat1, vhat0)
   .cmr_clip(pi, trim, 1 - trim)
 }
 
+#' @rdname assign_balance
+#' @export
 assign_additive_regularized_neyman <- function(vhat1, vhat0, nu) {
   vhat1 <- .cmr_check_variance(vhat1, "vhat1")
   vhat0 <- .cmr_check_variance(vhat0, "vhat0")
@@ -101,6 +146,8 @@ assign_cairafi_additive_neyman <- function(vhat1, vhat0, nu) {
   out
 }
 
+#' @rdname assign_balance
+#' @export
 assign_exponential_regularized_neyman <- function(vhat1,
                                                   vhat0,
                                                   tau,

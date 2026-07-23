@@ -16,7 +16,21 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           working-directory: r
-          extra-packages: any::testthat, any::jsonlite, any::knitr, any::rmarkdown
+          extra-packages: any::testthat, any::jsonlite, any::knitr, any::rmarkdown, any::roxygen2
+
+      - name: Check generated R documentation
+        run: |
+          roxygen2::roxygenise("r")
+          status <- system2(
+            "git",
+            c("status", "--porcelain", "r/NAMESPACE", "r/man"),
+            stdout = TRUE
+          )
+          if (length(status) > 0L) {
+            cat(status, sep = "\n")
+            quit(status = 1L)
+          }
+        shell: Rscript {0}
 
       - name: Install package for vignette chunks
         run: R CMD INSTALL r

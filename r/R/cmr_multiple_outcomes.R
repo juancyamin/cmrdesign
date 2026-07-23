@@ -1,5 +1,29 @@
 # Multiple-outcome Conditional Minimax Regret rules.
 
+#' Multiple-outcome CMR assignment
+#'
+#' Estimate an effective two-arm variance rectangle for multiple outcomes and
+#' return the CMR treatment share.
+#'
+#' @inheritParams rectangle_multiple_outcomes
+#'
+#' @return
+#' A list of class `cmr_multiple_outcomes` and `cmr_two_arm` with treatment
+#' share `pi`, CMR certificate `U_CMR`, effective confidence rectangle, pilot
+#' summaries, outcome weights, estimand metadata, endpoint error allocation, and
+#' diagnostics.
+#'
+#' @examples
+#' set.seed(10)
+#' d <- rep(c(1, 0), each = 20)
+#' y <- cbind(
+#'   y1 = c(rbeta(20, 2, 6), rbeta(20, 4, 4)),
+#'   y2 = c(rbeta(20, 5, 3), rbeta(20, 3, 5))
+#' )
+#' cmr_multiple_outcomes(y, d, weights = c(0.6, 0.4))
+#'
+#' @family CMR rules
+#' @export
 cmr_multiple_outcomes <- function(y,
                                   d,
                                   weights = NULL,

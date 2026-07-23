@@ -193,6 +193,41 @@
   out
 }
 
+#' Multi-arm confidence rectangle
+#'
+#' Construct arm-specific variance confidence intervals for a shared-control
+#' multi-arm design.
+#'
+#' @param y Pilot outcomes.
+#' @param arm Pilot arm labels. The control arm is identified by `control_arm`
+#'   and internally standardized to `"0"`.
+#' @param alpha Target joint error level.
+#' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
+#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#' @param beta Optional endpoint error allocation. If `NULL`, Bonferroni error
+#'   is split across all lower and upper arm endpoints. A scalar, matrix, or
+#'   named vector allocation may also be supplied.
+#' @param control_arm Label identifying the control arm in `arm`.
+#' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
+#'   computing variances.
+#' @param lower,upper Optional lower and upper outcome bounds used when
+#'   `normalize = TRUE`.
+#' @param na.rm If `TRUE`, drop rows with missing `y` or `arm`.
+#' @param tol Numerical tolerance for exact Bernoulli bound inversion.
+#'
+#' @return
+#' A list of class `cmr_multiarm_rectangle` with checked rectangle, arm labels,
+#' one-arm bound results, endpoint error allocation, sample sizes, pilot
+#' variance estimates, normalization details, and method metadata.
+#'
+#' @examples
+#' set.seed(6)
+#' arm <- rep(c(0, 1, 2), each = 12)
+#' y <- c(rbeta(12, 4, 4), rbeta(12, 2, 6), rbeta(12, 5, 3))
+#' rectangle_multiarm(y, arm, method = "bounded")
+#'
+#' @family rectangle helpers
+#' @export
 rectangle_multiarm <- function(y,
                                arm,
                                alpha = 0.05,

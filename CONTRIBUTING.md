@@ -21,6 +21,13 @@ python -m unittest discover -s python/tests -v
 from the repository root, and
 
 ```bash
+Rscript -e 'roxygen2::roxygenise("r")'
+git status --short r/NAMESPACE r/man
+```
+
+to regenerate R documentation and confirm it is committed, then
+
+```bash
 R CMD build --no-build-vignettes r
 R CMD check --no-manual --ignore-vignettes cmrdesign_*.tar.gz
 ```
