@@ -5,6 +5,4 @@
 #' stratified, multiple-outcome, proxy/delayed-outcome, unbounded-outcome, and
 #' pilot-planning workflows.
 #'
-#' @docType package
-#' @name cmrdesign-package
 "_PACKAGE"

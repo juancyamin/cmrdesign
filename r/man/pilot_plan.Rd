@@ -64,10 +64,10 @@ Summarize the pilot-size viability band and a default pilot-size suggestion.
 }
 \examples{
 cmr_plan(
-  n = 1000,
-  sigma1 = 0.35,
-  sigma0 = 0.20,
-  desired_pilot = 100
+  n = 3000,
+  sigma1 = 0.18,
+  sigma0 = 0.28,
+  desired_pilot = 120
 )
 
 }

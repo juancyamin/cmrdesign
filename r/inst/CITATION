@@ -1,0 +1,22 @@
+citHeader("To cite cmrdesign in publications, please cite the paper and the package:")
+
+bibentry(
+  bibtype = "Misc",
+  title = "When and How to Pilot: Design Rules for Two-Wave Experiments",
+  author = person("Juan C.", "Yamin"),
+  year = "2026",
+  eprint = "2607.16982",
+  archiveprefix = "arXiv",
+  primaryclass = "econ.EM",
+  doi = "10.48550/arXiv.2607.16982",
+  url = "https://arxiv.org/abs/2607.16982"
+)
+
+bibentry(
+  bibtype = "Manual",
+  title = "cmrdesign: Conditional Minimax Regret Design Rules",
+  author = person("Juan C.", "Yamin"),
+  year = "2026",
+  note = "R package version 0.1.0",
+  url = "https://juancyamin.github.io/cmrdesign/"
+)

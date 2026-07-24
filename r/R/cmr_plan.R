@@ -36,12 +36,14 @@
 #'
 #' @param alpha Target error level.
 #' @param max_total_pilot Largest total pilot size to search.
-#' @param min_arm_size Minimum pilot observations per arm.
+#' @param min_arm_size Minimum pilot observations per arm; must be at least 2.
 #'
 #' @return
 #' Total pilot size threshold. `activation_threshold_bounded()` returns `Inf`
 #' if no even pilot size up to `max_total_pilot` clears the bounded-outcome
-#' activation condition. `activation_threshold_bernoulli()` returns `4`.
+#' activation condition. `activation_threshold_bernoulli()` returns `4`; the
+#' exact Bernoulli screen activates at the minimal admissible pilot regardless
+#' of `alpha`, which is validated for interface consistency.
 #'
 #' @examples
 #' activation_threshold_bounded(alpha = 0.05, max_total_pilot = 200)
@@ -145,7 +147,7 @@ break_even_pilot_share <- function(sigma1,
 #' feasible even pilot sizes, and min/max feasible pilot sizes.
 #'
 #' @examples
-#' pilot_viability_band(n = 1000, sigma1 = 0.35, sigma0 = 0.20)
+#' pilot_viability_band(n = 3000, sigma1 = 0.18, sigma0 = 0.28)
 #'
 #' @family pilot planning
 #' @export
@@ -221,10 +223,10 @@ pilot_viability_band <- function(n,
 #'
 #' @examples
 #' cmr_plan(
-#'   n = 1000,
-#'   sigma1 = 0.35,
-#'   sigma0 = 0.20,
-#'   desired_pilot = 100
+#'   n = 3000,
+#'   sigma1 = 0.18,
+#'   sigma0 = 0.28,
+#'   desired_pilot = 120
 #' )
 #'
 #' @family pilot planning

@@ -34,8 +34,8 @@ outcomes under bounded-kurtosis inputs.
 }
 \examples{
 set.seed(3)
-d <- rep(c(1, 0), each = 220)
-y <- c(rnorm(220, sd = 1.3), rnorm(220, sd = 0.8))
+d <- rep(c(1, 0), each = 1000)
+y <- c(rnorm(1000, sd = 1.3), rnorm(1000, sd = 0.8))
 rectangle_unbounded(y, d, psi = 3)
 
 }

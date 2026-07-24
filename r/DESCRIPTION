@@ -2,9 +2,15 @@ Package: cmrdesign
 Title: Conditional Minimax Regret Design Rules
 Version: 0.1.0
 Authors@R: c(
-    person(given = "Juan C.", family = "Yamin", role = c("aut", "cre"), email = "juan_yamin_silva@brown.edu")
+    person(given = "Juan C.", family = "Yamin", role = c("aut", "cre", "cph"), email = "juan_yamin_silva@brown.edu")
   )
-Description: Implements Conditional Minimax Regret design rules for pilot-informed experimental assignment, including two-arm, unbounded two-arm, multi-arm, stratified, multiple-outcome, proxy-outcome, and pilot-planning tools.
+Description: Implements Conditional Minimax Regret design rules for
+    pilot-informed experimental assignment, as proposed in Yamin (2026)
+    <doi:10.48550/arXiv.2607.16982>. Includes two-arm, unbounded two-arm,
+    multi-arm, stratified, multiple-outcome, proxy-outcome, and
+    pilot-planning tools. Variance bounds include Maurer and Pontil (2009)
+    <doi:10.48550/arXiv.0907.3740> empirical-Bernstein bounds and
+    exact Bernoulli confidence bounds.
 License: MIT + file LICENSE
 URL: https://juancyamin.github.io/cmrdesign/,
     https://github.com/juancyamin/cmrdesign,

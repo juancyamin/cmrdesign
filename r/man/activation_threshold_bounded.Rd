@@ -18,12 +18,14 @@ activation_threshold_bernoulli(alpha = 0.05)
 
 \item{max_total_pilot}{Largest total pilot size to search.}
 
-\item{min_arm_size}{Minimum pilot observations per arm.}
+\item{min_arm_size}{Minimum pilot observations per arm; must be at least 2.}
 }
 \value{
 Total pilot size threshold. \code{activation_threshold_bounded()} returns \code{Inf}
 if no even pilot size up to \code{max_total_pilot} clears the bounded-outcome
-activation condition. \code{activation_threshold_bernoulli()} returns \code{4}.
+activation condition. \code{activation_threshold_bernoulli()} returns \code{4}; the
+exact Bernoulli screen activates at the minimal admissible pilot regardless
+of \code{alpha}, which is validated for interface consistency.
 }
 \description{
 Compute simple method-specific pilot-size activation thresholds for the

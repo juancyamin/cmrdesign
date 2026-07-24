@@ -32,7 +32,7 @@ under a bounded-kurtosis input \code{psi}.
 }
 \examples{
 set.seed(2)
-y <- rnorm(200)
+y <- rnorm(2000, sd = 1.3)
 variance_bounds_unbounded_mom(y, alpha = 0.05, psi = 3)
 
 }

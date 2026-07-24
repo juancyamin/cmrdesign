@@ -7,7 +7,7 @@ been reviewed and that package examples remain simulated-data examples only.
 ## Pre-Release Gate
 
 - Confirm the package version in `python/pyproject.toml`, `r/DESCRIPTION`,
-  `CITATION.cff`, and `CHANGELOG.md`.
+  `CITATION.cff`, `CHANGELOG.md`, and `r/NEWS.md`.
 - Confirm the paper link is present in the root README, package metadata, and
   citation file: <https://arxiv.org/abs/2607.16982>.
 - Confirm the R package documentation site is configured for

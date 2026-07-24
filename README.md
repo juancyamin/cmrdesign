@@ -192,6 +192,28 @@ before the beta/API freeze:
 
 Please use simulated, public, or redacted data in GitHub issues.
 
+## Citation
+
+If you use `cmrdesign`, please cite the paper and the software:
+
+```bibtex
+@misc{yamin2026pilot,
+  title = {When and How to Pilot: Design Rules for Two-Wave Experiments},
+  author = {Yamin, Juan C.},
+  year = {2026},
+  doi = {10.48550/arXiv.2607.16982},
+  url = {https://arxiv.org/abs/2607.16982}
+}
+
+@manual{cmrdesign2026,
+  title = {cmrdesign: Conditional Minimax Regret Design Rules},
+  author = {Yamin, Juan C.},
+  year = {2026},
+  note = {R package version 0.1.0},
+  url = {https://juancyamin.github.io/cmrdesign/}
+}
+```
+
 ## For Contributors
 
 `cmrdesign` is pre-release software. The R and Python APIs are intended to be

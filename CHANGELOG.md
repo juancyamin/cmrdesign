@@ -9,6 +9,10 @@
 - Added a CRAN-readiness audit note recording the local `R CMD check
   --as-cran` result, vignette build status, and remaining expected notes.
 - Added R-package `cran-comments.md` for the eventual initial CRAN submission.
+- Added CRAN-style paper references in R metadata, GitHub citation metadata,
+  and the root README citation section.
+- Added `r/inst/CITATION` and `r/NEWS.md` for R citation and changelog
+  workflows.
 
 ## 0.1.0a2 (Python pre-release)
 

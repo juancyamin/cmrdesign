@@ -1,14 +1,19 @@
 cff-version: 1.2.0
-title: "cmrdesign"
-message: "If you use cmrdesign, please cite the accompanying software and methods paper."
+title: "cmrdesign: Conditional Minimax Regret Design Rules"
+message: "If you use cmrdesign, please cite both the software and the accompanying paper (preferred-citation)."
 type: software
 authors:
   - family-names: "Yamin"
     given-names: "Juan C."
 license: MIT
 repository-code: "https://github.com/juancyamin/cmrdesign"
-version: "0.0.0.9000"
-date-released: "2026-07-23"
+url: "https://juancyamin.github.io/cmrdesign/"
+version: "0.1.0"
+date-released: "2026-07-24"
+identifiers:
+  - type: doi
+    value: "10.48550/arXiv.2607.16982"
+    description: "arXiv preprint of the accompanying paper"
 preferred-citation:
   type: article
   title: "When and How to Pilot: Design Rules for Two-Wave Experiments"

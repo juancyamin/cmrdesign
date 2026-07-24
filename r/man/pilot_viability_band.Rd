@@ -47,7 +47,7 @@ Compute a necessary viability screen for pilot sizes before choosing a
 pilot/main-wave split.
 }
 \examples{
-pilot_viability_band(n = 1000, sigma1 = 0.35, sigma0 = 0.20)
+pilot_viability_band(n = 3000, sigma1 = 0.18, sigma0 = 0.28)
 
 }
 \seealso{
