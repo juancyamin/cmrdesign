@@ -74,6 +74,84 @@ testthat::test_that("R namespace exports match reviewed public surface", {
   )
 })
 
+.expect_formal_names <- function(fun, expected) {
+  testthat::expect_identical(names(formals(fun)), expected)
+}
+
+.expect_default <- function(fun, arg, expected) {
+  testthat::expect_equal(formals(fun)[[arg]], expected)
+}
+
+testthat::test_that("main applied signatures match reviewed public surface", {
+  .expect_formal_names(cmr_two_arm, c(
+    "y", "d", "alpha", "method", "beta", "correction", "normalize",
+    "lower", "upper", "psi", "na.rm", "tol"
+  ))
+  .expect_default(cmr_two_arm, "alpha", 0.05)
+  .expect_default(cmr_two_arm, "beta", NULL)
+  .expect_default(cmr_two_arm, "normalize", FALSE)
+  .expect_default(cmr_two_arm, "psi", NULL)
+  .expect_default(cmr_two_arm, "na.rm", TRUE)
+  .expect_default(cmr_two_arm, "tol", 1e-11)
+
+  .expect_formal_names(cmr_unbounded, c("y", "d", "psi", "alpha", "na.rm"))
+  .expect_default(cmr_unbounded, "psi", NULL)
+  .expect_default(cmr_unbounded, "alpha", 0.05)
+  .expect_default(cmr_unbounded, "na.rm", TRUE)
+
+  .expect_formal_names(cmr_multiarm, c(
+    "y", "arm", "alpha", "method", "beta", "control_arm", "normalize",
+    "lower", "upper", "na.rm", "tol", "solver_control", "max_vertices"
+  ))
+  .expect_default(cmr_multiarm, "alpha", 0.05)
+  .expect_default(cmr_multiarm, "beta", NULL)
+  .expect_default(cmr_multiarm, "control_arm", 0)
+  .expect_default(cmr_multiarm, "normalize", FALSE)
+  .expect_default(cmr_multiarm, "na.rm", TRUE)
+  .expect_default(cmr_multiarm, "tol", 1e-11)
+  .expect_default(cmr_multiarm, "max_vertices", 65536L)
+
+  .expect_formal_names(cmr_stratified, c(
+    "y", "d", "strata", "strata_share", "alpha", "method", "beta",
+    "normalize", "lower", "upper", "na.rm", "tol", "solver_control",
+    "max_vertices"
+  ))
+  .expect_default(cmr_stratified, "alpha", 0.05)
+  .expect_default(cmr_stratified, "beta", NULL)
+  .expect_default(cmr_stratified, "normalize", FALSE)
+  .expect_default(cmr_stratified, "na.rm", TRUE)
+  .expect_default(cmr_stratified, "tol", 1e-11)
+  .expect_default(cmr_stratified, "max_vertices", 65536L)
+
+  .expect_formal_names(cmr_multiple_outcomes, c(
+    "y", "d", "weights", "estimand", "alpha", "method", "beta",
+    "na.rm", "tol"
+  ))
+  .expect_default(cmr_multiple_outcomes, "weights", NULL)
+  .expect_default(cmr_multiple_outcomes, "alpha", 0.05)
+  .expect_default(cmr_multiple_outcomes, "beta", NULL)
+  .expect_default(cmr_multiple_outcomes, "na.rm", TRUE)
+  .expect_default(cmr_multiple_outcomes, "tol", 1e-11)
+
+  .expect_formal_names(cmr_proxy, c(
+    "proxy_y", "d", "zeta", "alpha", "method", "beta", "correction",
+    "normalize", "lower", "upper", "na.rm", "tol"
+  ))
+  .expect_default(cmr_proxy, "alpha", 0.05)
+  .expect_default(cmr_proxy, "beta", NULL)
+  .expect_default(cmr_proxy, "normalize", FALSE)
+  .expect_default(cmr_proxy, "na.rm", TRUE)
+  .expect_default(cmr_proxy, "tol", 1e-11)
+
+  .expect_formal_names(cmr_plan, c(
+    "n", "sigma1", "sigma0", "alpha", "method", "input", "accounting",
+    "desired_pilot", "strict_upper"
+  ))
+  .expect_default(cmr_plan, "alpha", 0.05)
+  .expect_default(cmr_plan, "desired_pilot", NULL)
+  .expect_default(cmr_plan, "strict_upper", TRUE)
+})
+
 testthat::test_that("aliases remain available", {
   rect <- c(v_l1 = 0, v_u1 = 0.25, v_l0 = 0, v_u0 = 0.25)
   y <- c(0, 1, 0, 1, 0, 1, 0, 1)

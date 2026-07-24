@@ -23,9 +23,10 @@ as breaking unless this file is updated at the same time.
 - Confidence-set construction and CMR assignment are separable: every applied
   `cmr_*()` function should be reproducible from its corresponding
   `rectangle_*()` result.
-- Public export drift is checked in `r/tests/testthat/test-public-api.R` and
-  `python/tests/test_public_api.py`. Any export addition, removal, or rename
-  should update this specification and those tests together.
+- Public export and main-signature drift is checked in
+  `r/tests/testthat/test-public-api.R` and `python/tests/test_public_api.py`.
+  Any export addition, removal, rename, applied argument change, or default
+  change should update this specification and those tests together.
 
 ## Main Applied Functions
 

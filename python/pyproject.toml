@@ -37,10 +37,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/juancyamin/cmrdesign"
+Homepage = "https://juancyamin.github.io/cmrdesign/"
 Repository = "https://github.com/juancyamin/cmrdesign"
 Issues = "https://github.com/juancyamin/cmrdesign/issues"
-Documentation = "https://github.com/juancyamin/cmrdesign/tree/main/docs"
+Documentation = "https://juancyamin.github.io/cmrdesign/"
 Changelog = "https://github.com/juancyamin/cmrdesign/blob/main/CHANGELOG.md"
 Paper = "https://arxiv.org/abs/2607.16982"
 

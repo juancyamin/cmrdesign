@@ -1,6 +1,7 @@
 # Public API Review
 
 Date: 2026-07-23
+Updated: 2026-07-24
 
 This note records the pre-release review of the CMR-focused public API for the
 R and Python implementations. It is not an API freeze or a release
@@ -37,6 +38,23 @@ Public export drift is now guarded by:
 
 - `r/tests/testthat/test-public-api.R`.
 - `python/tests/test_public_api.py`.
+
+The 2026-07-24 beta-preparation pass added explicit signature/default checks
+for the main applied entry points in both languages:
+
+- `cmr_two_arm()`.
+- `cmr_unbounded()`.
+- `cmr_multiarm()`.
+- `cmr_stratified()`.
+- `cmr_multiple_outcomes()`.
+- `cmr_proxy()`.
+- `cmr_plan()`.
+
+That pass made no public API changes. It also smoke-tested the public
+installation routes against README-style quickstarts and all simulated examples:
+
+- PyPI `cmrdesign==0.1.0a2` under Python 3.12.
+- Current R-universe binary `0.0.0.9000` in a clean temporary R library.
 
 ## Reviewed Applied Surface
 

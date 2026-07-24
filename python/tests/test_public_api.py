@@ -1,3 +1,4 @@
+import inspect
 import unittest
 
 import cmrdesign as cmr
@@ -61,6 +62,171 @@ EXPECTED_PUBLIC_API = {
     "variance_objective",
 }
 
+EXPECTED_MAIN_SIGNATURES = {
+    "cmr_two_arm": {
+        "params": [
+            "y",
+            "d",
+            "alpha",
+            "method",
+            "beta",
+            "correction",
+            "normalize",
+            "lower",
+            "upper",
+            "psi",
+            "na_rm",
+            "tol",
+        ],
+        "defaults": {
+            "alpha": 0.05,
+            "method": "auto",
+            "beta": None,
+            "correction": "bonferroni",
+            "normalize": False,
+            "lower": None,
+            "upper": None,
+            "psi": None,
+            "na_rm": True,
+            "tol": 1e-11,
+        },
+    },
+    "cmr_unbounded": {
+        "params": ["y", "d", "psi", "alpha", "na_rm"],
+        "defaults": {"psi": None, "alpha": 0.05, "na_rm": True},
+    },
+    "cmr_multiarm": {
+        "params": [
+            "y",
+            "arm",
+            "alpha",
+            "method",
+            "beta",
+            "control_arm",
+            "normalize",
+            "lower",
+            "upper",
+            "na_rm",
+            "tol",
+            "solver_control",
+            "max_vertices",
+        ],
+        "defaults": {
+            "alpha": 0.05,
+            "method": "auto",
+            "beta": None,
+            "control_arm": 0,
+            "normalize": False,
+            "lower": None,
+            "upper": None,
+            "na_rm": True,
+            "tol": 1e-11,
+            "solver_control": None,
+            "max_vertices": 65536,
+        },
+    },
+    "cmr_stratified": {
+        "params": [
+            "y",
+            "d",
+            "strata",
+            "strata_share",
+            "alpha",
+            "method",
+            "beta",
+            "normalize",
+            "lower",
+            "upper",
+            "na_rm",
+            "tol",
+            "solver_control",
+            "max_vertices",
+        ],
+        "defaults": {
+            "alpha": 0.05,
+            "method": "auto",
+            "beta": None,
+            "normalize": False,
+            "lower": None,
+            "upper": None,
+            "na_rm": True,
+            "tol": 1e-11,
+            "solver_control": None,
+            "max_vertices": 65536,
+        },
+    },
+    "cmr_multiple_outcomes": {
+        "params": [
+            "y",
+            "d",
+            "weights",
+            "estimand",
+            "alpha",
+            "method",
+            "beta",
+            "na_rm",
+            "tol",
+        ],
+        "defaults": {
+            "weights": None,
+            "estimand": "coprimary",
+            "alpha": 0.05,
+            "method": "auto",
+            "beta": None,
+            "na_rm": True,
+            "tol": 1e-11,
+        },
+    },
+    "cmr_proxy": {
+        "params": [
+            "proxy_y",
+            "d",
+            "zeta",
+            "alpha",
+            "method",
+            "beta",
+            "correction",
+            "normalize",
+            "lower",
+            "upper",
+            "na_rm",
+            "tol",
+        ],
+        "defaults": {
+            "alpha": 0.05,
+            "method": "auto",
+            "beta": None,
+            "correction": "bonferroni",
+            "normalize": False,
+            "lower": None,
+            "upper": None,
+            "na_rm": True,
+            "tol": 1e-11,
+        },
+    },
+    "cmr_plan": {
+        "params": [
+            "n",
+            "sigma1",
+            "sigma0",
+            "alpha",
+            "method",
+            "input",
+            "accounting",
+            "desired_pilot",
+            "strict_upper",
+        ],
+        "defaults": {
+            "alpha": 0.05,
+            "method": "bounded",
+            "input": "sd",
+            "accounting": "design_only",
+            "desired_pilot": None,
+            "strict_upper": True,
+        },
+    },
+}
+
 
 class PublicAPITests(unittest.TestCase):
     def test_python_all_matches_reviewed_public_surface(self):
@@ -76,6 +242,18 @@ class PublicAPITests(unittest.TestCase):
         self.assertIs(cmr.rectangle_bounded_two_arm, cmr.rectangle_bounded_binary)
         self.assertIs(cmr.rectangle_bernoulli_two_arm, cmr.rectangle_bernoulli_binary)
         self.assertIs(cmr.pilot_plan, cmr.cmr_plan)
+
+    def test_main_applied_signatures_match_reviewed_surface(self):
+        for name, expected in EXPECTED_MAIN_SIGNATURES.items():
+            with self.subTest(name=name):
+                signature = inspect.signature(getattr(cmr, name))
+                self.assertEqual(list(signature.parameters), expected["params"])
+                for param_name, default in expected["defaults"].items():
+                    self.assertEqual(
+                        signature.parameters[param_name].default,
+                        default,
+                        msg=f"{name}.{param_name}",
+                    )
 
 
 if __name__ == "__main__":
