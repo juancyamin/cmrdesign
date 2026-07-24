@@ -15,19 +15,22 @@ from .solver import (
     solve_vertex_epigraph,
     vertex_certificate,
 )
+from .unbounded import is_unbounded_method
 from .validation import (
     as_numeric_array,
+    canonical_label,
     check_alpha,
     check_variance,
     clean_outcome_01,
     cmr_error,
+    label_missing,
     normalize_01,
 )
 from .variance_bounds import variance_bounds_by_method
 
 
 def _arm_order(arms) -> list[str]:
-    arms = list(map(str, arms))
+    arms = [canonical_label(arm) for arm in arms]
     if all(arm.isdigit() for arm in arms):
         return sorted(arms, key=lambda x: int(x))
     return [arm for arm in arms if arm == "0"] + [arm for arm in arms if arm != "0"]
@@ -264,8 +267,8 @@ def _split_multiarm_pilot(y, arm, control_arm=0, na_rm: bool = True) -> dict:
     arm_arr = np.asarray(arm, dtype=object)
     if y_arr.shape[0] != arm_arr.shape[0]:
         cmr_error("`y` and `arm` must have the same length.")
-    control_chr = str(control_arm)
-    missing = np.isnan(y_arr) | np.asarray([x is None for x in arm_arr], dtype=bool)
+    control_chr = canonical_label(control_arm)
+    missing = np.isnan(y_arr) | np.asarray([label_missing(x) for x in arm_arr], dtype=bool)
     if np.any(missing):
         if not na_rm:
             cmr_error("`y` and `arm` cannot contain missing values when `na_rm=False`.")
@@ -275,7 +278,7 @@ def _split_multiarm_pilot(y, arm, control_arm=0, na_rm: bool = True) -> dict:
         cmr_error("The pilot has no observed rows.")
     if np.any(~np.isfinite(y_arr)):
         cmr_error("`y` must contain only finite values.")
-    arm_chr = np.asarray([str(x) for x in arm_arr], dtype=object)
+    arm_chr = np.asarray([canonical_label(x) for x in arm_arr], dtype=object)
     if not np.any(arm_chr == control_chr):
         cmr_error("`arm` must include the control arm.")
     if not np.any(arm_chr != control_chr):
@@ -332,6 +335,11 @@ def rectangle_multiarm(
     tol: float = 1e-11,
 ) -> RectangleResult:
     alpha = check_alpha(alpha)
+    if is_unbounded_method(method):
+        cmr_error(
+            "`method='unbounded'` is only available for two-arm designs; "
+            "use `cmr_unbounded()` or `cmr_two_arm(..., method='unbounded')`."
+        )
     pilot = _split_multiarm_pilot(y, arm, control_arm=control_arm, na_rm=na_rm)
     normalization = None
     if normalize:

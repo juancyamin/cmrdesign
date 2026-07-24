@@ -114,6 +114,67 @@ class StratifiedTests(unittest.TestCase):
             )
         self.assertAlmostEqual(sum(fit.pi.values()), 1, places=12)
 
+    def test_unbounded_method_is_rejected(self):
+        y = np.linspace(0.1, 0.8, 32)
+        d = np.tile(np.r_[np.ones(8), np.zeros(8)], 2)
+        strata = np.repeat(["urban", "rural"], 16)
+        with self.assertRaisesRegex(ValueError, "only available for two-arm designs"):
+            cmr.cmr_stratified(
+                y,
+                d,
+                strata,
+                {"urban": 0.5, "rural": 0.5},
+                method="unbounded",
+            )
+
+    def test_integral_float_strata_labels_are_canonicalized(self):
+        rng = np.random.default_rng(116)
+        n_per_cell = 20
+        strata = np.repeat([1.0, 2.0], 2 * n_per_cell)
+        d = np.tile(np.r_[np.ones(n_per_cell), np.zeros(n_per_cell)], 2)
+        y = np.r_[
+            rng.beta(2, 5, n_per_cell),
+            rng.beta(4, 4, n_per_cell),
+            rng.beta(3, 6, n_per_cell),
+            rng.beta(5, 4, n_per_cell),
+        ]
+        fit = cmr.cmr_stratified(y, d, strata, {1.0: 0.55, 2.0: 0.45}, method="bounded")
+        self.assertEqual(set(fit.extra["sampling_margin"]), {"1", "2"})
+        self.assertAlmostEqual(sum(fit.pi.values()), 1, places=12)
+
+    def test_nan_strata_labels_are_missing_under_na_rm(self):
+        rng = np.random.default_rng(117)
+        n_per_cell = 20
+        strata = np.asarray(
+            list(np.repeat(["urban", "rural"], 2 * n_per_cell)) + [np.nan],
+            dtype=object,
+        )
+        d = np.r_[np.tile(np.r_[np.ones(n_per_cell), np.zeros(n_per_cell)], 2), 1]
+        y = np.r_[
+            rng.beta(2, 5, n_per_cell),
+            rng.beta(4, 4, n_per_cell),
+            rng.beta(3, 6, n_per_cell),
+            rng.beta(5, 4, n_per_cell),
+            0.5,
+        ]
+        fit = cmr.cmr_stratified(
+            y,
+            d,
+            strata,
+            {"urban": 0.55, "rural": 0.45},
+            method="bounded",
+        )
+        self.assertEqual(fit.pilot["n"]["1"]["urban"], n_per_cell)
+        with self.assertRaisesRegex(ValueError, "na_rm=False"):
+            cmr.cmr_stratified(
+                y,
+                d,
+                strata,
+                {"urban": 0.55, "rural": 0.45},
+                method="bounded",
+                na_rm=False,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

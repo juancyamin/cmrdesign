@@ -7,6 +7,7 @@ import numpy as np
 from .rectangles import canonical_method, rectangle_two_arm
 from .results import CMRResult, RectangleResult
 from .two_arm import cmr_two_arm_from_rectangle
+from .unbounded import is_unbounded_method
 from .validation import (
     as_numeric_array,
     check_alpha,
@@ -87,6 +88,11 @@ def rectangle_multiple_outcomes(
     if estimand not in {"coprimary", "index"}:
         cmr_error("`estimand` must be 'coprimary' or 'index'.")
     alpha = check_alpha(alpha)
+    if is_unbounded_method(method):
+        cmr_error(
+            "`method='unbounded'` is only available for two-arm designs; "
+            "use `cmr_unbounded()` or `cmr_two_arm(..., method='unbounded')`."
+        )
     pilot = _split_multiple_outcome_pilot(y, d, na_rm=na_rm)
     weights_arr = check_weights(weights, pilot["y"].shape[1])
     weights_dict = dict(zip(pilot["outcome_names"], map(float, weights_arr), strict=True))

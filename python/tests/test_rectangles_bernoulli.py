@@ -1,7 +1,13 @@
 import unittest
 
+import numpy as np
+
 import cmrdesign as cmr
-from cmrdesign.variance_bounds import bernoulli_lower_bound, bernoulli_upper_bound
+from cmrdesign.variance_bounds import (
+    bernoulli_lower_bound,
+    bernoulli_upper_bound,
+    variance_bounds_by_method,
+)
 
 
 class BernoulliRectangleTests(unittest.TestCase):
@@ -12,6 +18,25 @@ class BernoulliRectangleTests(unittest.TestCase):
                 self.assertEqual(len(pmf), m // 2 + 1)
                 self.assertAlmostEqual(float(sum(pmf)), 1.0, places=12)
                 self.assertGreaterEqual(float(min(pmf)), -1e-14)
+
+    def test_folded_binomial_pmf_handles_large_arms(self):
+        pmf = cmr.folded_binomial_pmf(0.10, 2000)
+        self.assertEqual(len(pmf), 1001)
+        self.assertTrue(np.all(np.isfinite(pmf)))
+        self.assertAlmostEqual(float(np.sum(pmf)), 1.0, places=12)
+
+    def test_large_binary_two_arm_auto_dispatch_is_finite(self):
+        n_per_arm = 1200
+        y = np.r_[np.tile([0, 1], n_per_arm // 2), np.tile([0, 0, 1, 0], n_per_arm // 4)]
+        d = np.r_[np.ones(n_per_arm), np.zeros(n_per_arm)]
+        fit = cmr.cmr_two_arm(y, d, alpha=0.05, method="auto")
+        self.assertEqual(fit.method, "bernoulli")
+        self.assertTrue(np.isfinite(fit.pi))
+        self.assertTrue(np.isfinite(fit.U_CMR))
+
+    def test_variance_bounds_dispatcher_is_closed(self):
+        with self.assertRaisesRegex(ValueError, "unknown variance-bound method"):
+            variance_bounds_by_method([0, 1, 0, 1], 0.01, 0.01, method="not_a_method")
 
     def test_exact_bounds_drop_missing_by_default(self):
         y = [0, 1, float("nan"), 1, 0]

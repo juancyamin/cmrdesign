@@ -12,6 +12,26 @@ def cmr_error(message: str) -> None:
     raise ValueError(message)
 
 
+def label_missing(x) -> bool:
+    if x is None:
+        return True
+    if isinstance(x, (float, np.floating)):
+        return math.isnan(float(x))
+    return False
+
+
+def canonical_label(x) -> str:
+    if isinstance(x, (bool, np.bool_)):
+        return str(bool(x))
+    if isinstance(x, (int, np.integer)):
+        return str(int(x))
+    if isinstance(x, (float, np.floating)):
+        value = float(x)
+        if math.isfinite(value) and value.is_integer():
+            return str(int(value))
+    return str(x)
+
+
 def as_numeric_array(x, name: str) -> np.ndarray:
     try:
         arr = np.asarray(x, dtype=float)

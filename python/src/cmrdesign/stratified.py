@@ -15,13 +15,16 @@ from .solver import (
     solve_vertex_epigraph,
     vertex_certificate,
 )
+from .unbounded import is_unbounded_method
 from .validation import (
     as_numeric_array,
+    canonical_label,
     check_alpha,
     check_treatment_indicator,
     check_variance,
     clean_outcome_01,
     cmr_error,
+    label_missing,
     normalize_01,
 )
 from .variance_bounds import variance_bounds_by_method
@@ -29,13 +32,13 @@ from .variance_bounds import variance_bounds_by_method
 
 def check_strata_share(strata_share, observed=None) -> dict[str, float]:
     if isinstance(strata_share, Mapping):
-        out = {str(k): float(v) for k, v in strata_share.items()}
+        out = {canonical_label(k): float(v) for k, v in strata_share.items()}
     else:
         arr = as_numeric_array(strata_share, "strata_share").reshape(-1)
         if observed is None:
             names = [f"stratum_{i + 1}" for i in range(arr.size)]
         else:
-            names = list(map(str, observed))
+            names = [canonical_label(x) for x in observed]
             if len(names) != arr.size:
                 cmr_error("Unnamed `strata_share` must have one entry per observed stratum.")
         out = dict(zip(names, map(float, arr), strict=True))
@@ -295,7 +298,7 @@ def _split_stratified_pilot(y, d, strata, strata_share, na_rm: bool = True) -> d
     strata_arr = np.asarray(strata, dtype=object)
     if y_arr.shape[0] != d_arr.shape[0] or y_arr.shape[0] != strata_arr.shape[0]:
         cmr_error("`y`, `d`, and `strata` must have the same length.")
-    strata_missing = np.asarray([x is None for x in strata_arr], dtype=bool)
+    strata_missing = np.asarray([label_missing(x) for x in strata_arr], dtype=bool)
     missing = np.isnan(y_arr) | np.isnan(d_arr) | strata_missing
     if np.any(missing):
         if not na_rm:
@@ -308,7 +311,7 @@ def _split_stratified_pilot(y, d, strata, strata_share, na_rm: bool = True) -> d
     d_arr = check_treatment_indicator(d_arr)
     if np.any(~np.isfinite(y_arr)):
         cmr_error("`y` must contain only finite values.")
-    strata_chr = np.asarray([str(x) for x in strata_arr], dtype=object)
+    strata_chr = np.asarray([canonical_label(x) for x in strata_arr], dtype=object)
     observed = list(dict.fromkeys(strata_chr))
     shares = check_strata_share(strata_share, observed=observed)
     missing_share = [s for s in observed if s not in shares]
@@ -361,6 +364,11 @@ def rectangle_stratified(
     tol: float = 1e-11,
 ) -> RectangleResult:
     alpha = check_alpha(alpha)
+    if is_unbounded_method(method):
+        cmr_error(
+            "`method='unbounded'` is only available for two-arm designs; "
+            "use `cmr_unbounded()` or `cmr_two_arm(..., method='unbounded')`."
+        )
     pilot = _split_stratified_pilot(
         y=y,
         d=d,

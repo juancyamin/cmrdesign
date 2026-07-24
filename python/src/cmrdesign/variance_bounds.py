@@ -303,7 +303,18 @@ def folded_count(y, na_rm: bool = True) -> dict:
 
 
 def _binom_pmf(k: int, m: int, p: float) -> float:
-    return math.comb(m, k) * (p**k) * ((1 - p) ** (m - k))
+    if p <= 0.0:
+        return 1.0 if k == 0 else 0.0
+    if p >= 1.0:
+        return 1.0 if k == m else 0.0
+    log_pmf = (
+        math.lgamma(m + 1)
+        - math.lgamma(k + 1)
+        - math.lgamma(m - k + 1)
+        + k * math.log(p)
+        + (m - k) * math.log1p(-p)
+    )
+    return math.exp(log_pmf)
 
 
 def folded_binomial_pmf(v: float, m: int) -> np.ndarray:
@@ -410,4 +421,6 @@ def variance_bounds_by_method(
         return variance_bounds_bernoulli_exact(y, beta_l, beta_u, tol=tol, na_rm=na_rm)
     if method == "martinez_taboada_ramdas":
         return variance_bounds_martinez_taboada_ramdas(y, beta_l, beta_u, na_rm=na_rm)
-    return variance_bounds_maurer_pontil(y, beta_l, beta_u, na_rm=na_rm)
+    if method == "bounded":
+        return variance_bounds_maurer_pontil(y, beta_l, beta_u, na_rm=na_rm)
+    cmr_error(f"Internal error: unknown variance-bound method '{method}'.")

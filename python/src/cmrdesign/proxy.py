@@ -8,6 +8,7 @@ from collections.abc import Mapping
 from .rectangles import _binary_rectangle_result, rectangle_two_arm
 from .results import CMRResult, RectangleResult
 from .two_arm import cmr_two_arm_from_rectangle
+from .unbounded import is_unbounded_method
 from .validation import as_numeric_array, cmr_error
 
 
@@ -57,6 +58,8 @@ def rectangle_proxy(
     tol: float = 1e-11,
 ) -> RectangleResult:
     zeta = check_zeta_pair(zeta)
+    if is_unbounded_method(method):
+        cmr_error("The proxy bridge supports bounded-outcome methods only.")
     proxy_set = rectangle_two_arm(
         y=proxy_y,
         d=d,

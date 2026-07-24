@@ -67,6 +67,30 @@ class MultipleOutcomeTests(unittest.TestCase):
         self.assertAlmostEqual(rect.rectangle["v_u0"], u0, places=12)
         self.assertAlmostEqual(rect.joint_error_bound, 0.05, places=12)
 
+    def test_unbounded_method_is_rejected_for_both_estimands(self):
+        y = np.asarray(
+            [
+                [0.1, 0.2],
+                [0.9, 0.7],
+                [0.2, 0.3],
+                [0.8, 0.9],
+                [0.3, 0.4],
+                [0.4, 0.3],
+                [0.5, 0.7],
+                [0.6, 0.5],
+            ]
+        )
+        d = [1, 1, 1, 1, 0, 0, 0, 0]
+        for estimand in ("coprimary", "index"):
+            with self.subTest(estimand=estimand):
+                with self.assertRaisesRegex(ValueError, "only available for two-arm designs"):
+                    cmr.cmr_multiple_outcomes(
+                        y,
+                        d,
+                        estimand=estimand,
+                        method="unbounded",
+                    )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -77,6 +77,47 @@ class MultiarmTests(unittest.TestCase):
             fit = cmr.cmr_multiarm(y, arm, alpha=0.05, method="bounded")
         self.assertAlmostEqual(sum(fit.pi.values()), 1, places=12)
 
+    def test_unbounded_method_is_rejected(self):
+        y = np.r_[
+            np.linspace(0.1, 0.6, 8),
+            np.linspace(0.2, 0.7, 8),
+            np.linspace(0.3, 0.8, 8),
+        ]
+        arm = np.repeat([0, 1, 2], 8)
+        with self.assertRaisesRegex(ValueError, "only available for two-arm designs"):
+            cmr.cmr_multiarm(y, arm, method="unbounded")
+
+    def test_integral_float_arm_labels_are_canonicalized(self):
+        rng = np.random.default_rng(114)
+        n_per_arm = 40
+        y = np.r_[
+            rng.beta(4, 4, n_per_arm),
+            rng.beta(2, 6, n_per_arm),
+            rng.beta(5, 3, n_per_arm),
+        ]
+        arm_int = np.repeat([0, 1, 2], n_per_arm)
+        arm_float = np.repeat([0.0, 1.0, 2.0], n_per_arm)
+        fit_int = cmr.cmr_multiarm(y, arm_int, method="bounded")
+        fit_float = cmr.cmr_multiarm(y, arm_float, method="bounded")
+        self.assertEqual(set(fit_float.pi), {"0", "1", "2"})
+        for arm in fit_int.pi:
+            self.assertAlmostEqual(fit_float.pi[arm], fit_int.pi[arm], places=12)
+
+    def test_nan_arm_labels_are_missing_under_na_rm(self):
+        rng = np.random.default_rng(115)
+        n_per_arm = 20
+        y = np.r_[
+            rng.beta(4, 4, n_per_arm),
+            rng.beta(2, 6, n_per_arm),
+            rng.beta(5, 3, n_per_arm),
+            0.5,
+        ]
+        arm = np.asarray(list(np.repeat([0, 1, 2], n_per_arm)) + [np.nan], dtype=object)
+        fit = cmr.cmr_multiarm(y, arm, method="bounded")
+        self.assertEqual(fit.pilot["n"], {"0": n_per_arm, "1": n_per_arm, "2": n_per_arm})
+        with self.assertRaisesRegex(ValueError, "na_rm=False"):
+            cmr.cmr_multiarm(y, arm, method="bounded", na_rm=False)
+
 
 if __name__ == "__main__":
     unittest.main()
