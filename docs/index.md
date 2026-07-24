@@ -11,18 +11,15 @@ by Juan C. Yamin. This repository is software only: examples use simulated
 data, and paper replications or empirical calibration scripts are kept outside
 the package.
 
-## Where To Start
+## Where to Start
 
 | If you want to... | Read... |
 | --- | --- |
-| Run the smallest two-arm example | [Quickstart](quickstart.md) |
-| Decide between bounded, Bernoulli, MTR, and unbounded variance intervals | [Choosing A Method](choosing_methods.md) |
+| Run the smallest two-arm example | [Quick Start](quickstart.md) |
+| Decide between bounded, Bernoulli, MTR, and unbounded variance intervals | [Choosing a Method](choosing_methods.md) |
 | Understand which CMR extension matches your design | [Methods](methods.md) |
 | Plan pilot size before collecting pilot data | [Pilot Planning](pilot_planning.md) |
 | Resolve input-format and interpretation questions | [FAQ](faq.md) |
-| Prepare a release or audit the package | [Release Checklist](release_checklist.md) |
-| Review R CRAN-readiness status | [R CRAN Readiness](cran_readiness.md) |
-| Prepare a Python TestPyPI/PyPI upload | [Python Release](python_release.md) |
 
 The R package also includes vignettes for two-arm bounded outcomes, binary
 outcomes, multiple outcomes, proxy outcomes, CMR extensions, and pilot
@@ -43,3 +40,9 @@ planning.
 Implementation contracts live in `spec/`. Those files are the source of truth
 for cross-language API names, return fields, formulas, and numerical
 tolerances.
+
+## Maintainer Notes
+
+Release process, CRAN-readiness, and PyPI upload notes live in
+[`docs/dev/`](dev/). They document release gates and are not needed for applied
+use.

@@ -34,7 +34,7 @@ variance_bounds_martinez_taboada_ramdas(
 \item{lower_alpha_split}{MTR split of the lower-tail error between variance
 and mean components.}
 
-\item{c1, c2, c3, c4, c5}{Martinez-Taboada-Ramdas tuning constants.}
+\item{c1, c2, c3, c4, c5}{Martinez-Taboada–Ramdas tuning constants.}
 
 \item{cs, tilde_cs}{Logical flags for the MTR predictable-mixture variants.}
 }

@@ -4,7 +4,7 @@ Date: 2026-07-24
 
 This note records the CRAN-readiness pass for the R package in `r/`. It is
 separate from the Python release path, which remains documented in
-`docs/python_release.md`.
+`docs/dev/python_release.md`.
 
 ## Version Decision
 
@@ -18,26 +18,20 @@ release states explicit.
 
 ## Local CRAN Check
 
-Full vignette builds require Pandoc. On this machine, Pandoc is available from
-the RStudio bundle:
-
-```bash
-RSTUDIO_PANDOC=/Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools/aarch64
-```
-
-Commands run from the repository root:
+Full vignette builds require Pandoc on the `PATH`, or discoverable through the
+`RSTUDIO_PANDOC` environment variable. Commands run from the repository root:
 
 ```bash
 Rscript -e 'roxygen2::roxygenise("r")'
-RSTUDIO_PANDOC=/Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools/aarch64 R CMD build r
-RSTUDIO_PANDOC=/Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools/aarch64 R CMD check --as-cran cmrdesign_0.1.0.tar.gz
+R CMD build r
+R CMD check --as-cran cmrdesign_0.1.0.tar.gz
 ```
 
 Result:
 
 - `R CMD build r`: OK, including vignette creation.
 - `R CMD check --as-cran`: 0 ERRORs, 0 WARNINGs, 2 NOTEs.
-- `testthat`: 688 passing tests.
+- `testthat`: the full testthat suite passes.
 - Examples: OK.
 - Vignettes: OK, including rebuild checks.
 - PDF manual: OK.
@@ -60,6 +54,7 @@ Remaining NOTES:
   the Bioconductor package index: no existing `cmrdesign` package found.
 - `r/cran-comments.md` added for the eventual CRAN submission and excluded from
   the built source package via `r/.Rbuildignore`.
+- GitHub Actions R matrix on Ubuntu, macOS, and Windows: OK.
 - Fresh R-universe install smoke check for version `0.1.0`: OK.
 
 ## Package Contents
@@ -69,8 +64,13 @@ and JSON test fixtures under `inst/extdata/test_fixtures`. It does not ship
 paper replication data, empirical calibration workflows, or paper-specific
 simulation output.
 
-## Remaining Gate
+## Remaining Gates
 
-The current R CRAN-readiness gates are complete. Before an actual CRAN upload,
-repeat the build, `R CMD check --as-cran`, and fresh-install smoke checks if
-any R package code, documentation, examples, vignettes, or metadata changes.
+The local and GitHub Actions CRAN-readiness gates are complete. Before an
+actual CRAN upload, repeat the build, `R CMD check --as-cran`, and
+fresh-install smoke checks if any R package code, documentation, examples,
+vignettes, or metadata changes.
+
+Also run the external Windows checks requested in `r/cran-comments.md`
+(`devtools::check_win_devel()` and `devtools::check_win_release()`, or an
+equivalent rhub check set) and update that file with the exact results.

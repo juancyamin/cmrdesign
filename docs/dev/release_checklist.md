@@ -13,12 +13,15 @@ been reviewed and that package examples remain simulated-data examples only.
 - Confirm the R package documentation site is configured for
   <https://juancyamin.github.io/cmrdesign/>.
 - Confirm the public API review is current:
-  `spec/api_freeze_review.md`.
+  `spec/api_review.md`.
 - Confirm examples do not depend on paper replication data or simulations.
 - For the R CRAN path, confirm the latest audit note:
-  `docs/cran_readiness.md`.
+  `docs/dev/cran_readiness.md`.
 - For an actual CRAN upload, confirm `r/cran-comments.md` reflects the exact
   source tarball and check results being submitted.
+- Confirm the four quick starts (root README, `docs/quickstart.md`,
+  `r/README.md`, and `python/README.md`) show the same simulated two-arm
+  example and the same default method.
 
 ## Local Checks
 
@@ -111,7 +114,7 @@ before any upload.
 R-universe registry:
 
 - Registry repository:
-  <https://github.com/juancyamin/juancyamin.r-universe.dev>.
+  <https://github.com/r-universe/juancyamin>.
 - Manifest entry:
   `{"package":"cmrdesign","url":"https://github.com/juancyamin/cmrdesign","subdir":"r"}`.
 - Confirm the R-universe GitHub App is installed for `juancyamin`. R-universe

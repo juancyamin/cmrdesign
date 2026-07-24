@@ -53,7 +53,7 @@ worst-case regret certificate over the confidence set for arm variances.
 | If your design is... | Use... |
 | --- | --- |
 | One treatment and one control | `cmr_two_arm()` |
-| Two-arm with raw unbounded outcomes | `cmr_unbounded()` |
+| Two arms with raw unbounded outcomes | `cmr_unbounded()` |
 | Several treatments sharing one control | `cmr_multiarm()` |
 | Known strata with possibly different variances | `cmr_stratified()` |
 | Multiple outcomes per unit | `cmr_multiple_outcomes()` |
@@ -65,14 +65,14 @@ The direct rectangle functions, such as `cmr_two_arm_from_rectangle()` and
 users will usually pass pilot data directly and let the package estimate the
 confidence rectangle.
 
-## Choosing A Confidence Method
+## Choosing a Confidence Method
 
 | Method | Use when... |
 | --- | --- |
 | `method = "auto"` | Use the default applied behavior. It chooses exact Bernoulli bounds for raw 0/1 outcomes and bounded-outcome bounds otherwise. |
 | `method = "bounded"` or `"mp"` | Outcomes are bounded, usually normalized to `[0, 1]`. |
 | `method = "bernoulli"` | Outcomes are truly binary and coded 0/1. |
-| `method = "mtr"` | You specifically want Martinez-Taboada-Ramdas bounds. The rule uses pilot row order, so do not sort outcomes before calling it. |
+| `method = "mtr"` | You specifically want Martinez-Taboada–Ramdas bounds. The rule uses pilot row order, so do not sort outcomes before calling it. |
 | `method = "unbounded"` | Two-arm outcomes are raw finite values rather than bounded-scale values. Use `cmr_unbounded()` and supply a kurtosis bound `psi`. |
 
 CMR is a design rule for allocating the next experimental wave. It is not a
@@ -86,7 +86,7 @@ The companion Python package is available on
 
 ## Feedback
 
-`cmrdesign` is in alpha release. Please report issues with simulated, public,
+`cmrdesign` is an early release. Please report issues with simulated, public,
 or redacted data:
 
 - [Bug reports](https://github.com/juancyamin/cmrdesign/issues/new?template=bug_report.yml)

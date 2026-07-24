@@ -1,6 +1,8 @@
 # Governance
 
-This repository is initially maintained by the project authors.
+`cmrdesign` is maintained by Juan C. Yamin. Until a 1.0 release, API
+decisions are made by the maintainer, guided by the priorities below and by
+alpha-user feedback filed through the issue forms.
 
 Design choices should prioritize:
 
@@ -9,4 +11,3 @@ Design choices should prioritize:
 - Cross-language consistency.
 - Stable applied-user APIs.
 - Conservative defaults with explicit advanced options.
-

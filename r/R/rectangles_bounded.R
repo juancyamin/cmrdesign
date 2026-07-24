@@ -47,7 +47,7 @@
 #' @param na.rm If `TRUE`, drop missing outcomes.
 #' @param lower_alpha_split MTR split of the lower-tail error between variance
 #'   and mean components.
-#' @param c1,c2,c3,c4,c5 Martinez-Taboada-Ramdas tuning constants.
+#' @param c1,c2,c3,c4,c5 Martinez-Taboada–Ramdas tuning constants.
 #' @param cs,tilde_cs Logical flags for the MTR predictable-mixture variants.
 #'
 #' @return
@@ -461,7 +461,7 @@ variance_bounds_martinez_taboada_ramdas <- function(y,
 #' Bounded two-arm confidence rectangle
 #'
 #' Construct a two-arm variance confidence rectangle for bounded outcomes using
-#' Maurer-Pontil or Martinez-Taboada-Ramdas one-arm bounds.
+#' Maurer–Pontil or Martinez-Taboada–Ramdas one-arm bounds.
 #'
 #' @param y Pilot outcomes.
 #' @param d Pilot treatment indicator; treatment is `1` and control is `0`.

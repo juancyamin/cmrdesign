@@ -39,7 +39,7 @@ Confirm:
   release state.
 - All examples use simulated data.
 
-## Build And Check
+## Build and Check
 
 From a clean checkout:
 

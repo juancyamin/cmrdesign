@@ -1,4 +1,4 @@
-# Proxy or delayed-primary-outcome Conditional Minimax Regret rule.
+# Proxy or delayed primary outcome Conditional Minimax Regret rule.
 
 #' Proxy or delayed-outcome CMR assignment
 #'

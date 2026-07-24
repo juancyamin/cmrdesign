@@ -101,7 +101,7 @@
 #' @param estimand Either `"coprimary"` or `"index"`.
 #' @param alpha Target joint error level.
 #' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
-#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#'   for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.
 #' @param beta Optional scalar endpoint error allocation.
 #' @param na.rm If `TRUE`, drop rows with missing `y` or `d`.
 #' @param tol Numerical tolerance for exact Bernoulli bound inversion.

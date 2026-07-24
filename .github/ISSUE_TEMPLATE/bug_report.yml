@@ -23,7 +23,7 @@ body:
     id: version
     attributes:
       label: cmrdesign version
-      placeholder: "Example: 0.1.0a2"
+      placeholder: "Example: R 0.1.0 or Python 0.1.0a2"
     validations:
       required: true
   - type: dropdown

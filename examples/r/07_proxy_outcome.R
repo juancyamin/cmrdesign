@@ -1,4 +1,4 @@
-# Simulated proxy/delayed-primary-outcome CMR example.
+# Simulated proxy/delayed primary outcome CMR example.
 
 library(cmrdesign)
 

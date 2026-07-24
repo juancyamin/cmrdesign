@@ -139,7 +139,7 @@ two-arm variance rectangle from outcome-specific endpoint bounds.
 
 ### `cmr_proxy(proxy_y, d, zeta, ...)`
 
-Purpose: two-arm CMR when pilot data observe a proxy or delayed-primary outcome
+Purpose: two-arm CMR when pilot data observe a proxy or delayed primary outcome
 and the target main-wave outcome is linked by an arm-specific standard-deviation
 bridge.
 
@@ -157,7 +157,8 @@ Alias: `cmr_delayed_outcome()`.
 
 ### `cmr_plan(n, sigma1, sigma0, ...)`
 
-Purpose: Appendix E-style pilot/main-wave planning screen.
+Purpose: pilot/main-wave planning screen from Appendix E of the accompanying
+paper (Yamin 2026).
 
 Required inputs:
 
@@ -195,7 +196,7 @@ rather than standalone constructor classes.
 - `rectangle_multiple_outcomes()`.
 - `rectangle_proxy()` / `rectangle_delayed_outcome()`.
 
-### CMR From Rectangle
+### CMR from Rectangle
 
 - `cmr_two_arm_from_rectangle()` / `cmr_binary_from_rectangle()`.
 - `cmr_unbounded_from_rectangle()`.
@@ -231,9 +232,9 @@ They drop missing observations by default and error when that option is false.
 Accepted method aliases:
 
 - `"auto"`: exact Bernoulli when raw outcomes are exactly 0/1,
-  Maurer-Pontil otherwise. Binary outcomes coded with other labels should be
+  Maurer–Pontil otherwise. Binary outcomes coded with other labels should be
   recoded to 0/1 or passed with `method = "bernoulli"`.
-- `"bounded"`, `"maurer_pontil"`, `"mp"`: Maurer-Pontil bounded-outcome bounds.
+- `"bounded"`, `"maurer_pontil"`, `"mp"`: Maurer–Pontil bounded-outcome bounds.
 - `"bernoulli"`, `"bernoulli_exact"`: exact folded-binomial Bernoulli bounds.
 - `"martinez_taboada_ramdas"`, `"mtr"`: MTR bounded-outcome bounds. MTR treats
   pilot observations as an ordered sequence; users should pass the natural

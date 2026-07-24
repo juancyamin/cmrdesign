@@ -138,7 +138,7 @@ cmr_two_arm_from_rectangle <- function(rectangle) {
 #' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
 #' @param alpha Target joint error level for the variance confidence set.
 #' @param method Confidence-set method. `"auto"` uses exact Bernoulli bounds for
-#'   0/1 outcomes and bounded Maurer-Pontil bounds otherwise. `"bounded"`,
+#'   0/1 outcomes and bounded Maurer–Pontil bounds otherwise. `"bounded"`,
 #'   `"maurer_pontil"`, and `"mp"` are synonyms. `"bernoulli"` and
 #'   `"bernoulli_exact"` use folded-binomial exact bounds. `"mtr"` and
 #'   `"martinez_taboada_ramdas"` use the empirical-Bernstein MTR bounds.

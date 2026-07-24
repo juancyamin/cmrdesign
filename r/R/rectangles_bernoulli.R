@@ -209,7 +209,7 @@ variance_bounds_bernoulli_exact <- function(y,
 #' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
 #' @param alpha Target joint error level.
 #' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
-#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#'   for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.
 #' @param beta Optional endpoint error allocation. If `NULL`, error is split
 #'   according to `correction`.
 #' @param correction Endpoint error correction, either `"bonferroni"` or

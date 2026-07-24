@@ -1,4 +1,4 @@
-"""Simulated proxy/delayed-primary-outcome CMR example."""
+"""Simulated proxy/delayed primary outcome CMR example."""
 
 import numpy as np
 

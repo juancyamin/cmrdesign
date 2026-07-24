@@ -49,7 +49,7 @@ raw numeric values and \code{psi} is required.}
 \item{alpha}{Target joint error level for the variance confidence set.}
 
 \item{method}{Confidence-set method. \code{"auto"} uses exact Bernoulli bounds for
-0/1 outcomes and bounded Maurer-Pontil bounds otherwise. \code{"bounded"},
+0/1 outcomes and bounded Maurer–Pontil bounds otherwise. \code{"bounded"},
 \code{"maurer_pontil"}, and \code{"mp"} are synonyms. \code{"bernoulli"} and
 \code{"bernoulli_exact"} use folded-binomial exact bounds. \code{"mtr"} and
 \code{"martinez_taboada_ramdas"} use the empirical-Bernstein MTR bounds.

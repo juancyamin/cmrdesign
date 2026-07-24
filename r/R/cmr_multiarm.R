@@ -308,7 +308,7 @@ cmr_multiarm_from_rectangle <- function(rectangle,
 #'   and internally standardized to `"0"`.
 #' @param alpha Target joint error level.
 #' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
-#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#'   for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.
 #' @param beta Optional endpoint error allocation. If `NULL`, Bonferroni error
 #'   is split across all lower and upper arm endpoints.
 #' @param control_arm Label identifying the control arm in `arm`.

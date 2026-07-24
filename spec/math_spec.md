@@ -38,7 +38,7 @@ R(pi; v1, v0)
   = ((1 - pi) sqrt(v1) - pi sqrt(v0))^2 / (pi (1 - pi)).
 ```
 
-## Two-Arm CMR From A Rectangle
+## Two-Arm CMR from a Rectangle
 
 For a variance rectangle
 
@@ -68,7 +68,7 @@ Most implemented confidence rectangles are variance rectangles on `[0, 1/4]`
 for outcomes bounded in `[0, 1]`. The unbounded-outcome extension below uses
 finite nonnegative variance rectangles that are not capped at `1/4`.
 
-### Maurer-Pontil Bounded-Outcome Bounds
+### Maurer–Pontil Bounded-Outcome Bounds
 
 For bounded observations in `[0, 1]`, sample size `m`, and sample standard
 deviation `s_hat`, the one-sided endpoint adjustment is
@@ -87,7 +87,7 @@ U = min(1/4, (s_hat + eta(beta_u))^2).
 If an endpoint error is zero, the corresponding endpoint is conservative:
 `L = 0` for lower and `U = 1/4` for upper.
 
-### Martinez-Taboada-Ramdas Bounds
+### Martinez-Taboada–Ramdas Bounds
 
 The MTR implementation follows the sequential empirical-Bernstein-style
 variance bounds used in the paper code. The public contract is the deterministic
@@ -249,7 +249,7 @@ The endpoints are squared to form the primary variance interval.
 ## Appendix E Planning
 
 Bounded-outcome activation threshold: smallest even pilot size with equal arm
-sizes such that the Maurer-Pontil upper-radius adjustment is smaller than the
+sizes such that the Maurer–Pontil upper-radius adjustment is smaller than the
 maximum possible sample standard deviation for that arm size.
 
 Bernoulli activation threshold: `4`.

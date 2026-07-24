@@ -31,7 +31,7 @@ weights are used.}
 \item{alpha}{Target joint error level.}
 
 \item{method}{Confidence-set method. \code{"auto"} chooses exact Bernoulli bounds
-for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.}
+for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.}
 
 \item{beta}{Optional scalar endpoint error allocation.}
 

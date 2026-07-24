@@ -38,7 +38,7 @@ rectangle_delayed_outcome(
 )
 }
 \arguments{
-\item{proxy_y}{Pilot proxy or delayed-primary outcomes.}
+\item{proxy_y}{Pilot proxy or delayed primary outcomes.}
 
 \item{d}{Pilot treatment indicator; treatment is \code{1} and control is \code{0}.}
 
@@ -48,7 +48,7 @@ shared across arms or a treatment/control pair.}
 \item{alpha}{Target joint error level.}
 
 \item{method}{Confidence-set method. \code{"auto"} chooses exact Bernoulli bounds
-for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.}
+for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.}
 
 \item{beta}{Optional endpoint error allocation. If \code{NULL}, error is split
 according to \code{correction}.}

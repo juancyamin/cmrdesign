@@ -1,8 +1,9 @@
 # Pilot Planning
 
-`cmr_plan()` implements an Appendix E-style planning screen for choosing a
-pilot size before the main wave. It is a diagnostic tool, not a guarantee that
-pilot-based CMR will improve every realized experiment.
+`cmr_plan()` implements the pilot-size planning screen from Appendix E of the
+accompanying paper (Yamin 2026). It is a
+diagnostic tool, not a guarantee that pilot-based CMR will improve every
+realized experiment.
 
 ## Inputs
 
@@ -15,7 +16,8 @@ Set `input = "variance"` when passing variances instead of standard deviations.
 
 Core options:
 
-- `alpha`: confidence level parameter used by the variance-bound routine.
+- `alpha`: joint error level used by the variance-bound activation screen, as
+  in the estimation functions.
 - `method = "bounded"` or `"bernoulli"`.
 - `accounting = "design_only"` or `"pooled"`.
 - `desired_pilot`: optional pilot size to evaluate.

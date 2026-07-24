@@ -34,7 +34,7 @@ cmr_stratified(
 \item{alpha}{Target joint error level.}
 
 \item{method}{Confidence-set method. \code{"auto"} chooses exact Bernoulli bounds
-for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.}
+for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.}
 
 \item{beta}{Optional endpoint error allocation. If \code{NULL}, Bonferroni error
 is split across all lower and upper treatment/control by stratum endpoints.}

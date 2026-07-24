@@ -19,7 +19,7 @@ that are not regenerated from the package implementation:
 - collapsed shared-control multi-arm and stratified reductions to known
   Neyman allocations;
 - multiple-outcome co-primary rectangle construction from independent
-  Maurer-Pontil endpoint calculations;
+  Maurer–Pontil endpoint calculations;
 - proxy bridge widening from the standard-deviation bridge formula;
 - Appendix E pilot-planning formulas and threshold values.
 
@@ -27,7 +27,7 @@ These checks are deliberately small and deterministic. They are not paper
 simulations, Monte Carlo evidence, or a replacement for the proofs in the paper.
 Their job is to protect implementation provenance before a public release.
 
-## How To Run
+## How to Run
 
 From the repository root:
 
@@ -45,7 +45,7 @@ The frozen MTR reference values come from the earlier package/regression code in
 the parent replication workspace, specifically the old test named:
 
 ```text
-Martinez-Taboada-Ramdas bounds match old implementation regression
+Martinez-Taboada–Ramdas bounds match old implementation regression
 ```
 
 The reference case uses:

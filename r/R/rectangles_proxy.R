@@ -1,4 +1,4 @@
-# Bridge-widened rectangles for proxy or delayed-primary-outcome designs.
+# Bridge-widened rectangles for proxy or delayed primary outcome designs.
 
 .cmr_check_zeta_pair <- function(zeta) {
   zeta <- .cmr_check_numeric(zeta, "zeta")
@@ -35,13 +35,13 @@
 #' Construct a primary-outcome variance rectangle by estimating a proxy-outcome
 #' rectangle and widening each arm's standard-deviation interval by `zeta`.
 #'
-#' @param proxy_y Pilot proxy or delayed-primary outcomes.
+#' @param proxy_y Pilot proxy or delayed primary outcomes.
 #' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
 #' @param zeta Nonnegative standard-deviation bridge radius. Provide a scalar
 #'   shared across arms or a treatment/control pair.
 #' @param alpha Target joint error level.
 #' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
-#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#'   for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.
 #' @param beta Optional endpoint error allocation. If `NULL`, error is split
 #'   according to `correction`.
 #' @param correction Endpoint error correction, either `"bonferroni"` or

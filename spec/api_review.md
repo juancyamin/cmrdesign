@@ -10,18 +10,19 @@ before packaging polish, PyPI/CRAN preparation, or formal versioning.
 
 ## Scope Reviewed
 
-The freeze review focused on applied, simulation-free implementation of CMR and
-its extensions:
+The review focused on applied, simulation-free implementation of CMR and its
+extensions:
 
-- Two-arm bounded outcomes with Maurer-Pontil bounds.
+- Two-arm bounded outcomes with Maurer–Pontil bounds.
 - Exact Bernoulli/binary outcomes.
-- Martinez-Taboada-Ramdas bounded-outcome bounds.
+- Martinez-Taboada–Ramdas bounded-outcome bounds.
 - Unbounded finite outcomes with median-of-means variance intervals.
 - Multi-arm designs with a shared control.
 - Stratified designs.
 - Multiple-outcome designs.
 - Proxy/delayed-outcome designs.
-- Appendix E-style pilot/main-wave planning screens.
+- Appendix E of the accompanying paper (Yamin 2026) pilot/main-wave planning
+  screens.
 
 ## Current Review Status
 

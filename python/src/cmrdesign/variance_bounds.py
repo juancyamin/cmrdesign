@@ -1,4 +1,4 @@
-"""Maurer-Pontil, MTR, and exact Bernoulli variance bounds."""
+"""Maurer–Pontil, MTR, and exact Bernoulli variance bounds."""
 
 from __future__ import annotations
 

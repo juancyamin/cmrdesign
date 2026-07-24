@@ -30,17 +30,18 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: Mathematics",
-  "Topic :: Scientific/Engineering :: Information Analysis"
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Typing :: Typed"
 ]
 dependencies = [
-  "numpy"
+  "numpy>=1.23"
 ]
 
 [project.urls]
 Homepage = "https://juancyamin.github.io/cmrdesign/"
 Repository = "https://github.com/juancyamin/cmrdesign"
 Issues = "https://github.com/juancyamin/cmrdesign/issues"
-Documentation = "https://juancyamin.github.io/cmrdesign/"
+Documentation = "https://github.com/juancyamin/cmrdesign/tree/main/docs"
 Changelog = "https://github.com/juancyamin/cmrdesign/blob/main/CHANGELOG.md"
 Paper = "https://arxiv.org/abs/2607.16982"
 

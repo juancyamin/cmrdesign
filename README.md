@@ -21,13 +21,6 @@ The methods accompany
 [When and How to Pilot: Design Rules for Two-Wave Experiments](https://arxiv.org/abs/2607.16982)
 by [Juan C. Yamin](https://juancyamin.github.io/).
 
-Package links:
-[documentation site](https://juancyamin.github.io/cmrdesign/),
-[PyPI](https://pypi.org/project/cmrdesign/),
-[R-universe](https://juancyamin.r-universe.dev/cmrdesign),
-[GitHub releases](https://github.com/juancyamin/cmrdesign/releases), and
-[paper](https://arxiv.org/abs/2607.16982).
-
 This repository is software only. It does not contain paper replication code,
 raw research data, empirical calibration workflows, or paper-specific
 simulation output.
@@ -35,8 +28,9 @@ simulation output.
 ## Installation
 
 The R package is available from R-universe. The Python package is available
-from PyPI as alpha version `0.1.0a2`; pin the exact version while the API is
-pre-release.
+from PyPI as a pre-release alpha; use `--pre` until a stable Python release is
+available. For exact reproducibility, pin the current alpha version
+`cmrdesign==0.1.0a2`.
 
 R via R-universe:
 
@@ -57,7 +51,7 @@ remotes::install_github("juancyamin/cmrdesign", subdir = "r")
 Python alpha from PyPI:
 
 ```bash
-python -m pip install cmrdesign==0.1.0a2
+python -m pip install --pre cmrdesign
 ```
 
 Python development version from GitHub:
@@ -112,7 +106,7 @@ confidence set for arm variances.
 | If your design is... | Use... | Main inputs |
 | --- | --- | --- |
 | One treatment and one control | `cmr_two_arm()` | `y`, `d` |
-| Two-arm with raw unbounded outcomes | `cmr_unbounded()` | `y`, `d`, `psi` |
+| Two arms with raw unbounded outcomes | `cmr_unbounded()` | `y`, `d`, `psi` |
 | Several treatments sharing one control | `cmr_multiarm()` | `y`, `arm`, `control_arm` |
 | Known strata with possibly different variances | `cmr_stratified()` | `y`, `d`, `strata`, `strata_share` |
 | Multiple outcomes per unit | `cmr_multiple_outcomes()` | outcome matrix `y`, `d`, `weights` |
@@ -124,14 +118,14 @@ The direct rectangle functions, such as `cmr_two_arm_from_rectangle()` and
 users will usually pass pilot data directly and let the package estimate the
 confidence rectangle.
 
-## Choosing A Confidence Method
+## Choosing a Confidence Method
 
 | Method | Use when... | Notes |
 | --- | --- | --- |
 | `method = "auto"` | You want the default applied behavior | Uses exact Bernoulli bounds for raw 0/1 outcomes and bounded-outcome bounds otherwise. |
-| `method = "bounded"` or `"mp"` | Outcomes are bounded, usually normalized to `[0, 1]` | Uses Maurer-Pontil variance bounds. |
+| `method = "bounded"` or `"mp"` | Outcomes are bounded, usually normalized to `[0, 1]` | Uses Maurer–Pontil variance bounds. |
 | `method = "bernoulli"` | Outcomes are truly binary and coded 0/1 | Uses exact folded-binomial variance bounds. |
-| `method = "mtr"` | You specifically want Martinez-Taboada-Ramdas bounds | Uses the pilot row order, so do not sort outcomes before calling it. |
+| `method = "mtr"` | You specifically want Martinez-Taboada–Ramdas bounds | Uses the pilot row order, so do not sort outcomes before calling it. |
 | `method = "unbounded"` | Two-arm outcomes are raw finite values rather than bounded-scale values | Requires a kurtosis bound `psi`; use `cmr_unbounded()` for the clearest API. |
 
 For non-unit bounded outcomes, use `normalize = TRUE` in R or `normalize=True`
@@ -158,18 +152,18 @@ CMR is a design rule for allocating the next experimental wave. It is not a
 treatment-effect estimator, and `U_CMR` is not a treatment-effect confidence
 interval.
 
-## Examples And Docs
+## Examples and Docs
 
 All examples use simulated data.
 
-- [Quickstart](docs/quickstart.md): shortest two-arm example.
+- [Quick Start](docs/quickstart.md): shortest two-arm example.
 - [R package site](https://juancyamin.github.io/cmrdesign/): R reference pages
   and rendered vignettes.
 - [Choosing a method](docs/choosing_methods.md): `auto`, bounded, Bernoulli,
   MTR, and unbounded rules.
 - [Methods](docs/methods.md): implementation details and supported extensions.
-- [Pilot planning](docs/pilot_planning.md): Appendix E-style pilot/main-wave
-  sizing screens.
+- [Pilot planning](docs/pilot_planning.md): pilot/main-wave sizing screens
+  from Appendix E of the accompanying paper (Yamin 2026).
 - [FAQ](docs/faq.md): input conventions and common edge cases.
 - [R examples](examples/r) and [Python examples](examples/python): simulated
   examples for each supported design.

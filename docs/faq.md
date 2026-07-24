@@ -78,7 +78,8 @@ treatment/control by stratum cell; use `pi_matrix`, `sampling_margin`, and
 
 ## Are R and Python expected to match exactly?
 
-Closed-form two-arm, collapsed-rectangle, full-rectangle, planning, and
-variance-bound cases use tight cross-language tolerances. General multi-arm and
-stratified rectangles involve numerical optimization and use explicit
-case-level tolerances in the shared fixtures.
+Not bit-for-bit, but yes up to documented numerical tolerances. Closed-form
+two-arm, collapsed-rectangle, full-rectangle, planning, and variance-bound
+cases use tight cross-language tolerances. General multi-arm and stratified
+rectangles involve numerical optimization and use explicit case-level
+tolerances in the shared fixtures.

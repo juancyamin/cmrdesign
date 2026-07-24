@@ -1,4 +1,4 @@
-# Choosing A Method
+# Choosing a Method
 
 In `cmrdesign`, `method` chooses how the package computes confidence intervals
 for outcome variances. The CMR optimization then uses those intervals to build
@@ -15,17 +15,17 @@ match the outcome scale and the assumptions you want to report.
 | You want the applied default | `method = "auto"` |
 | Outcome is bounded but not exactly 0/1 | `method = "bounded"` |
 | Outcome is a true binary variable coded 0/1 | `method = "bernoulli"` |
-| You specifically want Martinez-Taboada-Ramdas bounds | `method = "mtr"` |
+| You specifically want Martinez-Taboada–Ramdas bounds | `method = "mtr"` |
 | Two-arm raw finite outcomes without a known bound | `cmr_unbounded(..., psi = ...)` |
 
 ## Method Support
 
 | Method family | Computes variance CIs by... | Available for... |
 | --- | --- | --- |
-| `auto` | Exact Bernoulli for raw 0/1 outcomes, otherwise bounded Maurer-Pontil | Two-arm, multi-arm, stratified, multiple outcomes, proxy |
-| `bounded`, `mp`, `maurer_pontil` | Maurer-Pontil bounded-outcome variance bounds | Two-arm, multi-arm, stratified, multiple outcomes, proxy |
+| `auto` | Exact Bernoulli for raw 0/1 outcomes, otherwise bounded Maurer–Pontil | Two-arm, multi-arm, stratified, multiple outcomes, proxy |
+| `bounded`, `mp`, `maurer_pontil` | Maurer–Pontil bounded-outcome variance bounds | Two-arm, multi-arm, stratified, multiple outcomes, proxy |
 | `bernoulli`, `bernoulli_exact` | Exact folded-binomial inversion for Bernoulli variance | Binary two-arm, binary multi-arm/cells, binary co-primary outcomes, binary proxy |
-| `mtr`, `martinez_taboada_ramdas` | Martinez-Taboada-Ramdas sequential bounded-outcome bounds | Bounded two-arm, multi-arm, stratified, multiple outcomes, proxy |
+| `mtr`, `martinez_taboada_ramdas` | Martinez-Taboada–Ramdas sequential bounded-outcome bounds | Bounded two-arm, multi-arm, stratified, multiple outcomes, proxy |
 | `unbounded`, `unbounded_mom`, `median_of_means`, `mom` | Median-of-means variance bounds under bounded kurtosis | Two-arm only, via `cmr_unbounded()` or `cmr_two_arm(..., method = "unbounded")` |
 
 `cmr_plan()` is a pre-pilot planning helper. It does not use pilot outcomes and
@@ -34,7 +34,7 @@ currently supports the bounded and Bernoulli activation screens.
 ## `auto`
 
 `auto` dispatches to exact Bernoulli folded-binomial bounds only when the raw
-pilot outcomes are exactly 0 and 1. Otherwise it uses the Maurer-Pontil
+pilot outcomes are exactly 0 and 1. Otherwise it uses the Maurer–Pontil
 bounded-outcome bounds.
 
 If `normalize = TRUE` in R or `normalize=True` in Python, the dispatch decision
@@ -45,7 +45,7 @@ binary, recode it to 0/1 or set `method = "bernoulli"` intentionally.
 ## Bounded Outcomes
 
 `method = "bounded"` and its aliases `maurer_pontil` and `mp` use
-Maurer-Pontil variance bounds for outcomes on `[0, 1]`. This is the default
+Maurer–Pontil variance bounds for outcomes on `[0, 1]`. This is the default
 non-binary route. Use `normalize = TRUE`/`normalize=True` when the raw outcome
 is bounded on another known scale. The resulting variance endpoints are clipped
 to the feasible `[0, 1/4]` range for unit-bounded outcomes.
@@ -65,7 +65,8 @@ column is 0/1.
 ## MTR
 
 `method = "mtr"` and `martinez_taboada_ramdas` use the
-Martinez-Taboada-Ramdas sequential bounded-outcome bounds. MTR treats the pilot
+Martinez-Taboada–Ramdas (MTR) sequential bounded-outcome bounds of
+Martinez-Taboada and Ramdas. MTR treats the pilot
 observations as an ordered sequence. Pass the natural pilot order,
 randomization order, or data-collection order; do not sort observations by
 outcome before calling the function.

@@ -93,8 +93,9 @@ workflows, the result keeps outcome-specific confidence bounds in
 
 ## Proxy Or Delayed Outcomes
 
-`cmr_proxy(proxy_y, d, zeta, ...)` and `cmr_delayed_outcome()` handle pilot data
-that observe a proxy or delayed-primary outcome. The proxy standard-deviation
+`cmr_proxy(proxy_y, d, zeta, ...)` and `cmr_delayed_outcome()` handle pilots in
+which only a proxy or delayed primary outcome is observed. The proxy
+standard-deviation
 interval in each arm is widened by the user-supplied bridge constant `zeta`,
 clipped to the feasible `[0, 0.5]` standard-deviation range, and squared back
 into a variance interval before applying two-arm CMR.
@@ -122,10 +123,10 @@ multiple-outcome, or proxy designs.
 ## Pilot Planning
 
 `cmr_plan(n, sigma1, sigma0, ...)` is used before the pilot is collected. It
-implements Appendix E-style screens using planning standard deviations or
-variances. The output reports the activation threshold, break-even cap,
-feasible even pilot sizes, a default suggested pilot size, and diagnostics for
-an optional `desired_pilot`.
+implements the pilot-size planning screen from Appendix E of the accompanying
+paper (Yamin 2026) using planning standard deviations or variances. The output
+reports the activation threshold, break-even cap, feasible even pilot sizes, a
+default suggested pilot size, and diagnostics for an optional `desired_pilot`.
 
 This is a planning screen, not a guarantee that adaptation will help in every
 realized experiment.
@@ -134,14 +135,14 @@ realized experiment.
 
 Implemented variance rectangles are:
 
-- Maurer-Pontil bounded-outcome bounds: `method = "bounded"` or `"mp"`.
+- Maurer–Pontil bounded-outcome bounds: `method = "bounded"` or `"mp"`.
 - Exact folded-binomial Bernoulli bounds: `method = "bernoulli"`.
-- Martinez-Taboada-Ramdas sequential bounded-outcome bounds:
+- Martinez-Taboada–Ramdas sequential bounded-outcome bounds:
   `method = "mtr"`.
 - Unbounded-outcome median-of-means bounds: `method = "unbounded"`, with
   required `psi`.
 
-See [Choosing A Method](choosing_methods.md) for when each interval method is
+See [Choosing a Method](choosing_methods.md) for when each interval method is
 appropriate.
 
 See `spec/math_spec.md` for formulas and `spec/api_spec.md` for the

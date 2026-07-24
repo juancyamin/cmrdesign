@@ -63,7 +63,7 @@ variance estimates, normalization details, and method metadata.
 }
 \description{
 Construct a two-arm variance confidence rectangle for bounded outcomes using
-Maurer-Pontil or Martinez-Taboada-Ramdas one-arm bounds.
+Maurer–Pontil or Martinez-Taboada–Ramdas one-arm bounds.
 }
 \examples{
 d <- rep(c(1, 0), each = 5)

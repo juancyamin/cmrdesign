@@ -159,7 +159,7 @@
 #' @param strata_share Named stratum population shares that sum to one.
 #' @param alpha Target joint error level.
 #' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
-#'   for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.
+#'   for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.
 #' @param beta Optional endpoint error allocation. If `NULL`, Bonferroni error
 #'   is split across all lower and upper treatment/control by stratum endpoints.
 #' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before

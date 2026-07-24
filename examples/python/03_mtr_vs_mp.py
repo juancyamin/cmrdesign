@@ -1,4 +1,4 @@
-"""Compare Maurer-Pontil and MTR rectangles on simulated bounded outcomes."""
+"""Compare Maurer–Pontil and MTR rectangles on simulated bounded outcomes."""
 
 import numpy as np
 

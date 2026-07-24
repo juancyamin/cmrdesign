@@ -13,9 +13,12 @@ home:
 
 navbar:
   structure:
-    left: [reference, articles, news]
+    left: [reference, articles, news, paper]
     right: [search, github]
   components:
+    paper:
+      text: Paper
+      href: https://arxiv.org/abs/2607.16982
     articles:
       text: Articles
       menu:
@@ -31,10 +34,6 @@ navbar:
           href: articles/proxy-outcomes.html
         - text: Pilot planning
           href: articles/pilot-planning.html
-        - text: Paper
-          href: https://arxiv.org/abs/2607.16982
-        - text: Python package
-          href: https://pypi.org/project/cmrdesign/
 
 articles:
   - title: Applied tutorials
@@ -58,8 +57,8 @@ reference:
 
   - title: Pilot planning
     desc: >
-      Appendix E-style screens for planning the pilot/main-wave split before
-      collecting pilot data.
+      Screens from Appendix E of the accompanying paper (Yamin 2026) for
+      planning the pilot/main-wave split before collecting pilot data.
     contents:
       - starts_with("activation_threshold_")
       - pilot_viability_band

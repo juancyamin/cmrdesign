@@ -29,7 +29,7 @@ of \code{alpha}, which is validated for interface consistency.
 }
 \description{
 Compute simple method-specific pilot-size activation thresholds for the
-Appendix E-style pilot-planning screen.
+Pilot-planning screen from Appendix E of the accompanying paper.
 }
 \examples{
 activation_threshold_bounded(alpha = 0.05, max_total_pilot = 200)

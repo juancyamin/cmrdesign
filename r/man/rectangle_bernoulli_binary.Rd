@@ -79,7 +79,7 @@ according to \code{correction}.}
 \item{tol}{Numerical tolerance for exact Bernoulli bound inversion.}
 
 \item{method}{Confidence-set method. \code{"auto"} chooses exact Bernoulli bounds
-for 0/1 outcomes and bounded Maurer-Pontil bounds otherwise.}
+for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.}
 
 \item{normalize}{If \code{TRUE}, normalize bounded outcomes to \verb{[0, 1]} before
 computing variances.}

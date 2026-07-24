@@ -1,4 +1,4 @@
-# Quickstart
+# Quick Start
 
 This page shows the shortest path from simulated pilot data to a CMR assignment
 and certificate. The same workflow applies to real pilot data: replace the
@@ -25,7 +25,7 @@ remotes::install_github("juancyamin/cmrdesign", subdir = "r")
 Python alpha from PyPI:
 
 ```bash
-python -m pip install cmrdesign==0.1.0a2
+python -m pip install --pre cmrdesign
 ```
 
 Python development version from GitHub:
@@ -81,7 +81,7 @@ fit.U_CMR
 print(fit)
 ```
 
-## Read The Result
+## Read the Result
 
 - `pi` is the recommended main-wave treatment share. For two arms, `pi = 0.6`
   means assign 60 percent of the main wave to treatment and 40 percent to
@@ -107,5 +107,5 @@ print(fit)
 | Multiple outcomes per unit | `cmr_multiple_outcomes(y_matrix, d, weights, estimand)` |
 | Proxy or delayed primary outcome | `cmr_proxy(proxy_y, d, zeta)` |
 
-See [Choosing A Method](choosing_methods.md) for the variance confidence
+See [Choosing a Method](choosing_methods.md) for the variance confidence
 interval options and [Methods](methods.md) for the supported CMR extensions.

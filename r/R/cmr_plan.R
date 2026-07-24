@@ -32,7 +32,7 @@
 #' Pilot-size activation thresholds
 #'
 #' Compute simple method-specific pilot-size activation thresholds for the
-#' Appendix E-style pilot-planning screen.
+#' Pilot-planning screen from Appendix E of the accompanying paper.
 #'
 #' @param alpha Target error level.
 #' @param max_total_pilot Largest total pilot size to search.
