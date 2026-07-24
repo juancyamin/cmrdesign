@@ -97,6 +97,12 @@ reference:
       - saving_vs_balance
       - share_of_oracle_gain
 
+  - title: Result display
+    desc: >
+      Print and summary methods for compact CMR result objects.
+    contents:
+      - print.cmr_two_arm
+
   - title: Package
     contents:
       - cmrdesign-package
