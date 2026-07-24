@@ -2,6 +2,7 @@
 
 [![Python](https://github.com/juancyamin/cmrdesign/actions/workflows/python.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/python.yml)
 [![R](https://github.com/juancyamin/cmrdesign/actions/workflows/r.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/r.yml)
+[![pkgdown](https://github.com/juancyamin/cmrdesign/actions/workflows/pkgdown.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/pkgdown.yml)
 [![Fixtures](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml)
 [![Validation](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml)
 [![PyPI](https://img.shields.io/pypi/v/cmrdesign?label=PyPI)](https://pypi.org/project/cmrdesign/)
@@ -21,6 +22,7 @@ The methods accompany
 by [Juan C. Yamin](https://juancyamin.github.io/).
 
 Package links:
+[documentation site](https://juancyamin.github.io/cmrdesign/),
 [PyPI](https://pypi.org/project/cmrdesign/),
 [R-universe](https://juancyamin.r-universe.dev/cmrdesign),
 [GitHub releases](https://github.com/juancyamin/cmrdesign/releases), and
@@ -161,6 +163,8 @@ interval.
 All examples use simulated data.
 
 - [Quickstart](docs/quickstart.md): shortest two-arm example.
+- [R package site](https://juancyamin.github.io/cmrdesign/): R reference pages
+  and rendered vignettes.
 - [Choosing a method](docs/choosing_methods.md): `auto`, bounded, Bernoulli,
   MTR, and unbounded rules.
 - [Methods](docs/methods.md): implementation details and supported extensions.

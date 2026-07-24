@@ -20,6 +20,7 @@ python/*.egg-info/
 # Docs/build artifacts
 docs/_site/
 docs/site/
+r/docs/
 
 # OS/editor
 .DS_Store

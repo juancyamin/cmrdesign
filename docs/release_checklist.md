@@ -10,6 +10,8 @@ been reviewed and that package examples remain simulated-data examples only.
   `CITATION.cff`, and `CHANGELOG.md`.
 - Confirm the paper link is present in the root README, package metadata, and
   citation file: <https://arxiv.org/abs/2607.16982>.
+- Confirm the R package documentation site is configured for
+  <https://juancyamin.github.io/cmrdesign/>.
 - Confirm the public API review is current:
   `spec/api_freeze_review.md`.
 - Confirm examples do not depend on paper replication data or simulations.
@@ -49,6 +51,12 @@ R CMD check --no-manual --ignore-vignettes cmrdesign_*.tar.gz
 
 Full release checks should also run vignette chunks in an environment with
 Pandoc installed.
+
+Build the R documentation site locally when `pkgdown` is available:
+
+```bash
+Rscript -e 'pkgdown::build_site("r", new_process = FALSE, install = FALSE)'
+```
 
 ## Python Distribution Dry Run
 
@@ -128,6 +136,8 @@ binary builds while the API is still in pre-release.
 ## Final Checks
 
 - GitHub Actions should be green for Python, R, Fixtures, and Validation.
+- The pkgdown workflow should be green, and GitHub Pages should serve the R
+  documentation site from the `gh-pages` branch.
 - `git status --short` should be clean after generated artifacts are removed or
   ignored.
 - The changelog should describe all user-visible changes since the previous
