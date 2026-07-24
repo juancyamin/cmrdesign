@@ -1,6 +1,8 @@
 import inspect
 import unittest
 
+import numpy as np
+
 import cmrdesign as cmr
 
 
@@ -254,6 +256,147 @@ class PublicAPITests(unittest.TestCase):
                         default,
                         msg=f"{name}.{param_name}",
                     )
+
+    def test_main_result_fields_match_reviewed_contract(self):
+        rng = np.random.default_rng(2718)
+        n = 24
+        d = np.r_[np.ones(n), np.zeros(n)]
+        y = np.r_[rng.beta(2, 5, n), rng.beta(4, 4, n)]
+
+        required_attrs = {
+            "pi",
+            "u_cmr",
+            "rectangle",
+            "confidence_set",
+            "pilot",
+            "alpha",
+            "beta",
+            "method",
+            "joint_error_bound",
+            "diagnostics",
+            "extra",
+        }
+
+        def expect_cmr_result(fit):
+            self.assertTrue(required_attrs.issubset(fit.__dataclass_fields__))
+            self.assertEqual(fit.U_CMR, fit.u_cmr)
+            self.assertIsNotNone(fit.confidence_set)
+            self.assertIn("confidence_method", fit.diagnostics)
+            self.assertIn("joint_error_bound", fit.diagnostics)
+
+        fit_two = cmr.cmr_two_arm(y, d, method="bounded")
+        expect_cmr_result(fit_two)
+        self.assertEqual(
+            set(fit_two.extra),
+            {"corners", "corner_regrets", "binding", "correction"},
+        )
+
+        y_unbounded = [0, 2] * 180 + [0, 4] * 180
+        d_unbounded = [1] * 360 + [0] * 360
+        fit_unbounded = cmr.cmr_unbounded(y_unbounded, d_unbounded, psi=1)
+        expect_cmr_result(fit_unbounded)
+        self.assertIsNone(fit_unbounded.beta)
+        self.assertEqual(fit_unbounded.method, "unbounded_mom")
+        self.assertTrue(fit_unbounded.diagnostics["unbounded_outcomes"])
+        self.assertIn("rho", fit_unbounded.pilot)
+        self.assertIn("status", fit_unbounded.pilot)
+
+        arm = np.repeat([0, 1, 2], n)
+        y_multiarm = np.r_[
+            rng.beta(4, 4, n),
+            rng.beta(2, 6, n),
+            rng.beta(5, 3, n),
+        ]
+        fit_multiarm = cmr.cmr_multiarm(y_multiarm, arm, method="bounded")
+        expect_cmr_result(fit_multiarm)
+        self.assertEqual(fit_multiarm.extra["arms"], ["0", "1", "2"])
+        self.assertEqual(fit_multiarm.extra["control_arm"], "0")
+        self.assertIn("binding_vertices", fit_multiarm.extra)
+
+        strata = np.repeat(["A", "B"], 2 * n)
+        d_strata = np.tile(np.r_[np.ones(n), np.zeros(n)], 2)
+        y_strata = np.r_[
+            rng.beta(2, 6, n),
+            rng.beta(4, 4, n),
+            rng.beta(5, 3, n),
+            rng.beta(3, 5, n),
+        ]
+        fit_stratified = cmr.cmr_stratified(
+            y_strata,
+            d_strata,
+            strata,
+            {"A": 0.45, "B": 0.55},
+            method="bounded",
+        )
+        expect_cmr_result(fit_stratified)
+        self.assertEqual(fit_stratified.extra["cell_names"], ["1:A", "0:A", "1:B", "0:B"])
+        self.assertEqual(fit_stratified.extra["strata_share"], {"A": 0.45, "B": 0.55})
+        self.assertIn("sampling_margin", fit_stratified.extra)
+        self.assertIn("treatment_margin", fit_stratified.extra)
+
+        y_multioutcome = np.column_stack(
+            [y, np.r_[rng.beta(5, 3, n), rng.beta(3, 5, n)]]
+        )
+        fit_multioutcome = cmr.cmr_multiple_outcomes(
+            y_multioutcome,
+            d,
+            weights=[0.6, 0.4],
+            method="bounded",
+        )
+        expect_cmr_result(fit_multioutcome)
+        self.assertEqual(fit_multioutcome.extra["estimand"], "coprimary")
+        self.assertEqual(fit_multioutcome.extra["weights"], {"outcome_1": 0.6, "outcome_2": 0.4})
+
+        fit_proxy = cmr.cmr_proxy(y, d, zeta=0.05, method="bounded")
+        expect_cmr_result(fit_proxy)
+        self.assertIn("zeta", fit_proxy.extra)
+        self.assertIn("bridge", fit_proxy.extra)
+        self.assertIn("abs(primary_sd - proxy_sd)", fit_proxy.diagnostics["bridge"])
+
+        plan = cmr.cmr_plan(1000, 0.5, 0.25)
+        self.assertEqual(
+            set(plan),
+            {
+                "band",
+                "suggested_pilot",
+                "default_two_thirds_power",
+                "desired_pilot",
+                "desired_status",
+                "recommendation",
+                "caveat",
+            },
+        )
+
+    def test_main_error_messages_are_actionable(self):
+        with self.assertRaisesRegex(ValueError, "`y` and `d` must have the same length"):
+            cmr.cmr_two_arm([0.1, 0.2], [1])
+
+        with self.assertRaisesRegex(ValueError, "`psi` is required"):
+            cmr.cmr_unbounded([0, 2] * 180, [1] * 180 + [0] * 180)
+
+        with self.assertRaisesRegex(ValueError, "control arm"):
+            cmr.cmr_multiarm([0.1, 0.2, 0.3, 0.4], [1, 1, 2, 2])
+
+        with self.assertRaisesRegex(ValueError, "missing observed strata"):
+            cmr.cmr_stratified(
+                [0.1, 0.2, 0.3, 0.4],
+                [1, 0, 1, 0],
+                ["A", "A", "B", "B"],
+                {"A": 1.0},
+            )
+
+        with self.assertRaisesRegex(ValueError, "`weights` must have length 2"):
+            cmr.cmr_multiple_outcomes(
+                [[0.1, 0.2], [0.2, 0.3], [0.3, 0.4], [0.4, 0.5]],
+                [1, 1, 0, 0],
+                weights=[1.0],
+            )
+
+        with self.assertRaisesRegex(ValueError, "`zeta` must be nonnegative"):
+            cmr.cmr_proxy([0.1, 0.2, 0.3, 0.4], [1, 1, 0, 0], zeta=-0.1)
+
+        with self.assertRaisesRegex(ValueError, "`method` must be 'bounded' or 'bernoulli'"):
+            cmr.cmr_plan(1000, 0.5, 0.25, method="unbounded")
 
 
 if __name__ == "__main__":

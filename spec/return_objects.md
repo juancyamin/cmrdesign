@@ -113,3 +113,10 @@ Planning:
   the applied interpretation unless a user opts into expert review.
 - Printed output should remain compact and audit-oriented, and future display
   refinements should not change the data fields specified here.
+
+## Regression Guards
+
+Reviewed field names for the main applied workflows are checked in
+`r/tests/testthat/test-public-api.R` and `python/tests/test_public_api.py`.
+Those tests also cover representative validation errors so user-facing messages
+remain actionable during beta preparation.

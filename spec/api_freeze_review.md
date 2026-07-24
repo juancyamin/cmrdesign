@@ -56,6 +56,16 @@ installation routes against README-style quickstarts and all simulated examples:
 - PyPI `cmrdesign==0.1.0a2` under Python 3.12.
 - Current R-universe binary `0.0.0.9000` in a clean temporary R library.
 
+A follow-up result-object pass added tests for the reviewed field names and
+representative actionable error messages across the main applied workflows. It
+also made small additive field fixes:
+
+- R unbounded CMR results now retain explicit top-level `beta = NULL` and
+  `correction = NULL` entries.
+- Python multi-arm results expose `arms` and `control_arm` in `extra`.
+- Python stratified results expose `strata_share` and `cell_names` in `extra`.
+- Python proxy results expose bridge metadata in `extra`.
+
 ## Reviewed Applied Surface
 
 The recommended applied entry points are aligned conceptually across R and

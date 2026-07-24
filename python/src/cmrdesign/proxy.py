@@ -167,6 +167,7 @@ def cmr_proxy(
     out.method = confidence_set.method
     out.joint_error_bound = confidence_set.joint_error_bound
     out.extra["zeta"] = confidence_set.extra.get("zeta")
+    out.extra["bridge"] = confidence_set.extra.get("bridge")
     out.diagnostics["confidence_method"] = confidence_set.method
     out.diagnostics["joint_error_bound"] = confidence_set.joint_error_bound
     out.diagnostics["bridge"] = confidence_set.extra["bridge"]["assumption"]

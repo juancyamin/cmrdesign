@@ -277,6 +277,8 @@ def cmr_stratified_from_rectangle(
         rectangle=checked,
         diagnostics=diagnostics,
         extra={
+            "strata_share": checked["strata_share"],
+            "cell_names": checked["cell_names"],
             "pi_matrix": stratified_vector_to_matrix(pi_array, strata_names),
             "sampling_margin": sampling_margin,
             "treatment_margin": treatment_margin,
@@ -463,4 +465,6 @@ def cmr_stratified(
     out.joint_error_bound = confidence_set.joint_error_bound
     out.diagnostics["confidence_method"] = confidence_set.method
     out.diagnostics["joint_error_bound"] = confidence_set.joint_error_bound
+    out.extra["strata_share"] = confidence_set.extra["strata_share"]
+    out.extra["cell_names"] = list(confidence_set.extra["cell_results"])
     return out

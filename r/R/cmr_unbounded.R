@@ -553,8 +553,8 @@ cmr_unbounded <- function(y,
     normalization = NULL
   )
   out$alpha <- confidence_set$alpha
-  out$beta <- NULL
-  out$correction <- NULL
+  out["beta"] <- list(NULL)
+  out["correction"] <- list(NULL)
   out$method <- confidence_set$method
   out$joint_error_bound <- confidence_set$joint_error_bound
   out$diagnostics$confidence_method <- confidence_set$method

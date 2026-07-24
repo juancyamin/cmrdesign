@@ -249,6 +249,7 @@ def cmr_multiarm_from_rectangle(
         rectangle=rect,
         diagnostics=diagnostics,
         extra={
+            "arms": arms,
             "vertices": problem["vertices"],
             "vertex_regrets": solution["vertex_regrets"],
             "binding_vertices": [
@@ -422,4 +423,6 @@ def cmr_multiarm(
     out.joint_error_bound = confidence_set.joint_error_bound
     out.diagnostics["confidence_method"] = confidence_set.method
     out.diagnostics["joint_error_bound"] = confidence_set.joint_error_bound
+    out.extra["arms"] = confidence_set.extra["arms"]
+    out.extra["control_arm"] = confidence_set.extra["control_arm"]
     return out
