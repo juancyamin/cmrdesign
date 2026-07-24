@@ -24,6 +24,7 @@ jobs:
           extra-packages: any::testthat, any::jsonlite, any::knitr, any::rmarkdown, any::remotes
 
       - name: Install roxygen2 version used for generated docs
+        if: matrix.os == 'ubuntu-latest'
         run: |
           remotes::install_version(
             "roxygen2",
@@ -34,6 +35,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Check generated R documentation
+        if: matrix.os == 'ubuntu-latest'
         run: |
           roxygen2::roxygenise("r")
           status <- system2(
