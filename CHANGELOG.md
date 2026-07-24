@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0a2 (Python pre-release)
+
+- Updated the Python package README so the PyPI project page shows the real
+  `pip install cmrdesign==0.1.0a2` command instead of the temporary TestPyPI
+  release-testing instructions.
+
 ## 0.1.0a1 (Python pre-release candidate)
 
 - Initial R and Python implementations of applied CMR design rules.

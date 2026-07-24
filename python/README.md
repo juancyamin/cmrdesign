@@ -14,7 +14,7 @@ kept out of the package repository.
 Install the current Python alpha from PyPI:
 
 ```bash
-python -m pip install cmrdesign==0.1.0a1
+python -m pip install cmrdesign==0.1.0a2
 ```
 
 For the development version from GitHub:

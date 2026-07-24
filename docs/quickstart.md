@@ -25,7 +25,7 @@ remotes::install_github("juancyamin/cmrdesign", subdir = "r")
 Python alpha from PyPI:
 
 ```bash
-python -m pip install cmrdesign==0.1.0a1
+python -m pip install cmrdesign==0.1.0a2
 ```
 
 Python development version from GitHub:
