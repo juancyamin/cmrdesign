@@ -44,7 +44,7 @@ rectangle_delayed_outcome(
 
 - proxy_y:
 
-  Pilot proxy or delayed-primary outcomes.
+  Pilot proxy or delayed primary outcomes.
 
 - d:
 
@@ -62,7 +62,7 @@ rectangle_delayed_outcome(
 - method:
 
   Confidence-set method. `"auto"` chooses exact Bernoulli bounds for 0/1
-  outcomes and bounded Maurer-Pontil bounds otherwise.
+  outcomes and bounded Maurer–Pontil bounds otherwise.
 
 - beta:
 

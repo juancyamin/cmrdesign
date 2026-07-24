@@ -39,11 +39,10 @@
     <li><a class="dropdown-item" href="../articles/multiple-outcomes.html">Multiple outcomes</a></li>
     <li><a class="dropdown-item" href="../articles/proxy-outcomes.html">Proxy outcomes</a></li>
     <li><a class="dropdown-item" href="../articles/pilot-planning.html">Pilot planning</a></li>
-    <li><a class="external-link dropdown-item" href="https://arxiv.org/abs/2607.16982">Paper</a></li>
-    <li><a class="external-link dropdown-item" href="https://pypi.org/project/cmrdesign/">Python package</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://arxiv.org/abs/2607.16982">Paper</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -106,7 +105,7 @@ treatment assignment probability.</p>
 <h2 id="compute-the-cmr-assignment">Compute the CMR assignment<a class="anchor" aria-label="anchor" href="#compute-the-cmr-assignment"></a>
 </h2>
 <p>The default bounded-outcome confidence rectangle uses the
-Maurer-Pontil-style empirical variance bounds for outcomes in
+Maurer–Pontil empirical variance bounds for outcomes in
 <code>[0, 1]</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_bounded</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cmr_two_arm.html">cmr_two_arm</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">d</span>, method <span class="op">=</span> <span class="st">"bounded"</span>, alpha <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
@@ -141,7 +140,7 @@ confidence interval.</p>
 </h2>
 <p>The package exposes the bounded/MP and MTR variance confidence sets
 through the same interface. The MTR option implements the
-Martinez-Taboada-Ramdas one-sided variance bounds.</p>
+Martinez-Taboada–Ramdas one-sided variance bounds.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">methods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bounded"</span>, <span class="st">"mp"</span>, <span class="st">"mtr"</span><span class="op">)</span></span>
 <span></span>

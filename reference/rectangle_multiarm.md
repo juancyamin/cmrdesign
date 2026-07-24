@@ -40,7 +40,7 @@ rectangle_multiarm(
 - method:
 
   Confidence-set method. `"auto"` chooses exact Bernoulli bounds for 0/1
-  outcomes and bounded Maurer-Pontil bounds otherwise.
+  outcomes and bounded Maurer–Pontil bounds otherwise.
 
 - beta:
 

@@ -36,8 +36,8 @@ return a recommended main-wave allocation plus a regret certificate.
 
 ## Pilot planning
 
-Appendix E-style screens for planning the pilot/main-wave split before
-collecting pilot data.
+Screens from Appendix E of the accompanying paper (Yamin 2026) for
+planning the pilot/main-wave split before collecting pilot data.
 
 - [`activation_threshold_bounded()`](https://juancyamin.github.io/cmrdesign/reference/activation_threshold_bounded.md)
   [`activation_threshold_bernoulli()`](https://juancyamin.github.io/cmrdesign/reference/activation_threshold_bounded.md)

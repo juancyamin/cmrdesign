@@ -1,9 +1,9 @@
 # Multiple Outcomes
 
 This vignette shows the CMR extensions for multiple bounded outcomes.
-Outcomes can be combined into a weighted index or protected as coprimary
-outcomes. The outcome object `y` is a matrix with one row per pilot unit
-and one column per outcome.
+Outcomes can be combined into a weighted index or protected as
+co-primary outcomes. The outcome object `y` is a matrix with one row per
+pilot unit and one column per outcome.
 
 ``` r
 
@@ -75,7 +75,7 @@ fit_index$weights
 This is the natural option when the main estimand is a prespecified
 index.
 
-## Coprimary-outcome CMR
+## Co-primary Outcome CMR
 
 With `estimand = "coprimary"`, the package builds outcome-by-arm
 confidence bounds and combines them into an effective two-arm variance
@@ -112,7 +112,7 @@ round(fit_coprimary$confidence_set$outcome_vhat$control, 4)
 #> [1] 0.0308 0.0216
 ```
 
-## Compare index and coprimary designs
+## Compare index and co-primary designs
 
 ``` r
 

@@ -49,7 +49,7 @@ variance_bounds_martinez_taboada_ramdas(
 
 - c1, c2, c3, c4, c5:
 
-  Martinez-Taboada-Ramdas tuning constants.
+  Martinez-Taboada–Ramdas tuning constants.
 
 - cs, tilde_cs:
 

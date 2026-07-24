@@ -60,7 +60,7 @@ cmr_binary(
 - method:
 
   Confidence-set method. `"auto"` uses exact Bernoulli bounds for 0/1
-  outcomes and bounded Maurer-Pontil bounds otherwise. `"bounded"`,
+  outcomes and bounded Maurer–Pontil bounds otherwise. `"bounded"`,
   `"maurer_pontil"`, and `"mp"` are synonyms. `"bernoulli"` and
   `"bernoulli_exact"` use folded-binomial exact bounds. `"mtr"` and
   `"martinez_taboada_ramdas"` use the empirical-Bernstein MTR bounds.

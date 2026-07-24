@@ -39,11 +39,10 @@
     <li><a class="dropdown-item" href="../articles/multiple-outcomes.html">Multiple outcomes</a></li>
     <li><a class="dropdown-item" href="../articles/proxy-outcomes.html">Proxy outcomes</a></li>
     <li><a class="dropdown-item" href="../articles/pilot-planning.html">Pilot planning</a></li>
-    <li><a class="external-link dropdown-item" href="https://arxiv.org/abs/2607.16982">Paper</a></li>
-    <li><a class="external-link dropdown-item" href="https://pypi.org/project/cmrdesign/">Python package</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://arxiv.org/abs/2607.16982">Paper</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -73,9 +72,9 @@
     
     
 <p>This vignette shows the CMR extensions for multiple bounded outcomes.
-Outcomes can be combined into a weighted index or protected as coprimary
-outcomes. The outcome object <code>y</code> is a matrix with one row per
-pilot unit and one column per outcome.</p>
+Outcomes can be combined into a weighted index or protected as
+co-primary outcomes. The outcome object <code>y</code> is a matrix with
+one row per pilot unit and one column per outcome.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html" class="external-link">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>collapse <span class="op">=</span> <span class="cn">TRUE</span>, comment <span class="op">=</span> <span class="st">"#&gt;"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://juancyamin.github.io/cmrdesign/">cmrdesign</a></span><span class="op">)</span></span></code></pre></div>
@@ -140,7 +139,7 @@ that index.</p>
 index.</p>
 </div>
 <div class="section level2">
-<h2 id="coprimary-outcome-cmr">Coprimary-outcome CMR<a class="anchor" aria-label="anchor" href="#coprimary-outcome-cmr"></a>
+<h2 id="co-primary-outcome-cmr">Co-primary Outcome CMR<a class="anchor" aria-label="anchor" href="#co-primary-outcome-cmr"></a>
 </h2>
 <p>With <code>estimand = "coprimary"</code>, the package builds
 outcome-by-arm confidence bounds and combines them into an effective
@@ -171,7 +170,7 @@ two-arm variance rectangle using the prespecified weights.</p>
 <span><span class="co">#&gt; [1] 0.0308 0.0216</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="compare-index-and-coprimary-designs">Compare index and coprimary designs<a class="anchor" aria-label="anchor" href="#compare-index-and-coprimary-designs"></a>
+<h2 id="compare-index-and-co-primary-designs">Compare index and co-primary designs<a class="anchor" aria-label="anchor" href="#compare-index-and-co-primary-designs"></a>
 </h2>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>

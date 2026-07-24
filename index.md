@@ -58,7 +58,7 @@ variances.
 | If your design is… | Use… |
 |----|----|
 | One treatment and one control | [`cmr_two_arm()`](https://juancyamin.github.io/cmrdesign/reference/cmr_two_arm.md) |
-| Two-arm with raw unbounded outcomes | [`cmr_unbounded()`](https://juancyamin.github.io/cmrdesign/reference/cmr_unbounded.md) |
+| Two arms with raw unbounded outcomes | [`cmr_unbounded()`](https://juancyamin.github.io/cmrdesign/reference/cmr_unbounded.md) |
 | Several treatments sharing one control | [`cmr_multiarm()`](https://juancyamin.github.io/cmrdesign/reference/cmr_multiarm.md) |
 | Known strata with possibly different variances | [`cmr_stratified()`](https://juancyamin.github.io/cmrdesign/reference/cmr_stratified.md) |
 | Multiple outcomes per unit | [`cmr_multiple_outcomes()`](https://juancyamin.github.io/cmrdesign/reference/cmr_multiple_outcomes.md) |
@@ -73,14 +73,14 @@ are useful for auditing or teaching. Applied users will usually pass
 pilot data directly and let the package estimate the confidence
 rectangle.
 
-## Choosing A Confidence Method
+## Choosing a Confidence Method
 
 | Method | Use when… |
 |----|----|
 | `method = "auto"` | Use the default applied behavior. It chooses exact Bernoulli bounds for raw 0/1 outcomes and bounded-outcome bounds otherwise. |
 | `method = "bounded"` or `"mp"` | Outcomes are bounded, usually normalized to `[0, 1]`. |
 | `method = "bernoulli"` | Outcomes are truly binary and coded 0/1. |
-| `method = "mtr"` | You specifically want Martinez-Taboada-Ramdas bounds. The rule uses pilot row order, so do not sort outcomes before calling it. |
+| `method = "mtr"` | You specifically want Martinez-Taboada–Ramdas bounds. The rule uses pilot row order, so do not sort outcomes before calling it. |
 | `method = "unbounded"` | Two-arm outcomes are raw finite values rather than bounded-scale values. Use [`cmr_unbounded()`](https://juancyamin.github.io/cmrdesign/reference/cmr_unbounded.md) and supply a kurtosis bound `psi`. |
 
 CMR is a design rule for allocating the next experimental wave. It is
@@ -94,7 +94,7 @@ The companion Python package is available on
 
 ## Feedback
 
-`cmrdesign` is in alpha release. Please report issues with simulated,
+`cmrdesign` is an early release. Please report issues with simulated,
 public, or redacted data:
 
 - [Bug

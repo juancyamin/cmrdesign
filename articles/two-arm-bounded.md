@@ -38,8 +38,8 @@ pilot_summary
 
 ## Compute the CMR assignment
 
-The default bounded-outcome confidence rectangle uses the
-Maurer-Pontil-style empirical variance bounds for outcomes in `[0, 1]`.
+The default bounded-outcome confidence rectangle uses the Maurer–Pontil
+empirical variance bounds for outcomes in `[0, 1]`.
 
 ``` r
 
@@ -78,7 +78,7 @@ fit_bounded$joint_error_bound
 
 The package exposes the bounded/MP and MTR variance confidence sets
 through the same interface. The MTR option implements the
-Martinez-Taboada-Ramdas one-sided variance bounds.
+Martinez-Taboada–Ramdas one-sided variance bounds.
 
 ``` r
 

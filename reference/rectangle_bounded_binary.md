@@ -1,7 +1,7 @@
 # Bounded two-arm confidence rectangle
 
 Construct a two-arm variance confidence rectangle for bounded outcomes
-using Maurer-Pontil or Martinez-Taboada-Ramdas one-arm bounds.
+using Maurer–Pontil or Martinez-Taboada–Ramdas one-arm bounds.
 
 ## Usage
 

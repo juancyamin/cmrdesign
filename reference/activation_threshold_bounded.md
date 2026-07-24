@@ -1,7 +1,7 @@
 # Pilot-size activation thresholds
 
 Compute simple method-specific pilot-size activation thresholds for the
-Appendix E-style pilot-planning screen.
+Pilot-planning screen from Appendix E of the accompanying paper.
 
 ## Usage
 
