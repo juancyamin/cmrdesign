@@ -3,8 +3,8 @@ title: "cmrdesign"
 message: "If you use cmrdesign, please cite the accompanying software and methods paper."
 type: software
 authors:
-  - family-names: "Yamin Silva"
-    given-names: "Juan"
+  - family-names: "Yamin"
+    given-names: "Juan C."
 license: MIT
 repository-code: "https://github.com/juancyamin/cmrdesign"
 version: "0.0.0.9000"

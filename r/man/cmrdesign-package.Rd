@@ -22,6 +22,6 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Juan Yamin Silva \email{juan_yamin_silva@brown.edu}
+\strong{Maintainer}: Juan C. Yamin \email{juan_yamin_silva@brown.edu}
 
 }

@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [
-  { name = "Juan Yamin Silva", email = "juan_yamin_silva@brown.edu" }
+  { name = "Juan C. Yamin", email = "juan_yamin_silva@brown.edu" }
 ]
 keywords = [
   "experimental-design",
