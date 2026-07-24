@@ -11,10 +11,19 @@ kept out of the package repository.
 
 ## Installation
 
-During the pre-release series, install from GitHub:
+Until the first PyPI upload, install from GitHub for normal use:
 
 ```bash
 python -m pip install "cmrdesign @ git+https://github.com/juancyamin/cmrdesign.git#subdirectory=python"
+```
+
+The first alpha candidate is also available on TestPyPI for release testing:
+
+```bash
+python -m pip install \
+  --index-url https://test.pypi.org/simple/ \
+  --extra-index-url https://pypi.org/simple \
+  cmrdesign==0.1.0a1
 ```
 
 For local development from the repository root:

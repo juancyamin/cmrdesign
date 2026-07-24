@@ -22,9 +22,9 @@ simulation output.
 
 ## Installation
 
-The R package is currently in the development `0.0.0.9000` series. The first
-Python alpha candidate is `0.1.0a1`; until it is uploaded, install Python from
-GitHub.
+The R package is available from R-universe. The Python package has an alpha
+candidate on TestPyPI; until the first PyPI upload, the GitHub install is the
+recommended Python path for normal use.
 
 R via R-universe:
 
@@ -42,10 +42,19 @@ install.packages("remotes")
 remotes::install_github("juancyamin/cmrdesign", subdir = "r")
 ```
 
-Python development version from GitHub:
+Python from GitHub:
 
 ```bash
 python -m pip install "cmrdesign @ git+https://github.com/juancyamin/cmrdesign.git#subdirectory=python"
+```
+
+Python alpha from TestPyPI, for release testing:
+
+```bash
+python -m pip install \
+  --index-url https://test.pypi.org/simple/ \
+  --extra-index-url https://pypi.org/simple \
+  cmrdesign==0.1.0a1
 ```
 
 ## Quick Start
