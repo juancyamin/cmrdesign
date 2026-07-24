@@ -21,6 +21,7 @@ the package.
 | Plan pilot size before collecting pilot data | [Pilot Planning](pilot_planning.md) |
 | Resolve input-format and interpretation questions | [FAQ](faq.md) |
 | Prepare a release or audit the package | [Release Checklist](release_checklist.md) |
+| Review R CRAN-readiness status | [R CRAN Readiness](cran_readiness.md) |
 | Prepare a Python TestPyPI/PyPI upload | [Python Release](python_release.md) |
 
 The R package also includes vignettes for two-arm bounded outcomes, binary

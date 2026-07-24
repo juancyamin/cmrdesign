@@ -15,6 +15,8 @@ been reviewed and that package examples remain simulated-data examples only.
 - Confirm the public API review is current:
   `spec/api_freeze_review.md`.
 - Confirm examples do not depend on paper replication data or simulations.
+- For the R CRAN path, confirm the latest audit note:
+  `docs/cran_readiness.md`.
 
 ## Local Checks
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0 (R CRAN-readiness candidate)
+
+- Moved the R package version from development-only `0.0.0.9000` to
+  CRAN-style `0.1.0`.
+- Simplified R package author metadata so `Authors@R` is the single source of
+  truth for the package author and maintainer.
+- Added a CRAN-readiness audit note recording the local `R CMD check
+  --as-cran` result, vignette build status, and remaining expected notes.
+
 ## 0.1.0a2 (Python pre-release)
 
 - Updated the Python package README so the PyPI project page shows the real
