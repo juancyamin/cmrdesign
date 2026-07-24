@@ -1,0 +1,14 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  binary-outcomes: binary-outcomes.html
+  extensions: extensions.html
+  multiple-outcomes: multiple-outcomes.html
+  pilot-planning: pilot-planning.html
+  proxy-outcomes: proxy-outcomes.html
+  two-arm-bounded: two-arm-bounded.html
+last_built: 2026-07-24T02:09Z
+urls:
+  reference: https://juancyamin.github.io/cmrdesign/reference
+  article: https://juancyamin.github.io/cmrdesign/articles
