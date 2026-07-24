@@ -4,8 +4,12 @@
 [![R](https://github.com/juancyamin/cmrdesign/actions/workflows/r.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/r.yml)
 [![Fixtures](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml)
 [![Validation](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml)
+[![PyPI](https://img.shields.io/pypi/v/cmrdesign?label=PyPI)](https://pypi.org/project/cmrdesign/)
+[![Python versions](https://img.shields.io/pypi/pyversions/cmrdesign)](https://pypi.org/project/cmrdesign/)
+[![GitHub release](https://img.shields.io/github/v/release/juancyamin/cmrdesign?include_prereleases&label=GitHub%20release)](https://github.com/juancyamin/cmrdesign/releases)
 [![R-universe version](https://juancyamin.r-universe.dev/cmrdesign/badges/version)](https://juancyamin.r-universe.dev/cmrdesign)
 [![R-universe checks](https://juancyamin.r-universe.dev/cmrdesign/badges/checks)](https://juancyamin.r-universe.dev/cmrdesign)
+[![arXiv](https://img.shields.io/badge/arXiv-2607.16982-b31b1b.svg)](https://arxiv.org/abs/2607.16982)
 
 `cmrdesign` implements Conditional Minimax Regret (CMR) design rules in R and
 Python. The package is for applied researchers planning a main experimental
@@ -14,7 +18,13 @@ a recommended main-wave allocation and a worst-case regret certificate.
 
 The methods accompany
 [When and How to Pilot: Design Rules for Two-Wave Experiments](https://arxiv.org/abs/2607.16982)
-by Juan C. Yamin.
+by [Juan C. Yamin](https://juancyamin.github.io/).
+
+Package links:
+[PyPI](https://pypi.org/project/cmrdesign/),
+[R-universe](https://juancyamin.r-universe.dev/cmrdesign),
+[GitHub releases](https://github.com/juancyamin/cmrdesign/releases), and
+[paper](https://arxiv.org/abs/2607.16982).
 
 This repository is software only. It does not contain paper replication code,
 raw research data, empirical calibration workflows, or paper-specific
