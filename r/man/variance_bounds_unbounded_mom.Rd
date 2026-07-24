@@ -9,7 +9,11 @@ variance_bounds_unbounded_mom(y, alpha = 0.05, psi = NULL, na.rm = TRUE)
 \arguments{
 \item{y}{One-arm pilot outcomes.}
 
-\item{alpha}{Target one-arm error level.}
+\item{alpha}{Error budget used to size the number of blocks,
+\code{k = ceiling(8 * log(2 / alpha))}. The resulting one-arm two-sided
+coverage error is at most \code{alpha / 2}, so that two arms sized with the same
+\code{alpha} jointly satisfy the union bound at level \code{alpha}, as consumed by
+\code{\link[=rectangle_unbounded]{rectangle_unbounded()}}.}
 
 \item{psi}{Bounded-kurtosis parameter. Must be at least 1.}
 

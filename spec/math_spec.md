@@ -133,6 +133,11 @@ k = ceiling(8 log(2 / alpha)),
 b = floor(floor(m / 2) / k).
 ```
 
+Error accounting: with `k = ceiling(8 log(2 / alpha))` blocks, the folded
+Hoeffding-Chebyshev argument bounds each arm's two-sided failure probability by
+`exp(-k / 8) <= alpha / 2`; the union bound over treatment and control yields
+the reported `joint_error_bound = alpha`.
+
 If `b < 1`, the pilot is too small for this bound. Otherwise, use the first
 `k b` paired values, split them into `k` consecutive blocks of size `b`, and
 set `v_hat` to the median of the `k` block means. The relative radius is

@@ -146,7 +146,11 @@
 #' under a bounded-kurtosis input `psi`.
 #'
 #' @param y One-arm pilot outcomes.
-#' @param alpha Target one-arm error level.
+#' @param alpha Error budget used to size the number of blocks,
+#'   `k = ceiling(8 * log(2 / alpha))`. The resulting one-arm two-sided
+#'   coverage error is at most `alpha / 2`, so that two arms sized with the same
+#'   `alpha` jointly satisfy the union bound at level `alpha`, as consumed by
+#'   [rectangle_unbounded()].
 #' @param psi Bounded-kurtosis parameter. Must be at least 1.
 #' @param na.rm If `TRUE`, drop missing outcomes.
 #'
@@ -400,7 +404,11 @@ cmr_unbounded_from_rectangle <- function(rectangle) {
 #' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
 #' @param psi Bounded-kurtosis parameter, either a scalar shared across arms or
 #'   a treatment/control pair.
-#' @param alpha Target joint error level.
+#' @param alpha Target joint error level. Each arm uses
+#'   [variance_bounds_unbounded_mom()] with this same `alpha`, whose
+#'   median-of-means block count gives one-arm error at most `alpha / 2`; the
+#'   union bound over treatment and control yields the reported joint error
+#'   bound `alpha`.
 #' @param na.rm If `TRUE`, drop rows with missing `y` or `d`.
 #'
 #' @return

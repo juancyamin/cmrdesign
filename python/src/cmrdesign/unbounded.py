@@ -181,7 +181,13 @@ def variance_bounds_unbounded_mom(
     psi=None,
     na_rm: bool = True,
 ) -> dict:
-    """Median-of-means variance interval for unbounded outcomes."""
+    """Median-of-means variance interval for unbounded outcomes.
+
+    The error budget ``alpha`` sizes the number of blocks as
+    ``k = ceil(8 * log(2 / alpha))``. This gives one-arm two-sided coverage
+    error at most ``alpha / 2``, so two arms sized with the same ``alpha``
+    satisfy the union bound at joint level ``alpha`` in ``rectangle_unbounded``.
+    """
 
     alpha = check_alpha(alpha)
     psi = _check_psi_scalar(psi)
@@ -386,7 +392,13 @@ def rectangle_unbounded(
     alpha: float = 0.05,
     na_rm: bool = True,
 ) -> RectangleResult:
-    """Build the two-arm unbounded-outcome confidence rectangle."""
+    """Build the two-arm unbounded-outcome confidence rectangle.
+
+    ``alpha`` is the target joint error level. Each arm uses
+    ``variance_bounds_unbounded_mom`` with this same value; because that
+    one-arm bound has error at most ``alpha / 2``, the treatment/control union
+    bound yields ``joint_error_bound = alpha``.
+    """
 
     alpha = check_alpha(alpha)
     psi_pair = check_psi_pair(psi)
@@ -470,7 +482,11 @@ def cmr_unbounded(
     alpha: float = 0.05,
     na_rm: bool = True,
 ) -> CMRResult:
-    """Estimate the two-arm CMR assignment for unbounded outcomes."""
+    """Estimate the two-arm CMR assignment for unbounded outcomes.
+
+    ``alpha`` is passed to ``rectangle_unbounded`` as a joint error level for
+    the two-arm median-of-means confidence rectangle.
+    """
 
     confidence_set = rectangle_unbounded(
         y=y,

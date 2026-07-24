@@ -14,7 +14,11 @@ rectangle_unbounded(y, d, psi = NULL, alpha = 0.05, na.rm = TRUE)
 \item{psi}{Bounded-kurtosis parameter, either a scalar shared across arms or
 a treatment/control pair.}
 
-\item{alpha}{Target joint error level.}
+\item{alpha}{Target joint error level. Each arm uses
+\code{\link[=variance_bounds_unbounded_mom]{variance_bounds_unbounded_mom()}} with this same \code{alpha}, whose
+median-of-means block count gives one-arm error at most \code{alpha / 2}; the
+union bound over treatment and control yields the reported joint error
+bound \code{alpha}.}
 
 \item{na.rm}{If \code{TRUE}, drop rows with missing \code{y} or \code{d}.}
 }
