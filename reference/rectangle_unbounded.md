@@ -26,7 +26,11 @@ rectangle_unbounded(y, d, psi = NULL, alpha = 0.05, na.rm = TRUE)
 
 - alpha:
 
-  Target joint error level.
+  Target joint error level. Each arm uses
+  [`variance_bounds_unbounded_mom()`](https://juancyamin.github.io/cmrdesign/reference/variance_bounds_unbounded_mom.md)
+  with this same `alpha`, whose median-of-means block count gives
+  one-arm error at most `alpha / 2`; the union bound over treatment and
+  control yields the reported joint error bound `alpha`.
 
 - na.rm:
 

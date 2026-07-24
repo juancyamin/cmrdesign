@@ -73,7 +73,11 @@ a treatment/control pair.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>Target joint error level.</p></dd>
+<dd><p>Target joint error level. Each arm uses
+<code><a href="variance_bounds_unbounded_mom.html">variance_bounds_unbounded_mom()</a></code> with this same <code>alpha</code>, whose
+median-of-means block count gives one-arm error at most <code>alpha / 2</code>; the
+union bound over treatment and control yields the reported joint error
+bound <code>alpha</code>.</p></dd>
 
 
 <dt id="arg-na-rm">na.rm<a class="anchor" aria-label="anchor" href="#arg-na-rm"></a></dt>

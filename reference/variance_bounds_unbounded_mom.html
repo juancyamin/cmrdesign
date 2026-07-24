@@ -64,7 +64,11 @@ under a bounded-kurtosis input <code>psi</code>.</p>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>Target one-arm error level.</p></dd>
+<dd><p>Error budget used to size the number of blocks,
+<code>k = ceiling(8 * log(2 / alpha))</code>. The resulting one-arm two-sided
+coverage error is at most <code>alpha / 2</code>, so that two arms sized with the same
+<code>alpha</code> jointly satisfy the union bound at level <code>alpha</code>, as consumed by
+<code><a href="rectangle_unbounded.html">rectangle_unbounded()</a></code>.</p></dd>
 
 
 <dt id="arg-psi">psi<a class="anchor" aria-label="anchor" href="#arg-psi"></a></dt>

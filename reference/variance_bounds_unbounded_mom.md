@@ -17,7 +17,12 @@ variance_bounds_unbounded_mom(y, alpha = 0.05, psi = NULL, na.rm = TRUE)
 
 - alpha:
 
-  Target one-arm error level.
+  Error budget used to size the number of blocks,
+  `k = ceiling(8 * log(2 / alpha))`. The resulting one-arm two-sided
+  coverage error is at most `alpha / 2`, so that two arms sized with the
+  same `alpha` jointly satisfy the union bound at level `alpha`, as
+  consumed by
+  [`rectangle_unbounded()`](https://juancyamin.github.io/cmrdesign/reference/rectangle_unbounded.md).
 
 - psi:
 
