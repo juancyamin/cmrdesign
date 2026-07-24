@@ -172,6 +172,22 @@ All examples use simulated data.
 - R vignettes in [r/vignettes](r/vignettes): applied tutorials for the core
   two-arm rule, confidence-method variants, extensions, and pilot planning.
 
+## Alpha Feedback
+
+`cmrdesign` is in alpha release. Applied-user feedback is especially useful
+before the beta/API freeze:
+
+- [Bug reports](https://github.com/juancyamin/cmrdesign/issues/new?template=bug_report.yml):
+  incorrect results, installation failures, solver errors, or R/Python
+  inconsistencies.
+- [Usage questions](https://github.com/juancyamin/cmrdesign/issues/new?template=usage_question.yml):
+  help choosing between CMR functions, confidence methods, or input formats.
+- [Alpha feedback](https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml):
+  comments on names, return objects, examples, documentation, or applied
+  workflow.
+
+Please use simulated, public, or redacted data in GitHub issues.
+
 ## For Contributors
 
 `cmrdesign` is pre-release software. The R and Python APIs are intended to be

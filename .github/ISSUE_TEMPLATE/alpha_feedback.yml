@@ -1,0 +1,47 @@
+name: Alpha feedback
+description: Share applied-user feedback before the beta/API freeze.
+title: "[Alpha feedback]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying `cmrdesign`. Use this form for package ergonomics,
+        documentation gaps, naming issues, return-object feedback, or other
+        applied-user reactions that are not necessarily bugs.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Feedback area
+      options:
+        - API names or input conventions
+        - Return objects and printed output
+        - Documentation or examples
+        - R package
+        - Python package
+        - Cross-language consistency
+        - Pilot planning
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: What felt unclear, awkward, or useful?
+      description: Please be as concrete as possible.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Applied context
+      description: Describe the type of experiment, outcome, or workflow. Please avoid confidential data.
+      placeholder: "Example: two-arm bounded outcome, pilot n = 80, main wave n = 600."
+    validations:
+      required: false
+  - type: textarea
+    id: proposed_change
+    attributes:
+      label: Suggested change
+      description: Optional, but helpful if you have a preferred API, example, or wording in mind.
+    validations:
+      required: false

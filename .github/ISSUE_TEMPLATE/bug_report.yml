@@ -1,0 +1,66 @@
+name: Bug report
+description: Report incorrect behavior or a failure in R or Python CMR code.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. When possible, please use simulated or
+        redacted data so the issue can be reproduced publicly.
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      options:
+        - R
+        - Python
+        - Both R and Python
+        - Documentation
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: cmrdesign version
+      placeholder: "Example: 0.1.0a2"
+    validations:
+      required: true
+  - type: dropdown
+    id: function
+    attributes:
+      label: Function or area
+      options:
+        - cmr_two_arm
+        - cmr_unbounded
+        - cmr_multiarm
+        - cmr_stratified
+        - cmr_multiple_outcomes
+        - cmr_proxy
+        - cmr_plan
+        - Installation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: minimal_example
+    attributes:
+      label: Minimal reproducible example
+      description: Include the smallest R or Python snippet that shows the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected and actual behavior
+      description: What did you expect to happen, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include operating system, R or Python version, and install source if known.
+      placeholder: "Example: macOS 15, Python 3.12, installed from PyPI."
+    validations:
+      required: false

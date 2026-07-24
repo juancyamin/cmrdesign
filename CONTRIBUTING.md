@@ -11,6 +11,14 @@ Implementation contributions should include:
 - Documentation or spec updates for changed user-facing behavior.
 - A short note on numerical tolerances when a solver path is involved.
 
+For applied-user feedback, please use the GitHub issue forms:
+
+- Bug reports: <https://github.com/juancyamin/cmrdesign/issues/new?template=bug_report.yml>
+- Usage questions: <https://github.com/juancyamin/cmrdesign/issues/new?template=usage_question.yml>
+- Alpha feedback: <https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml>
+
+Please use simulated, public, or redacted data in issues.
+
 Useful local checks:
 
 ```bash

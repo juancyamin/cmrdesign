@@ -1,0 +1,70 @@
+name: Usage question
+description: Ask which CMR rule, confidence method, or input format applies.
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when you are unsure which CMR function or confidence
+        method fits your design. Please avoid sharing confidential data.
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      options:
+        - R
+        - Python
+        - Either
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Design summary
+      description: Describe the arms, outcome scale, pilot sample sizes, and main-wave planning problem.
+      placeholder: "Example: three treatment arms plus one control; bounded outcome in [0, 1]; pilot n = 50 per arm."
+    validations:
+      required: true
+  - type: dropdown
+    id: likely_function
+    attributes:
+      label: Function you think may apply
+      options:
+        - cmr_two_arm
+        - cmr_unbounded
+        - cmr_multiarm
+        - cmr_stratified
+        - cmr_multiple_outcomes
+        - cmr_proxy
+        - cmr_plan
+        - Unsure
+    validations:
+      required: true
+  - type: dropdown
+    id: method
+    attributes:
+      label: Confidence method
+      options:
+        - auto
+        - bounded / mp
+        - bernoulli
+        - mtr
+        - unbounded
+        - Unsure
+    validations:
+      required: false
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried?
+      description: Include code or output if it helps explain the question.
+    validations:
+      required: false
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What decision do you want help with?
+    validations:
+      required: true

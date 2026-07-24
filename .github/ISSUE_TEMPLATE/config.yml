@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Paper
+    url: https://arxiv.org/abs/2607.16982
+    about: Read the paper that accompanies the package.
+  - name: Author website
+    url: https://juancyamin.github.io/
+    about: Juan C. Yamin's website.
