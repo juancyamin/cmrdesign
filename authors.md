@@ -2,20 +2,19 @@
 
 ## Authors
 
-- **Juan Yamin Silva**. Author, maintainer.
+- **Juan C. Yamin**. Author, maintainer.
 
 ## Citation
 
 Source:
 [`DESCRIPTION`](https://github.com/juancyamin/cmrdesign/blob/main/DESCRIPTION)
 
-Yamin Silva J (2026). *cmrdesign: Conditional Minimax Regret Design
-Rules*. R package version 0.0.0.9000,
-<https://juancyamin.github.io/cmrdesign/>.
+Yamin J (2026). *cmrdesign: Conditional Minimax Regret Design Rules*. R
+package version 0.0.0.9000, <https://juancyamin.github.io/cmrdesign/>.
 
     @Manual{,
       title = {cmrdesign: Conditional Minimax Regret Design Rules},
-      author = {Juan {Yamin Silva}},
+      author = {Juan C. Yamin},
       year = {2026},
       note = {R package version 0.0.0.9000},
       url = {https://juancyamin.github.io/cmrdesign/},

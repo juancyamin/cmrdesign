@@ -19,4 +19,4 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Juan Yamin Silva <juan_yamin_silva@brown.edu>
+**Maintainer**: Juan C. Yamin <juan_yamin_silva@brown.edu>

@@ -1,4 +1,4 @@
 # License
 
     YEAR: 2026
-    COPYRIGHT HOLDER: Juan Yamin Silva
+    COPYRIGHT HOLDER: Juan C. Yamin
