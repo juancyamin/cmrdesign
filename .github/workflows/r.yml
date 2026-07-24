@@ -51,6 +51,7 @@ jobs:
 
       - name: Install package for vignette chunks
         run: R CMD INSTALL r
+        shell: bash
 
       - name: Run vignette chunks
         run: |
