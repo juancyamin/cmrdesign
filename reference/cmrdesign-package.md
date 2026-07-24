@@ -9,6 +9,8 @@ and pilot-planning workflows.
 
 Useful links:
 
+- <https://juancyamin.github.io/cmrdesign/>
+
 - <https://github.com/juancyamin/cmrdesign>
 
 - <https://arxiv.org/abs/2607.16982>
