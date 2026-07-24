@@ -22,19 +22,16 @@ install.packages("remotes")
 remotes::install_github("juancyamin/cmrdesign", subdir = "r")
 ```
 
-Python from GitHub:
+Python alpha from PyPI:
+
+```bash
+python -m pip install cmrdesign==0.1.0a1
+```
+
+Python development version from GitHub:
 
 ```bash
 python -m pip install "cmrdesign @ git+https://github.com/juancyamin/cmrdesign.git#subdirectory=python"
-```
-
-Python alpha from TestPyPI, for release testing:
-
-```bash
-python -m pip install \
-  --index-url https://test.pypi.org/simple/ \
-  --extra-index-url https://pypi.org/simple \
-  cmrdesign==0.1.0a1
 ```
 
 ## Inputs

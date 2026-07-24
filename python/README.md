@@ -11,19 +11,16 @@ kept out of the package repository.
 
 ## Installation
 
-Until the first PyPI upload, install from GitHub for normal use:
+Install the current Python alpha from PyPI:
+
+```bash
+python -m pip install cmrdesign==0.1.0a1
+```
+
+For the development version from GitHub:
 
 ```bash
 python -m pip install "cmrdesign @ git+https://github.com/juancyamin/cmrdesign.git#subdirectory=python"
-```
-
-The first alpha candidate is also available on TestPyPI for release testing:
-
-```bash
-python -m pip install \
-  --index-url https://test.pypi.org/simple/ \
-  --extra-index-url https://pypi.org/simple \
-  cmrdesign==0.1.0a1
 ```
 
 For local development from the repository root:

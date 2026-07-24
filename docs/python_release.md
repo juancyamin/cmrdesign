@@ -4,6 +4,7 @@ This page records the Python packaging path for `cmrdesign`. It is for
 maintainers preparing TestPyPI or PyPI releases, not for ordinary applied use.
 
 The Python package alpha version `0.1.0a1` is available on
+[PyPI](https://pypi.org/project/cmrdesign/0.1.0a1/) and
 [TestPyPI](https://test.pypi.org/project/cmrdesign/0.1.0a1/). For future
 releases, make an explicit version decision:
 
@@ -153,5 +154,5 @@ print(cmr.cmr_plan(n=1000, sigma1=0.5, sigma0=0.25)["suggested_pilot"])
 PY
 ```
 
-After PyPI is live, update README installation instructions to distinguish the
-stable PyPI install from the GitHub development install.
+After each PyPI release, verify that the README installation instructions match
+the public package state.
