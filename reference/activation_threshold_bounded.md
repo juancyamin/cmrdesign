@@ -27,14 +27,16 @@ activation_threshold_bernoulli(alpha = 0.05)
 
 - min_arm_size:
 
-  Minimum pilot observations per arm.
+  Minimum pilot observations per arm; must be at least 2.
 
 ## Value
 
 Total pilot size threshold. `activation_threshold_bounded()` returns
 `Inf` if no even pilot size up to `max_total_pilot` clears the
 bounded-outcome activation condition. `activation_threshold_bernoulli()`
-returns `4`.
+returns `4`; the exact Bernoulli screen activates at the minimal
+admissible pilot regardless of `alpha`, which is validated for interface
+consistency.
 
 ## See also
 

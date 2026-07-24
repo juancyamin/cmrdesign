@@ -67,33 +67,34 @@ Other rectangle helpers:
 
 ``` r
 set.seed(3)
-d <- rep(c(1, 0), each = 220)
-y <- c(rnorm(220, sd = 1.3), rnorm(220, sd = 0.8))
+d <- rep(c(1, 0), each = 1000)
+y <- c(rnorm(1000, sd = 1.3), rnorm(1000, sd = 0.8))
 rectangle_unbounded(y, d, psi = 3)
 #> $rectangle
-#> NULL
+#>      v_l1      v_u1      v_l0      v_u0 
+#> 0.9407061 5.4828371 0.3839866 2.2380380 
 #> 
 #> $treatment
 #> $treatment$L
-#> [1] NA
+#> [1] 0.9407061
 #> 
 #> $treatment$U
-#> [1] Inf
+#> [1] 5.482837
 #> 
 #> $treatment$vhat
-#> [1] 1.283259
+#> [1] 1.605886
 #> 
 #> $treatment$method
 #> [1] "unbounded_mom"
 #> 
 #> $treatment$n
-#> [1] 220
+#> [1] 1000
 #> 
 #> $treatment$active
-#> [1] FALSE
+#> [1] TRUE
 #> 
 #> $treatment$status
-#> [1] "relative_error_at_least_one"
+#> [1] "active"
 #> 
 #> $treatment$statistic
 #> $treatment$statistic$alpha
@@ -106,58 +107,56 @@ rectangle_unbounded(y, d, psi = 3)
 #> [1] 30
 #> 
 #> $treatment$statistic$b
-#> [1] 3
+#> [1] 16
 #> 
 #> $treatment$statistic$n_pairs
-#> [1] 110
+#> [1] 500
 #> 
 #> $treatment$statistic$used_pairs
-#> [1] 90
+#> [1] 480
 #> 
 #> $treatment$statistic$discarded_pairs
 #> [1] 20
 #> 
 #> $treatment$statistic$rho
-#> [1] 1.632993
+#> [1] 0.7071068
 #> 
 #> $treatment$statistic$vhat
-#> [1] 1.283259
+#> [1] 1.605886
 #> 
 #> $treatment$statistic$block_means
-#>    block_1    block_2    block_3    block_4    block_5    block_6    block_7 
-#> 0.69465903 2.08264668 0.35016676 0.93558259 0.34405964 0.31577007 1.67308402 
-#>    block_8    block_9   block_10   block_11   block_12   block_13   block_14 
-#> 4.14658942 1.85178056 2.69414590 0.80770470 1.21465098 0.43204658 1.50325144 
-#>   block_15   block_16   block_17   block_18   block_19   block_20   block_21 
-#> 1.02024610 0.85276184 0.94441681 1.35186633 1.55457122 0.04775352 1.84225004 
-#>   block_22   block_23   block_24   block_25   block_26   block_27   block_28 
-#> 2.73322806 6.07539774 0.43827220 0.82381398 4.58973456 5.02768931 2.02239195 
-#>   block_29   block_30 
-#> 0.38007422 5.07635643 
+#>   block_1   block_2   block_3   block_4   block_5   block_6   block_7   block_8 
+#> 0.8264601 2.0093886 1.0864913 1.1346452 3.5017351 2.2018684 2.8042170 1.5707867 
+#>   block_9  block_10  block_11  block_12  block_13  block_14  block_15  block_16 
+#> 1.8907423 2.8673219 1.7179108 1.5184831 0.7679407 1.7217652 2.2088291 2.0652819 
+#>  block_17  block_18  block_19  block_20  block_21  block_22  block_23  block_24 
+#> 1.0846034 1.6664282 1.1932702 0.9336808 1.9419124 1.2485053 0.9534496 1.7825340 
+#>  block_25  block_26  block_27  block_28  block_29  block_30 
+#> 1.6409850 1.2130678 1.4135047 1.2645739 2.0956792 1.2728847 
 #> 
 #> 
 #> 
 #> $control
 #> $control$L
-#> [1] NA
+#> [1] 0.3839866
 #> 
 #> $control$U
-#> [1] Inf
+#> [1] 2.238038
 #> 
 #> $control$vhat
-#> [1] 0.5428872
+#> [1] 0.6555062
 #> 
 #> $control$method
 #> [1] "unbounded_mom"
 #> 
 #> $control$n
-#> [1] 220
+#> [1] 1000
 #> 
 #> $control$active
-#> [1] FALSE
+#> [1] TRUE
 #> 
 #> $control$status
-#> [1] "relative_error_at_least_one"
+#> [1] "active"
 #> 
 #> $control$statistic
 #> $control$statistic$alpha
@@ -170,34 +169,32 @@ rectangle_unbounded(y, d, psi = 3)
 #> [1] 30
 #> 
 #> $control$statistic$b
-#> [1] 3
+#> [1] 16
 #> 
 #> $control$statistic$n_pairs
-#> [1] 110
+#> [1] 500
 #> 
 #> $control$statistic$used_pairs
-#> [1] 90
+#> [1] 480
 #> 
 #> $control$statistic$discarded_pairs
 #> [1] 20
 #> 
 #> $control$statistic$rho
-#> [1] 1.632993
+#> [1] 0.7071068
 #> 
 #> $control$statistic$vhat
-#> [1] 0.5428872
+#> [1] 0.6555062
 #> 
 #> $control$statistic$block_means
-#>    block_1    block_2    block_3    block_4    block_5    block_6    block_7 
-#> 1.47517737 0.10677586 0.48884775 0.42213846 0.53052481 0.66583628 0.77300332 
-#>    block_8    block_9   block_10   block_11   block_12   block_13   block_14 
-#> 0.21892974 0.44445700 0.52001800 1.63656463 0.93419958 0.55524955 0.58791024 
-#>   block_15   block_16   block_17   block_18   block_19   block_20   block_21 
-#> 2.85850668 1.03542570 0.40099084 0.46715881 0.62680193 0.39258926 0.80613673 
-#>   block_22   block_23   block_24   block_25   block_26   block_27   block_28 
-#> 0.82173939 1.30753721 0.09872223 0.74000753 0.57222159 0.34821973 0.30898416 
-#>   block_29   block_30 
-#> 0.09104453 0.46458797 
+#>   block_1   block_2   block_3   block_4   block_5   block_6   block_7   block_8 
+#> 0.8268059 0.7458264 1.2432026 0.6287564 0.2765483 0.8158482 0.3228943 0.4124302 
+#>   block_9  block_10  block_11  block_12  block_13  block_14  block_15  block_16 
+#> 0.6884171 0.2887391 0.4877767 0.6667648 0.6321034 0.6772357 0.5018557 0.9619070 
+#>  block_17  block_18  block_19  block_20  block_21  block_22  block_23  block_24 
+#> 0.8959868 0.4229129 1.0095914 0.6488968 0.9806863 0.4090034 0.5394744 0.4322529 
+#>  block_25  block_26  block_27  block_28  block_29  block_30 
+#> 0.9776204 0.6533702 0.6881875 0.5677840 0.6576421 0.6689542 
 #> 
 #> 
 #> 
@@ -217,16 +214,16 @@ rectangle_unbounded(y, d, psi = 3)
 #> [1] "unbounded_mom"
 #> 
 #> $n
-#>  n1  n0 
-#> 220 220 
+#>   n1   n0 
+#> 1000 1000 
 #> 
 #> $vhat
 #>     vhat1     vhat0 
-#> 1.2832587 0.5428872 
+#> 1.6058858 0.6555062 
 #> 
 #> $rho
-#>     rho1     rho0 
-#> 1.632993 1.632993 
+#>      rho1      rho0 
+#> 0.7071068 0.7071068 
 #> 
 #> $k
 #> k1 k0 
@@ -234,17 +231,17 @@ rectangle_unbounded(y, d, psi = 3)
 #> 
 #> $b
 #> b1 b0 
-#>  3  3 
+#> 16 16 
 #> 
 #> $psi
 #> psi1 psi0 
 #>    3    3 
 #> 
 #> $active
-#> [1] FALSE
+#> [1] TRUE
 #> 
 #> $status
-#> [1] "treatment:relative_error_at_least_one;control:relative_error_at_least_one"
+#> [1] "active"
 #> 
 #> $normalization
 #> NULL

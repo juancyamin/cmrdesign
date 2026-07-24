@@ -27,6 +27,7 @@
     <li><a class="external-link dropdown-item" href="https://arxiv.org/abs/2607.16982">Paper</a></li>
     <li><a class="external-link dropdown-item" href="https://pypi.org/project/cmrdesign/">Python package</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/juancyamin/cmrdesign/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -137,21 +138,21 @@ sufficient.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">cmr_plan</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  n <span class="op">=</span> <span class="fl">1000</span>,</span></span>
-<span class="r-in"><span>  sigma1 <span class="op">=</span> <span class="fl">0.35</span>,</span></span>
-<span class="r-in"><span>  sigma0 <span class="op">=</span> <span class="fl">0.20</span>,</span></span>
-<span class="r-in"><span>  desired_pilot <span class="op">=</span> <span class="fl">100</span></span></span>
+<span class="r-in"><span>  n <span class="op">=</span> <span class="fl">3000</span>,</span></span>
+<span class="r-in"><span>  sigma1 <span class="op">=</span> <span class="fl">0.18</span>,</span></span>
+<span class="r-in"><span>  sigma0 <span class="op">=</span> <span class="fl">0.28</span>,</span></span>
+<span class="r-in"><span>  desired_pilot <span class="op">=</span> <span class="fl">120</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $band</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $n</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $sigma</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $sigma$sigma1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.35</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.18</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $sigma$sigma0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.28</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $alpha</span>
@@ -164,10 +165,10 @@ sufficient.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "design_only"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $break_even_share</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.06923077</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.04512635</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $break_even_total</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 69.23077</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 135.3791</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $activation_threshold</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 72</span>
@@ -176,34 +177,35 @@ sufficient.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $feasible_pilot_sizes</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> integer(0)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  72  74  76  78  80  82  84  86  88  90  92  94  96  98 100 102 104 106 108</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [20] 110 112 114 116 118 120 122 124 126 128 130 132 134</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $min_feasible</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 72</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $max_feasible</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 134</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $nonempty</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "cmr_pilot_viability_band" "list"                    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $suggested_pilot</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 72</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $default_two_thirds_power</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 210</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $desired_pilot</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 120</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $desired_status</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "above_break_even_cap"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "inside_viability_band"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $recommendation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No positive pilot size is justified for assignment adaptation by this necessary screen."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Candidate pilot sizes lie between 72 and 134 observations, inclusive, on the admissible even grid."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $caveat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "The viability band is necessary, not sufficient: a feasible pilot must still move the CMR assignment often enough to repay its sampling cost."</span>

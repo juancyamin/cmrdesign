@@ -91,21 +91,21 @@ Other pilot planning:
 
 ``` r
 cmr_plan(
-  n = 1000,
-  sigma1 = 0.35,
-  sigma0 = 0.20,
-  desired_pilot = 100
+  n = 3000,
+  sigma1 = 0.18,
+  sigma0 = 0.28,
+  desired_pilot = 120
 )
 #> $band
 #> $n
-#> [1] 1000
+#> [1] 3000
 #> 
 #> $sigma
 #> $sigma$sigma1
-#> [1] 0.35
+#> [1] 0.18
 #> 
 #> $sigma$sigma0
-#> [1] 0.2
+#> [1] 0.28
 #> 
 #> 
 #> $alpha
@@ -118,10 +118,10 @@ cmr_plan(
 #> [1] "design_only"
 #> 
 #> $break_even_share
-#> [1] 0.06923077
+#> [1] 0.04512635
 #> 
 #> $break_even_total
-#> [1] 69.23077
+#> [1] 135.3791
 #> 
 #> $activation_threshold
 #> [1] 72
@@ -130,34 +130,35 @@ cmr_plan(
 #> [1] TRUE
 #> 
 #> $feasible_pilot_sizes
-#> integer(0)
+#>  [1]  72  74  76  78  80  82  84  86  88  90  92  94  96  98 100 102 104 106 108
+#> [20] 110 112 114 116 118 120 122 124 126 128 130 132 134
 #> 
 #> $min_feasible
-#> [1] NA
+#> [1] 72
 #> 
 #> $max_feasible
-#> [1] NA
+#> [1] 134
 #> 
 #> $nonempty
-#> [1] FALSE
+#> [1] TRUE
 #> 
 #> attr(,"class")
 #> [1] "cmr_pilot_viability_band" "list"                    
 #> 
 #> $suggested_pilot
-#> [1] 0
+#> [1] 72
 #> 
 #> $default_two_thirds_power
-#> [1] 100
+#> [1] 210
 #> 
 #> $desired_pilot
-#> [1] 100
+#> [1] 120
 #> 
 #> $desired_status
-#> [1] "above_break_even_cap"
+#> [1] "inside_viability_band"
 #> 
 #> $recommendation
-#> [1] "No positive pilot size is justified for assignment adaptation by this necessary screen."
+#> [1] "Candidate pilot sizes lie between 72 and 134 observations, inclusive, on the admissible even grid."
 #> 
 #> $caveat
 #> [1] "The viability band is necessary, not sufficient: a feasible pilot must still move the CMR assignment often enough to repay its sampling cost."

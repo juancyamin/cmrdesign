@@ -64,28 +64,28 @@ Other rectangle helpers:
 
 ``` r
 set.seed(2)
-y <- rnorm(200)
+y <- rnorm(2000, sd = 1.3)
 variance_bounds_unbounded_mom(y, alpha = 0.05, psi = 3)
 #> $L
-#> [1] NA
+#> [1] 1.173903
 #> 
 #> $U
-#> [1] Inf
+#> [1] 3.451095
 #> 
 #> $vhat
-#> [1] 1.161367
+#> [1] 1.751893
 #> 
 #> $method
 #> [1] "unbounded_mom"
 #> 
 #> $n
-#> [1] 200
+#> [1] 2000
 #> 
 #> $active
-#> [1] FALSE
+#> [1] TRUE
 #> 
 #> $status
-#> [1] "relative_error_at_least_one"
+#> [1] "active"
 #> 
 #> $statistic
 #> $statistic$alpha
@@ -98,34 +98,32 @@ variance_bounds_unbounded_mom(y, alpha = 0.05, psi = 3)
 #> [1] 30
 #> 
 #> $statistic$b
-#> [1] 3
+#> [1] 33
 #> 
 #> $statistic$n_pairs
-#> [1] 100
+#> [1] 1000
 #> 
 #> $statistic$used_pairs
-#> [1] 90
+#> [1] 990
 #> 
 #> $statistic$discarded_pairs
 #> [1] 10
 #> 
 #> $statistic$rho
-#> [1] 1.632993
+#> [1] 0.492366
 #> 
 #> $statistic$vhat
-#> [1] 1.161367
+#> [1] 1.751893
 #> 
 #> $statistic$block_means
-#>    block_1    block_2    block_3    block_4    block_5    block_6    block_7 
-#> 1.43402793 0.95408232 2.98066200 1.88321528 1.24011840 0.34327070 0.54298676 
-#>    block_8    block_9   block_10   block_11   block_12   block_13   block_14 
-#> 1.57584544 2.14069446 0.45189755 2.84820045 0.80593466 0.22389359 2.33558086 
-#>   block_15   block_16   block_17   block_18   block_19   block_20   block_21 
-#> 2.82928592 0.01741169 0.75497464 1.63354810 0.23256685 0.13511303 1.38372080 
-#>   block_22   block_23   block_24   block_25   block_26   block_27   block_28 
-#> 0.30683258 1.39951199 2.41393087 0.33460069 1.77208837 0.22078660 3.00324613 
-#>   block_29   block_30 
-#> 0.85022915 1.08261555 
+#>  block_1  block_2  block_3  block_4  block_5  block_6  block_7  block_8 
+#> 2.518868 1.637589 1.886652 2.212851 1.577163 1.346077 1.776847 1.818456 
+#>  block_9 block_10 block_11 block_12 block_13 block_14 block_15 block_16 
+#> 1.947647 1.414576 2.153929 1.210690 1.949323 1.307376 1.673664 1.305325 
+#> block_17 block_18 block_19 block_20 block_21 block_22 block_23 block_24 
+#> 1.353364 2.259950 1.856922 1.961559 2.038161 1.452617 1.246178 1.200749 
+#> block_25 block_26 block_27 block_28 block_29 block_30 
+#> 1.729985 1.773801 1.813644 1.786194 1.418878 1.366431 
 #> 
 #> 
 ```

@@ -29,6 +29,7 @@ under a bounded-kurtosis input psi."></head><body>
     <li><a class="external-link dropdown-item" href="https://arxiv.org/abs/2607.16982">Paper</a></li>
     <li><a class="external-link dropdown-item" href="https://pypi.org/project/cmrdesign/">Python package</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/juancyamin/cmrdesign/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -111,28 +112,28 @@ or the relative-error radius is too large, <code>active = FALSE</code>, <code>L 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">2000</span>, sd <span class="op">=</span> <span class="fl">1.3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">variance_bounds_unbounded_mom</span><span class="op">(</span><span class="va">y</span>, alpha <span class="op">=</span> <span class="fl">0.05</span>, psi <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $L</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.173903</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $U</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] Inf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.451095</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $vhat</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.161367</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.751893</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $method</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "unbounded_mom"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $n</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $active</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $status</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "relative_error_at_least_one"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "active"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $statistic$alpha</span>
@@ -145,34 +146,32 @@ or the relative-error radius is too large, <code>active = FALSE</code>, <code>L 
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 30</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $statistic$b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 33</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $statistic$n_pairs</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $statistic$used_pairs</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 990</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $statistic$discarded_pairs</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $statistic$rho</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.632993</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.492366</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $statistic$vhat</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.161367</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.751893</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $statistic$block_means</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    block_1    block_2    block_3    block_4    block_5    block_6    block_7 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.43402793 0.95408232 2.98066200 1.88321528 1.24011840 0.34327070 0.54298676 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    block_8    block_9   block_10   block_11   block_12   block_13   block_14 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.57584544 2.14069446 0.45189755 2.84820045 0.80593466 0.22389359 2.33558086 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   block_15   block_16   block_17   block_18   block_19   block_20   block_21 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.82928592 0.01741169 0.75497464 1.63354810 0.23256685 0.13511303 1.38372080 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   block_22   block_23   block_24   block_25   block_26   block_27   block_28 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.30683258 1.39951199 2.41393087 0.33460069 1.77208837 0.22078660 3.00324613 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   block_29   block_30 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.85022915 1.08261555 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  block_1  block_2  block_3  block_4  block_5  block_6  block_7  block_8 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2.518868 1.637589 1.886652 2.212851 1.577163 1.346077 1.776847 1.818456 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  block_9 block_10 block_11 block_12 block_13 block_14 block_15 block_16 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.947647 1.414576 2.153929 1.210690 1.949323 1.307376 1.673664 1.305325 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> block_17 block_18 block_19 block_20 block_21 block_22 block_23 block_24 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.353364 2.259950 1.856922 1.961559 2.038161 1.452617 1.246178 1.200749 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> block_25 block_26 block_27 block_28 block_29 block_30 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.729985 1.773801 1.813644 1.786194 1.418878 1.366431 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>

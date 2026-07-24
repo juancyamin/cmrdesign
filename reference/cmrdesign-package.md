@@ -19,4 +19,5 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Juan C. Yamin <juan_yamin_silva@brown.edu>
+**Maintainer**: Juan C. Yamin <juan_yamin_silva@brown.edu> \[copyright
+holder\]

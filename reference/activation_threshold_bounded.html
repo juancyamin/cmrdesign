@@ -29,6 +29,7 @@ Appendix E-style pilot-planning screen."></head><body>
     <li><a class="external-link dropdown-item" href="https://arxiv.org/abs/2607.16982">Paper</a></li>
     <li><a class="external-link dropdown-item" href="https://pypi.org/project/cmrdesign/">Python package</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/juancyamin/cmrdesign/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -74,14 +75,16 @@ Appendix E-style pilot-planning screen.</p>
 
 
 <dt id="arg-min-arm-size">min_arm_size<a class="anchor" aria-label="anchor" href="#arg-min-arm-size"></a></dt>
-<dd><p>Minimum pilot observations per arm.</p></dd>
+<dd><p>Minimum pilot observations per arm; must be at least 2.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Total pilot size threshold. <code>activation_threshold_bounded()</code> returns <code>Inf</code>
 if no even pilot size up to <code>max_total_pilot</code> clears the bounded-outcome
-activation condition. <code>activation_threshold_bernoulli()</code> returns <code>4</code>.</p>
+activation condition. <code>activation_threshold_bernoulli()</code> returns <code>4</code>; the
+exact Bernoulli screen activates at the minimal admissible pilot regardless
+of <code>alpha</code>, which is validated for interface consistency.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

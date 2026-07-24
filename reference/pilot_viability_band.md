@@ -72,16 +72,16 @@ Other pilot planning:
 ## Examples
 
 ``` r
-pilot_viability_band(n = 1000, sigma1 = 0.35, sigma0 = 0.20)
+pilot_viability_band(n = 3000, sigma1 = 0.18, sigma0 = 0.28)
 #> $n
-#> [1] 1000
+#> [1] 3000
 #> 
 #> $sigma
 #> $sigma$sigma1
-#> [1] 0.35
+#> [1] 0.18
 #> 
 #> $sigma$sigma0
-#> [1] 0.2
+#> [1] 0.28
 #> 
 #> 
 #> $alpha
@@ -94,10 +94,10 @@ pilot_viability_band(n = 1000, sigma1 = 0.35, sigma0 = 0.20)
 #> [1] "design_only"
 #> 
 #> $break_even_share
-#> [1] 0.06923077
+#> [1] 0.04512635
 #> 
 #> $break_even_total
-#> [1] 69.23077
+#> [1] 135.3791
 #> 
 #> $activation_threshold
 #> [1] 72
@@ -106,16 +106,17 @@ pilot_viability_band(n = 1000, sigma1 = 0.35, sigma0 = 0.20)
 #> [1] TRUE
 #> 
 #> $feasible_pilot_sizes
-#> integer(0)
+#>  [1]  72  74  76  78  80  82  84  86  88  90  92  94  96  98 100 102 104 106 108
+#> [20] 110 112 114 116 118 120 122 124 126 128 130 132 134
 #> 
 #> $min_feasible
-#> [1] NA
+#> [1] 72
 #> 
 #> $max_feasible
-#> [1] NA
+#> [1] 134
 #> 
 #> $nonempty
-#> [1] FALSE
+#> [1] TRUE
 #> 
 #> attr(,"class")
 #> [1] "cmr_pilot_viability_band" "list"                    

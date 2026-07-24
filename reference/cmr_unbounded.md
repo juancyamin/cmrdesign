@@ -62,13 +62,13 @@ Other CMR rules:
 
 ``` r
 set.seed(4)
-d <- rep(c(1, 0), each = 220)
-y <- c(rnorm(220, sd = 1.3), rnorm(220, sd = 0.8))
+d <- rep(c(1, 0), each = 1000)
+y <- c(rnorm(1000, sd = 1.3), rnorm(1000, sd = 0.8))
 cmr_unbounded(y, d, psi = 3)
 #> <cmr_unbounded>
-#>   pi: 0.5
-#>   U_CMR: Inf
+#>   pi: 0.605843
+#>   U_CMR: 1.10416
 #>   method: unbounded_mom
-#>   n: 440
-#>   status: treatment:relative_error_at_least_one;control:relative_error_at_least_one
+#>   n: 2000
+#>   status: active
 ```
