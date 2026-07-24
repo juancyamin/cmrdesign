@@ -60,6 +60,7 @@ Remaining NOTES:
   the Bioconductor package index: no existing `cmrdesign` package found.
 - `r/cran-comments.md` added for the eventual CRAN submission and excluded from
   the built source package via `r/.Rbuildignore`.
+- Fresh R-universe install smoke check for version `0.1.0`: OK.
 
 ## Package Contents
 
@@ -70,6 +71,6 @@ simulation output.
 
 ## Remaining Gate
 
-After CRAN-readiness edits are pushed and R-universe rebuilds, run one fresh
-R-universe install smoke check. Use a temporary library and verify the package
-loads, reports the expected version, and runs a small simulated CMR example.
+The current R CRAN-readiness gates are complete. Before an actual CRAN upload,
+repeat the build, `R CMD check --as-cran`, and fresh-install smoke checks if
+any R package code, documentation, examples, vignettes, or metadata changes.

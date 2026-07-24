@@ -8,7 +8,7 @@ This is a new submission.
 
 - Local: R 4.5.0 on macOS Sequoia 15.7.4, aarch64-apple-darwin20.
 - GitHub Actions: macOS, Windows, and Ubuntu runners for package tests.
-- R-universe: pending rebuild for version 0.1.0.
+- R-universe: version 0.1.0 fresh-install smoke check on macOS.
 
 ## R CMD Check Results
 
@@ -33,5 +33,6 @@ Result: 0 ERRORs, 0 WARNINGs, 2 NOTEs.
 - Fresh local source-install smoke example with simulated two-arm data: OK.
 - Reference/provenance validation: OK.
 - Shared fixture drift check: OK.
+- Fresh R-universe install smoke check for version `0.1.0`: OK.
 - Package name availability checked against current CRAN, the CRAN archive, and
   the Bioconductor package index: no existing `cmrdesign` package found.
