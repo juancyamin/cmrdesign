@@ -8,6 +8,7 @@
   truth for the package author and maintainer.
 - Added a CRAN-readiness audit note recording the local `R CMD check
   --as-cran` result, vignette build status, and remaining expected notes.
+- Added R-package `cran-comments.md` for the eventual initial CRAN submission.
 
 ## 0.1.0a2 (Python pre-release)
 

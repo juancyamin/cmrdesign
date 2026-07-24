@@ -17,6 +17,8 @@ been reviewed and that package examples remain simulated-data examples only.
 - Confirm examples do not depend on paper replication data or simulations.
 - For the R CRAN path, confirm the latest audit note:
   `docs/cran_readiness.md`.
+- For an actual CRAN upload, confirm `r/cran-comments.md` reflects the exact
+  source tarball and check results being submitted.
 
 ## Local Checks
 

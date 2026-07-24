@@ -52,9 +52,14 @@ Remaining NOTES:
 ## Additional Local Checks
 
 - Fresh local source install from `cmrdesign_0.1.0.tar.gz`: OK.
+- Fresh local source-install smoke example with simulated two-arm data: OK.
 - R reference/provenance validation: OK.
 - Shared fixture drift check: OK.
 - Python reference/provenance validation: OK with the bundled Python runtime.
+- Package name availability checked against current CRAN, the CRAN archive, and
+  the Bioconductor package index: no existing `cmrdesign` package found.
+- `r/cran-comments.md` added for the eventual CRAN submission and excluded from
+  the built source package via `r/.Rbuildignore`.
 
 ## Package Contents
 
