@@ -17,6 +17,13 @@ First CRAN-oriented release of `cmrdesign`.
   the rounded-design certificate when possible.
 - Added allocation cross-language fixtures and vignette/examples
   coverage for integer count realization.
+- Hardened
+  [`realize_allocation()`](https://juancyamin.github.io/cmrdesign/reference/realize_allocation.md)
+  input validation for named length-one targets, fixed stratum counts,
+  zero-count realized arms, and certificate recomputation diagnostics.
+- Maurer–Pontil bounded-outcome fits now report the raw Bessel sample
+  variance in `vhat` and keep projected unit-interval variances in the
+  method-specific `statistic$projected_vhat` field.
 - Added explicit warnings when `normalize = TRUE` uses pilot min/max
   support bounds, clarifying that this convenience path is exploratory
   rather than finite-sample guarantee-bearing.

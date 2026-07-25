@@ -78,21 +78,25 @@ integer shares whenever the result contains enough rectangle information.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A CMR result object, a two-arm treatment share, or a named vector of
-target assignment shares. Multi-arm targets should be named by arm, with
-control arm <code>"0"</code> when using CMR multi-arm fits. Stratified targets should
-use cell names like <code>"1:A"</code> and <code>"0:A"</code>.</p></dd>
+<dd><p>A CMR result object, an unnamed scalar two-arm treatment share, or
+a named vector of target assignment shares. Named target vectors must have
+at least two arms or cells. Multi-arm targets should be named by arm, with
+control arm <code>"0"</code> when using CMR multi-arm fits. Stratified fixed-count
+targets currently support two-arm cells named like <code>"1:A"</code> and <code>"0:A"</code>.</p></dd>
 
 
 <dt id="arg-n-main">n_main<a class="anchor" aria-label="anchor" href="#arg-n-main"></a></dt>
 <dd><p>Main-wave sample size to allocate. Required unless
-<code>strata_counts</code> is supplied.</p></dd>
+<code>strata_counts</code> is supplied. If both are supplied, <code>n_main</code> must equal the
+sum of <code>strata_counts</code>.</p></dd>
 
 
 <dt id="arg-strata-counts">strata_counts<a class="anchor" aria-label="anchor" href="#arg-strata-counts"></a></dt>
 <dd><p>Optional named vector or list of fixed main-wave counts
 by stratum. When supplied, treatment/control counts are rounded within each
-stratum while preserving the stratum totals exactly.</p></dd>
+stratum while preserving the stratum totals exactly. Unknown strata,
+missing strata, and non-two-arm cells are rejected rather than silently
+ignored.</p></dd>
 
 
 <dt id="arg-min-per-arm">min_per_arm<a class="anchor" aria-label="anchor" href="#arg-min-per-arm"></a></dt>
@@ -113,7 +117,9 @@ when recomputing multi-arm or stratified certificates.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list of class <code>cmr_allocation</code> with integer <code>counts</code>, realized <code>shares</code>,
 realized <code>pi</code>, normalized <code>target_pi</code>, total <code>n_main</code>, rounding metadata,
-continuous and realized CMR certificates when available, and diagnostics.</p>
+continuous and realized CMR certificates when available, and diagnostics.
+The diagnostics field <code>certificate_recomputed</code> is <code>TRUE</code> only when a
+realized certificate was recomputed from rectangle information.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

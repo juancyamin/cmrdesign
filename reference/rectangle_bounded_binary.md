@@ -83,6 +83,10 @@ rectangle_bounded_binary(
 A `cmr_binary_rectangle` list with `rectangle`, one-arm bound objects
 for treatment and control, endpoint error allocation, sample sizes,
 pilot variance estimates, normalization details, and method metadata.
+For Maurer–Pontil bounds, the top-level `vhat` entries are raw Bessel
+sample variances and can exceed `0.25`; the projected unit-interval
+values are in `treatment$statistic$projected_vhat` and
+`control$statistic$projected_vhat`.
 
 ## See also
 

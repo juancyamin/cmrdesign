@@ -107,7 +107,12 @@ cmr_binary(
 
 A list of class `cmr_two_arm` with treatment share `pi`, regret
 certificate `U_CMR`, confidence rectangle, pilot summaries, endpoint
-error allocation, and diagnostics. The object has compact
+error allocation, and diagnostics. For Maurer–Pontil bounded-outcome
+fits, `pilot$vhat` contains raw Bessel sample variances and can exceed
+`0.25` in finite samples; use
+`confidence_set$treatment$statistic$projected_vhat` and
+`confidence_set$control$statistic$projected_vhat` for diagnostics that
+require unit-interval variances. The object has compact
 [`print()`](https://rdrr.io/r/base/print.html) and
 [`summary()`](https://rdrr.io/r/base/summary.html) methods.
 

@@ -26,21 +26,26 @@ print(x, ...)
 
 - x:
 
-  A CMR result object, a two-arm treatment share, or a named vector of
-  target assignment shares. Multi-arm targets should be named by arm,
-  with control arm `"0"` when using CMR multi-arm fits. Stratified
-  targets should use cell names like `"1:A"` and `"0:A"`.
+  A CMR result object, an unnamed scalar two-arm treatment share, or a
+  named vector of target assignment shares. Named target vectors must
+  have at least two arms or cells. Multi-arm targets should be named by
+  arm, with control arm `"0"` when using CMR multi-arm fits. Stratified
+  fixed-count targets currently support two-arm cells named like `"1:A"`
+  and `"0:A"`.
 
 - n_main:
 
   Main-wave sample size to allocate. Required unless `strata_counts` is
-  supplied.
+  supplied. If both are supplied, `n_main` must equal the sum of
+  `strata_counts`.
 
 - strata_counts:
 
   Optional named vector or list of fixed main-wave counts by stratum.
   When supplied, treatment/control counts are rounded within each
-  stratum while preserving the stratum totals exactly.
+  stratum while preserving the stratum totals exactly. Unknown strata,
+  missing strata, and non-two-arm cells are rejected rather than
+  silently ignored.
 
 - min_per_arm:
 
@@ -61,7 +66,9 @@ print(x, ...)
 A list of class `cmr_allocation` with integer `counts`, realized
 `shares`, realized `pi`, normalized `target_pi`, total `n_main`,
 rounding metadata, continuous and realized CMR certificates when
-available, and diagnostics.
+available, and diagnostics. The diagnostics field
+`certificate_recomputed` is `TRUE` only when a realized certificate was
+recomputed from rectangle information.
 
 ## See also
 

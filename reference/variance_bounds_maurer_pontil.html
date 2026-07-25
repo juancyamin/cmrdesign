@@ -107,9 +107,10 @@ and mean components.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with lower bound <code>L</code>, upper bound <code>U</code>, sample variance <code>vhat</code>, method
 name, arm sample size <code>n</code>, and method-specific <code>statistic</code> details. For
-Maurer-Pontil bounds, <code>vhat</code> is the raw Bessel sample variance and can
+Maurer–Pontil bounds, <code>vhat</code> is the raw Bessel sample variance and can
 slightly exceed <code>0.25</code> in finite samples even though the returned endpoints
-are capped to <code>[0, 0.25]</code>.</p>
+are capped to <code>[0, 0.25]</code>; use <code>statistic$projected_vhat</code> for diagnostics
+that require a variance on the unit-interval scale.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

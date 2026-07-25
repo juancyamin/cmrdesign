@@ -50,6 +50,8 @@
 <li>Added R/Python cross-language fixtures, reference validation, vignettes, and compact print/summary methods for core CMR results.</li>
 <li>Added <code><a href="../reference/realize_allocation.html">realize_allocation()</a></code> to turn CMR target shares into integer main-wave counts and recompute the rounded-design certificate when possible.</li>
 <li>Added allocation cross-language fixtures and vignette/examples coverage for integer count realization.</li>
+<li>Hardened <code><a href="../reference/realize_allocation.html">realize_allocation()</a></code> input validation for named length-one targets, fixed stratum counts, zero-count realized arms, and certificate recomputation diagnostics.</li>
+<li>Maurer–Pontil bounded-outcome fits now report the raw Bessel sample variance in <code>vhat</code> and keep projected unit-interval variances in the method-specific <code>statistic$projected_vhat</code> field.</li>
 <li>Added explicit warnings when <code>normalize = TRUE</code> uses pilot min/max support bounds, clarifying that this convenience path is exploratory rather than finite-sample guarantee-bearing.</li>
 </ul></div>
   </main></div>

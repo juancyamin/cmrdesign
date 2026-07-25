@@ -155,7 +155,12 @@ a scalar or a treatment/control pair.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list of class <code>cmr_two_arm</code> with treatment share <code>pi</code>, regret certificate
 <code>U_CMR</code>, confidence rectangle, pilot summaries, endpoint error allocation,
-and diagnostics. The object has compact <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> methods.</p>
+and diagnostics. For Maurer–Pontil bounded-outcome fits, <code>pilot$vhat</code>
+contains raw Bessel sample variances and can exceed <code>0.25</code> in finite samples;
+use <code>confidence_set$treatment$statistic$projected_vhat</code> and
+<code>confidence_set$control$statistic$projected_vhat</code> for diagnostics that
+require unit-interval variances. The object has compact <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> methods.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
