@@ -79,6 +79,7 @@ reference:
       examples, and simulations.
     contents:
       - starts_with("assign_")
+      - realize_allocation
       - variance_objective
       - oracle_variance
       - regret
