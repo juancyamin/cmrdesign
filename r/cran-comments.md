@@ -9,13 +9,10 @@ This is a new submission.
 - Local: R 4.5.0 on macOS Sequoia 15.7.4, aarch64-apple-darwin20.
 - GitHub Actions: Ubuntu, macOS, and Windows with R release.
 - R-universe: version 0.1.0 fresh-install smoke check on macOS.
-- win-builder R-release: previous pre-Phase-D/E tarball checked on Windows
-  with Status: 1 NOTE.
-- win-builder R-devel: previous pre-Phase-D/E tarball checked on Windows
-  with Status: 1 NOTE.
-
-Final win-builder checks will be rerun on the final source tarball before CRAN
-submission.
+- win-builder R-release: R 4.6.1 (2026-06-24 ucrt), Windows Server 2022 x64,
+  Status: 1 NOTE.
+- win-builder R-devel: R Under development (unstable) (2026-07-24 r90297 ucrt),
+  Windows Server 2022 x64, Status: 1 NOTE.
 
 ## R CMD Check Results
 
@@ -24,6 +21,9 @@ building vignettes with Pandoc available on `PATH`.
 
 Result: 0 ERRORs, 0 WARNINGs, 3 NOTEs in the local restricted-network
 environment.
+
+Final win-builder R-release and R-devel checks both returned 0 ERRORs,
+0 WARNINGs, and 1 NOTE.
 
 ## Notes
 
@@ -50,7 +50,7 @@ environment.
   ```
 
   These are expected for an initial CRAN submission; the listed words are
-  author/method names.
+  author surnames.
 
 - `checking for future file timestamps ... NOTE`
 
