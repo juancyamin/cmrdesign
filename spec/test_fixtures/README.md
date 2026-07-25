@@ -17,6 +17,9 @@ Case inputs should be small, deterministic, and easy to inspect. Case expected
 outputs should avoid solver-specific internals unless the tolerance is explicit.
 Unbounded-outcome cases may include longer raw outcome vectors because row
 order and consecutive pairing are part of the median-of-means input.
+Allocation cases cover deterministic integer rounding and realized-certificate
+recomputation; they should compare applied-facing count/share fields rather
+than full internal vertex diagnostics.
 
 Closed-form two-arm, full-rectangle, collapsed-rectangle, and planning cases
 should use tight tolerances. General multi-arm or stratified numerical solver

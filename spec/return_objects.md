@@ -47,6 +47,10 @@ Required conceptual fields:
 - `joint_error_bound`.
 - `diagnostics`.
 
+For Maurer-Pontil bounded-outcome bounds, `vhat` is the raw Bessel sample
+variance and can slightly exceed `1/4`; the rectangle endpoints themselves
+remain projected to the feasible population-variance range `[0, 1/4]`.
+
 Two-arm rectangle endpoint names are fixed:
 
 - `v_l1`, `v_u1`: treatment lower/upper variance endpoints.
@@ -57,6 +61,26 @@ arm is `"0"`.
 
 Stratified rectangles are represented as lower and upper `2 x S` objects with
 treatment row `1` and control row `0`, or equivalent named mappings in Python.
+
+## Allocation Realization Results
+
+`realize_allocation()` returns the same conceptual fields in R and Python:
+
+- `counts`: integer main-wave counts by arm or cell.
+- `shares`: realized shares implied by those integer counts.
+- `pi`: the realized CMR allocation. In two-arm designs this is the realized
+  treatment share; in multi-arm and stratified designs it is the realized share
+  vector.
+- `target_pi`: normalized continuous target shares before rounding.
+- `n_main`: total main-wave count represented by `counts`.
+- `rounding`: currently `"largest_remainder"`.
+- `min_per_arm`: minimum count enforced for positive target shares.
+- `continuous_U_CMR`: the original CMR certificate when `x` was a CMR result.
+- `realized_U_CMR`: the recomputed certificate at realized shares, when the
+  rectangle information is available.
+- `excess_U_CMR`: `realized_U_CMR - continuous_U_CMR` when both are finite.
+- `diagnostics`: design type, certificate details, fixed stratum counts when
+  relevant, and a `certificate_recomputed` flag.
 
 ## Extension Fields
 

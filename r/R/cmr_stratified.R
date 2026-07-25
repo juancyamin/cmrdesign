@@ -366,9 +366,12 @@ cmr_stratified_from_rectangle <- function(rectangle,
 #' @param beta Optional endpoint error allocation. If `NULL`, Bonferroni error
 #'   is split across all lower and upper treatment/control by stratum endpoints.
 #' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
-#'   computing variances.
+#'   computing variances. For guarantee-bearing bounded CMR on a non-unit
+#'   scale, provide known `lower` and `upper` bounds.
 #' @param lower,upper Optional lower and upper outcome bounds used when
-#'   `normalize = TRUE`.
+#'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
+#'   is used with a warning; that data-dependent normalization is exploratory
+#'   and does not carry the finite-sample bounded-outcome CMR guarantee.
 #' @param na.rm If `TRUE`, drop rows with missing `y`, `d`, or `strata`.
 #' @param tol Numerical tolerance for exact Bernoulli bound inversion.
 #' @param solver_control Optional list of solver controls for the general

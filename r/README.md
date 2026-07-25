@@ -43,6 +43,10 @@ fit <- cmr_two_arm(y, d, alpha = 0.05, method = "auto")
 fit$pi
 fit$U_CMR
 summary(fit)
+
+allocation <- realize_allocation(fit, n_main = 1000)
+allocation$counts
+allocation$realized_U_CMR
 ```
 
 `pi` is the recommended treatment share for the main wave. `U_CMR` is the
@@ -59,6 +63,7 @@ worst-case regret certificate over the confidence set for arm variances.
 | Multiple outcomes per unit | `cmr_multiple_outcomes()` |
 | Proxy or delayed primary outcome | `cmr_proxy()` |
 | Pilot versus main-wave sample-size planning | `cmr_plan()` |
+| Integer main-wave counts from CMR shares | `realize_allocation()` |
 
 The direct rectangle functions, such as `cmr_two_arm_from_rectangle()` and
 `cmr_multiarm_from_rectangle()`, are useful for auditing or teaching. Applied

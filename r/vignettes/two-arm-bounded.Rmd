@@ -64,6 +64,20 @@ round(fit_bounded$pilot$vhat, 4)
 fit_bounded$joint_error_bound
 ```
 
+## Convert the share to integer counts
+
+After choosing a main-wave size, use `realize_allocation()` to turn the
+continuous CMR target share into executable treatment/control counts. The
+helper recomputes the certificate at the rounded shares.
+
+```{r realize-counts}
+allocation <- realize_allocation(fit_bounded, n_main = 1000)
+
+allocation$counts
+allocation$shares
+allocation$realized_U_CMR
+```
+
 ## Compare confidence-set methods
 
 The package exposes the bounded/MP and MTR variance confidence sets through the

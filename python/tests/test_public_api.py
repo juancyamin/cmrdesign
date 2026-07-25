@@ -7,6 +7,7 @@ import cmrdesign as cmr
 
 
 EXPECTED_PUBLIC_API = {
+    "AllocationResult",
     "CMRResult",
     "RectangleResult",
     "activation_threshold_bernoulli",
@@ -52,6 +53,7 @@ EXPECTED_PUBLIC_API = {
     "rectangle_stratified",
     "rectangle_two_arm",
     "rectangle_unbounded",
+    "realize_allocation",
     "regret",
     "stratified_oracle_variance",
     "stratified_rectangle_vertices",
@@ -225,6 +227,21 @@ EXPECTED_MAIN_SIGNATURES = {
             "accounting": "design_only",
             "desired_pilot": None,
             "strict_upper": True,
+        },
+    },
+    "realize_allocation": {
+        "params": [
+            "x",
+            "n_main",
+            "strata_counts",
+            "min_per_arm",
+            "max_vertices",
+        ],
+        "defaults": {
+            "n_main": None,
+            "strata_counts": None,
+            "min_per_arm": 1,
+            "max_vertices": 65536,
         },
     },
 }

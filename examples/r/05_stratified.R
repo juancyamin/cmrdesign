@@ -15,6 +15,8 @@ y <- c(
 strata_share <- c(urban = 0.55, rural = 0.45)
 
 fit <- cmr_stratified(y, d, strata, strata_share, alpha = 0.05, method = "bounded")
+allocation <- realize_allocation(fit, strata_counts = c(urban = 550, rural = 450))
 
 print(fit$pi)
 print(fit$sampling_margin)
+print(allocation$counts)

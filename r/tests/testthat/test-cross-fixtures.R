@@ -81,6 +81,32 @@
   out
 }
 
+.allocation_summary <- function(alloc) {
+  out <- list(
+    counts = alloc$counts,
+    shares = alloc$shares,
+    pi = alloc$pi,
+    target_pi = alloc$target_pi,
+    n_main = alloc$n_main,
+    rounding = alloc$rounding,
+    min_per_arm = alloc$min_per_arm,
+    diagnostics = list(
+      design = alloc$diagnostics$design,
+      certificate_recomputed = alloc$diagnostics$certificate_recomputed
+    )
+  )
+  if (!is.null(alloc$continuous_U_CMR)) {
+    out$continuous_U_CMR <- alloc$continuous_U_CMR
+  }
+  if (!is.null(alloc$realized_U_CMR)) {
+    out$realized_U_CMR <- alloc$realized_U_CMR
+  }
+  if (!is.null(alloc$excess_U_CMR)) {
+    out$excess_U_CMR <- alloc$excess_U_CMR
+  }
+  out
+}
+
 .as_matrix_rows <- function(rows) {
   do.call(rbind, lapply(rows, function(x) as.numeric(unlist(x))))
 }
@@ -98,6 +124,7 @@
 
 testthat::test_that("fixture schema is valid", {
   fixture_names <- c(
+    "allocation.json",
     "bernoulli_exact.json",
     "bounded_mp.json",
     "bounded_mtr.json",
@@ -112,6 +139,37 @@ testthat::test_that("fixture schema is valid", {
   fixtures <- lapply(fixture_names, .fixture)
   testthat::expect_true(all(vapply(fixtures, function(x) x$schema_version == 1L, logical(1))))
   testthat::expect_true(all(vapply(fixtures, function(x) x$source == "R reference implementation", logical(1))))
+})
+
+testthat::test_that("allocation fixtures match implementation", {
+  fixture <- .fixture("allocation.json")
+  for (case in fixture$cases) {
+    workflow <- case$input$workflow
+    if (identical(workflow, "two_arm_rectangle")) {
+      fit <- cmr_two_arm_from_rectangle(unlist(case$input$rectangle))
+      alloc <- realize_allocation(fit, n_main = case$input$n_main)
+    } else if (identical(workflow, "unbounded_rectangle")) {
+      fit <- cmr_unbounded_from_rectangle(unlist(case$input$rectangle))
+      alloc <- realize_allocation(fit, n_main = case$input$n_main)
+    } else if (identical(workflow, "raw_shares")) {
+      alloc <- realize_allocation(
+        unlist(case$input$pi),
+        n_main = case$input$n_main,
+        min_per_arm = case$input$min_per_arm %||% 1L
+      )
+    } else if (identical(workflow, "multiarm_rectangle")) {
+      fit <- cmr_multiarm_from_rectangle(unlist(case$input$rectangle))
+      alloc <- realize_allocation(fit, n_main = case$input$n_main)
+    } else if (identical(workflow, "stratified_counts")) {
+      alloc <- realize_allocation(
+        unlist(case$input$pi),
+        strata_counts = unlist(case$input$strata_counts)
+      )
+    } else {
+      stop("Unknown allocation workflow: ", workflow, call. = FALSE)
+    }
+    .expect_close(.allocation_summary(alloc), case$expected, fixture$tolerance)
+  }
 })
 
 testthat::test_that("two-arm rectangle fixtures match implementation", {
@@ -158,19 +216,25 @@ testthat::test_that("Maurer-Pontil fixtures match implementation", {
   .expect_close(actual, rect_case$expected, fixture$tolerance)
 
   auto_case <- .case(fixture, "auto_normalize_raw_two_value")
+  auto_lower <- if (is.null(auto_case$input$lower)) NULL else auto_case$input$lower
+  auto_upper <- if (is.null(auto_case$input$upper)) NULL else auto_case$input$upper
   auto_rect <- rectangle_two_arm(
     y = unlist(auto_case$input$y),
     d = unlist(auto_case$input$d),
     alpha = auto_case$input$alpha,
     method = auto_case$input$method,
-    normalize = auto_case$input$normalize
+    normalize = auto_case$input$normalize,
+    lower = auto_lower,
+    upper = auto_upper
   )
   auto_fit <- cmr_two_arm(
     y = unlist(auto_case$input$y),
     d = unlist(auto_case$input$d),
     alpha = auto_case$input$alpha,
     method = auto_case$input$method,
-    normalize = auto_case$input$normalize
+    normalize = auto_case$input$normalize,
+    lower = auto_lower,
+    upper = auto_upper
   )
   actual <- list(
     rectangle = auto_rect$rectangle,

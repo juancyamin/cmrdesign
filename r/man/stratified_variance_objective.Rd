@@ -56,6 +56,7 @@ stratified_variance_objective(pi, variances, strata_share)
 Other assignment helpers: 
 \code{\link{assign_balance}()},
 \code{\link{multiarm_variance_objective}()},
+\code{\link{realize_allocation}()},
 \code{\link{variance_objective}()}
 
 Other rectangle helpers: 

@@ -40,10 +40,13 @@ for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.}
 is split across all lower and upper treatment/control by stratum endpoints.}
 
 \item{normalize}{If \code{TRUE}, normalize bounded outcomes to \verb{[0, 1]} before
-computing variances.}
+computing variances. For guarantee-bearing bounded CMR on a non-unit
+scale, provide known \code{lower} and \code{upper} bounds.}
 
 \item{lower, upper}{Optional lower and upper outcome bounds used when
-\code{normalize = TRUE}.}
+\code{normalize = TRUE}. If either is omitted, the pilot minimum and/or maximum
+is used with a warning; that data-dependent normalization is exploratory
+and does not carry the finite-sample bounded-outcome CMR guarantee.}
 
 \item{na.rm}{If \code{TRUE}, drop rows with missing \code{y}, \code{d}, or \code{strata}.}
 

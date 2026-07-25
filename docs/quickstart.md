@@ -63,6 +63,10 @@ fit <- cmr_two_arm(y, d, alpha = 0.05, method = "auto")
 fit$pi
 fit$U_CMR
 summary(fit)
+
+allocation <- realize_allocation(fit, n_main = 1000)
+allocation$counts
+allocation$realized_U_CMR
 ```
 
 ## Python
@@ -79,6 +83,10 @@ fit = cmr.cmr_two_arm(y, d, alpha=0.05, method="auto")
 fit.pi
 fit.U_CMR
 print(fit)
+
+allocation = cmr.realize_allocation(fit, n_main=1000)
+allocation.counts
+allocation.realized_U_CMR
 ```
 
 ## Read the Result
@@ -93,6 +101,9 @@ print(fit)
   generated the allocation.
 - `method` records the confidence-interval method after `auto` dispatch.
 - `diagnostics` records solver status and edge cases.
+- `realize_allocation()` converts the continuous CMR share into integer
+  treatment/control counts for a fixed main-wave sample size. When possible, it
+  recomputes the regret certificate at the rounded shares.
 
 ## Common Next Steps
 
@@ -100,12 +111,13 @@ print(fit)
 | --- | --- |
 | Binary outcome coded 0/1 | `method = "auto"` or `method = "bernoulli"` |
 | Bounded non-binary outcome on `[0, 1]` | `method = "bounded"` or `"mtr"` |
-| Bounded outcome on another known scale | `normalize = TRUE` in R or `normalize=True` in Python |
+| Bounded outcome on another known scale | `normalize = TRUE`/`normalize=True` with known `lower` and `upper` |
 | Raw finite outcome without a known bound | `cmr_unbounded(y, d, psi = ...)` |
 | Multiple treatment arms | `cmr_multiarm(y, arm, control_arm = ...)` |
 | Known strata | `cmr_stratified(y, d, strata, strata_share)` |
 | Multiple outcomes per unit | `cmr_multiple_outcomes(y_matrix, d, weights, estimand)` |
 | Proxy or delayed primary outcome | `cmr_proxy(proxy_y, d, zeta)` |
+| Need integer counts from CMR shares | `realize_allocation(fit, n_main = ...)` |
 
 See [Choosing a Method](choosing_methods.md) for the variance confidence
 interval options and [Methods](methods.md) for the supported CMR extensions.

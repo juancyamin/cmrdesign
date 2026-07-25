@@ -47,9 +47,12 @@
 #' @param correction Endpoint error correction, either `"bonferroni"` or
 #'   `"sidak_arms"`.
 #' @param normalize If `TRUE`, normalize bounded proxy outcomes to `[0, 1]`
-#'   before computing variances.
+#'   before computing variances. For guarantee-bearing bounded CMR on a
+#'   non-unit scale, provide known `lower` and `upper` bounds.
 #' @param lower,upper Optional lower and upper outcome bounds used when
-#'   `normalize = TRUE`.
+#'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
+#'   is used with a warning; that data-dependent normalization is exploratory
+#'   and does not carry the finite-sample bounded-outcome CMR guarantee.
 #' @param na.rm If `TRUE`, drop rows with missing `proxy_y` or `d`.
 #' @param tol Numerical tolerance for exact Bernoulli bound inversion.
 #'

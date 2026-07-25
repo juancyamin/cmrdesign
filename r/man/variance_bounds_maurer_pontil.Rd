@@ -39,8 +39,11 @@ and mean components.}
 \item{cs, tilde_cs}{Logical flags for the MTR predictable-mixture variants.}
 }
 \value{
-A list with lower bound \code{L}, upper bound \code{U}, sample variance \code{vhat},
-method name, arm sample size \code{n}, and method-specific \code{statistic} details.
+A list with lower bound \code{L}, upper bound \code{U}, sample variance \code{vhat}, method
+name, arm sample size \code{n}, and method-specific \code{statistic} details. For
+Maurer-Pontil bounds, \code{vhat} is the raw Bessel sample variance and can
+slightly exceed \code{0.25} in finite samples even though the returned endpoints
+are capped to \verb{[0, 0.25]}.
 }
 \description{
 One-arm distribution-free variance confidence bounds for outcomes in

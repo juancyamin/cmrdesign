@@ -36,6 +36,7 @@ planning.
 | Multiple outcomes per pilot unit | `cmr_multiple_outcomes()` | `cmr_multiple_outcomes()` |
 | Proxy or delayed primary outcome | `cmr_proxy()` | `cmr_proxy()` |
 | Pilot/main-wave sample-size planning | `cmr_plan()` | `cmr_plan()` |
+| Integer counts from CMR shares | `realize_allocation()` | `realize_allocation()` |
 
 Implementation contracts live in `spec/`. Those files are the source of truth
 for cross-language API names, return fields, formulas, and numerical

@@ -149,9 +149,12 @@ cmr_two_arm_from_rectangle <- function(rectangle) {
 #' @param correction Endpoint error correction, either `"bonferroni"` or
 #'   `"sidak_arms"` for two-arm bounded/Bernoulli/proxy workflows.
 #' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
-#'   computing the rectangle.
+#'   computing the rectangle. For guarantee-bearing bounded CMR on a non-unit
+#'   scale, provide known `lower` and `upper` bounds.
 #' @param lower,upper Optional lower and upper outcome bounds used when
-#'   `normalize = TRUE`.
+#'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
+#'   is used with a warning; that data-dependent normalization is exploratory
+#'   and does not carry the finite-sample bounded-outcome CMR guarantee.
 #' @param psi Bounded-kurtosis parameter for unbounded-outcome methods. Provide
 #'   a scalar or a treatment/control pair.
 #' @param na.rm If `TRUE`, drop rows with missing `y` or `d`.

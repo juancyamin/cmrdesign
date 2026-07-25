@@ -50,11 +50,35 @@ def two_arm_expected(result):
     return out
 
 
+def allocation_expected(result):
+    out = {
+        "counts": result.counts,
+        "shares": result.shares,
+        "pi": result.pi,
+        "target_pi": result.target_pi,
+        "n_main": result.n_main,
+        "rounding": result.rounding,
+        "min_per_arm": result.min_per_arm,
+        "diagnostics": {
+            "design": result.diagnostics["design"],
+            "certificate_recomputed": result.diagnostics["certificate_recomputed"],
+        },
+    }
+    if result.continuous_U_CMR is not None:
+        out["continuous_U_CMR"] = result.continuous_U_CMR
+    if result.realized_U_CMR is not None:
+        out["realized_U_CMR"] = result.realized_U_CMR
+    if result.excess_U_CMR is not None:
+        out["excess_U_CMR"] = result.excess_U_CMR
+    return out
+
+
 class CrossFixtureTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.root = Path(__file__).resolve().parents[2] / "spec" / "test_fixtures"
         expected = {
+            "allocation.json",
             "bernoulli_exact.json",
             "bounded_mp.json",
             "bounded_mtr.json",
@@ -80,6 +104,35 @@ class CrossFixtureTests(unittest.TestCase):
             self.assertEqual(payload["source"], "R reference implementation")
             self.assertIn("purpose", payload)
             self.assertTrue(payload["purpose"])
+
+    def test_allocation_fixtures(self):
+        fixture = self.fixtures["allocation.json"]
+        tol = fixture["tolerance"]
+        for case in fixture["cases"]:
+            workflow = case["input"]["workflow"]
+            if workflow == "two_arm_rectangle":
+                fit = cmr.cmr_two_arm_from_rectangle(case["input"]["rectangle"])
+                alloc = cmr.realize_allocation(fit, n_main=case["input"]["n_main"])
+            elif workflow == "unbounded_rectangle":
+                fit = cmr.cmr_unbounded_from_rectangle(case["input"]["rectangle"])
+                alloc = cmr.realize_allocation(fit, n_main=case["input"]["n_main"])
+            elif workflow == "raw_shares":
+                alloc = cmr.realize_allocation(
+                    case["input"]["pi"],
+                    n_main=case["input"]["n_main"],
+                    min_per_arm=case["input"].get("min_per_arm", 1),
+                )
+            elif workflow == "multiarm_rectangle":
+                fit = cmr.cmr_multiarm_from_rectangle(case["input"]["rectangle"])
+                alloc = cmr.realize_allocation(fit, n_main=case["input"]["n_main"])
+            elif workflow == "stratified_counts":
+                alloc = cmr.realize_allocation(
+                    case["input"]["pi"],
+                    strata_counts=case["input"]["strata_counts"],
+                )
+            else:
+                raise AssertionError(f"Unknown allocation workflow: {workflow}")
+            assert_close(self, allocation_expected(alloc), case["expected"], tol)
 
     def test_two_arm_rectangle_fixtures(self):
         fixture = self.fixtures["rectangles_binary.json"]
@@ -205,7 +258,11 @@ class CrossFixtureTests(unittest.TestCase):
         }
         assert_close(self, actual, neyman_case["expected"], tol)
 
-        for name in ("one_treatment_reduction", "general_asymmetric_3_components", "full_rectangle_k4"):
+        for name in (
+            "one_treatment_reduction",
+            "general_asymmetric_3_components",
+            "full_rectangle_k4",
+        ):
             case = case_by_name(fixture, name)
             fit = cmr.cmr_multiarm_from_rectangle(case["input"]["rectangle"])
             actual = {"pi": fit.pi, "U_CMR": fit.U_CMR}
@@ -267,7 +324,11 @@ class CrossFixtureTests(unittest.TestCase):
     def test_proxy_fixtures(self):
         fixture = self.fixtures["proxy.json"]
         tol = fixture["tolerance"]
-        for name in ("zero_bridge_matches_direct", "large_bridge_full_rectangle", "nonzero_bridge"):
+        for name in (
+            "zero_bridge_matches_direct",
+            "large_bridge_full_rectangle",
+            "nonzero_bridge",
+        ):
             case = case_by_name(fixture, name)
             fit = cmr.cmr_proxy(**case["input"])
             actual = two_arm_expected(fit)
@@ -279,7 +340,9 @@ class CrossFixtureTests(unittest.TestCase):
                 }
                 actual["direct"] = two_arm_expected(cmr.cmr_two_arm(**direct_input))
             if "proxy_rectangle" in case["expected"]:
-                actual["proxy_rectangle"] = fit.confidence_set.extra["bridge"]["proxy_rectangle"]
+                actual["proxy_rectangle"] = fit.confidence_set.extra["bridge"][
+                    "proxy_rectangle"
+                ]
                 actual["bridge"] = fit.confidence_set.extra["bridge"]["assumption"]
             assert_close(self, actual, case["expected"], tol)
 
@@ -304,9 +367,16 @@ class CrossFixtureTests(unittest.TestCase):
                 "default_two_thirds_power": plan["default_two_thirds_power"],
                 "desired_status": plan["desired_status"],
             }
-            for key in ("break_even_share", "suggested_pilot", "min_feasible", "max_feasible"):
+            for key in (
+                "break_even_share",
+                "suggested_pilot",
+                "min_feasible",
+                "max_feasible",
+            ):
                 if key in case["expected"]:
-                    actual[key] = plan["band"][key] if key in plan["band"] else plan[key]
+                    actual[key] = (
+                        plan["band"][key] if key in plan["band"] else plan[key]
+                    )
             assert_close(self, actual, case["expected"], tol)
 
 

@@ -1,6 +1,6 @@
 # R CRAN Readiness
 
-Date: 2026-07-24
+Date: 2026-07-25
 
 This note records the CRAN-readiness pass for the R package in `r/`. It is
 separate from the Python release path, which remains documented in
@@ -24,13 +24,16 @@ Full vignette builds require Pandoc on the `PATH`, or discoverable through the
 ```bash
 Rscript -e 'roxygen2::roxygenise("r")'
 R CMD build r
-R CMD check --as-cran cmrdesign_0.1.0.tar.gz
+PATH="/Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools/aarch64:$PATH" \
+  RSTUDIO_PANDOC=/Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools/aarch64 \
+  R CMD check --as-cran cmrdesign_0.1.0.tar.gz
 ```
 
 Result:
 
 - `R CMD build r`: OK, including vignette creation.
-- `R CMD check --as-cran`: 0 ERRORs, 0 WARNINGs, 2 NOTEs.
+- `R CMD check --as-cran`: 0 ERRORs, 0 WARNINGs, 3 NOTEs in the local
+  restricted-network environment.
 - `testthat`: the full testthat suite passes.
 - Examples: OK.
 - Vignettes: OK, including rebuild checks.
@@ -38,7 +41,11 @@ Result:
 
 Remaining NOTES:
 
-- `New submission`: expected for an initial CRAN submission.
+- CRAN incoming and URL checks need Internet access. In the local sandbox,
+  CRAN, Bioconductor, arXiv, GitHub, and GitHub Pages hosts could not be
+  resolved.
+- Future file timestamp verification could not confirm the current time in the
+  local environment.
 - Local HTML validation skipped because the installed `tidy` is not recent
   enough. This is a local tooling limitation; it is not a package code, Rd, or
   vignette failure.
@@ -48,7 +55,9 @@ Remaining NOTES:
 - Fresh local source install from `cmrdesign_0.1.0.tar.gz`: OK.
 - Fresh local source-install smoke example with simulated two-arm data: OK.
 - R reference/provenance validation: OK.
-- Shared fixture drift check: OK.
+- Shared fixture parity tests, including allocation fixtures: OK.
+- The fixture drift script compares generated fixture files to `HEAD`; rerun it
+  after the Phase E fixture additions are committed.
 - Python reference/provenance validation: OK with the bundled Python runtime.
 - Package name availability checked against current CRAN, the CRAN archive, and
   the Bioconductor package index: no existing `cmrdesign` package found.

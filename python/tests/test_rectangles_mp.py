@@ -13,6 +13,27 @@ class MaurerPontilRectangleTests(unittest.TestCase):
         self.assertEqual(bounds["method"], "bounded")
         self.assertEqual(bounds["n"], len(y))
 
+    def test_variance_bounds_use_raw_bessel_statistic_for_activation(self):
+        beta = 0.0125
+        before_threshold = [0, 1] * 17 + [0]
+        at_threshold = [0, 1] * 18
+
+        inactive = cmr.variance_bounds_maurer_pontil(
+            before_threshold,
+            beta_l=beta,
+            beta_u=beta,
+        )
+        active = cmr.variance_bounds_maurer_pontil(
+            at_threshold,
+            beta_l=beta,
+            beta_u=beta,
+        )
+
+        self.assertEqual(inactive["L"], 0)
+        self.assertGreater(active["L"], 0)
+        self.assertGreater(active["vhat"], 0.25)
+        self.assertEqual(active["statistic"]["projected_vhat"], 0.25)
+
     def test_variance_bounds_drop_missing_by_default(self):
         y = [0, 1, float("nan"), 0, 1]
         bounds = cmr.variance_bounds_maurer_pontil(y, beta_l=0.05, beta_u=0.05)

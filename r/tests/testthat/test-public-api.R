@@ -53,6 +53,7 @@ EXPECTED_R_EXPORTS <- c(
   "rectangle_stratified",
   "rectangle_two_arm",
   "rectangle_unbounded",
+  "realize_allocation",
   "regret",
   "saving_vs_balance",
   "share_of_oracle_gain",
@@ -150,6 +151,14 @@ testthat::test_that("main applied signatures match reviewed public surface", {
   .expect_default(cmr_plan, "alpha", 0.05)
   .expect_default(cmr_plan, "desired_pilot", NULL)
   .expect_default(cmr_plan, "strict_upper", TRUE)
+
+  .expect_formal_names(realize_allocation, c(
+    "x", "n_main", "strata_counts", "min_per_arm", "max_vertices"
+  ))
+  .expect_default(realize_allocation, "n_main", NULL)
+  .expect_default(realize_allocation, "strata_counts", NULL)
+  .expect_default(realize_allocation, "min_per_arm", 1L)
+  .expect_default(realize_allocation, "max_vertices", 65536L)
 })
 
 testthat::test_that("aliases remain available", {

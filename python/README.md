@@ -52,6 +52,10 @@ y = np.r_[rng.beta(2, 5, 40), rng.beta(4, 4, 40)]
 fit = cmr.cmr_two_arm(y, d, alpha=0.05, method="auto")
 print(fit.pi)
 print(fit.U_CMR)
+
+allocation = cmr.realize_allocation(fit, n_main=1000)
+print(allocation.counts)
+print(allocation.realized_U_CMR)
 ```
 
 ## Implemented Surface
@@ -69,6 +73,7 @@ print(fit.U_CMR)
 - Proxy/delayed-outcome CMR bridge widening via `cmr_proxy()`.
 - Pilot-planning helpers from Appendix E of the accompanying paper
   (Yamin 2026) via `cmr_plan()`.
+- Integer main-wave counts from CMR shares via `realize_allocation()`.
 - Expert rectangle helpers via `rectangle_*()` and `cmr_*_from_rectangle()`.
 
 See the repository-level docs for applied guidance:

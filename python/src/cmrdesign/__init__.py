@@ -2,6 +2,7 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
+from .allocation import AllocationResult, realize_allocation
 from .core import assign_neyman, oracle_variance, regret, variance_objective
 from .multiarm import (
     assign_multiarm_neyman,
@@ -75,6 +76,7 @@ except PackageNotFoundError:  # pragma: no cover - source tree without install
     __version__ = "0.1.0a2"
 
 __all__ = [
+    "AllocationResult",
     "CMRResult",
     "RectangleResult",
     "activation_threshold_bernoulli",
@@ -120,6 +122,7 @@ __all__ = [
     "rectangle_stratified",
     "rectangle_two_arm",
     "rectangle_unbounded",
+    "realize_allocation",
     "regret",
     "stratified_oracle_variance",
     "stratified_rectangle_vertices",

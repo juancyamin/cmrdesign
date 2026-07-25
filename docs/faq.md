@@ -25,14 +25,19 @@ Direct rectangle functions are available for expert checks and teaching.
 ## What if my outcome is not on `[0, 1]`?
 
 If the outcome is bounded on a known scale, pass `normalize = TRUE` in R or
-`normalize=True` in Python. You may also provide the bounds explicitly with
-`lower` and `upper`.
+`normalize=True` in Python with known `lower` and `upper` bounds. This is the
+guarantee-bearing bounded-outcome route for non-unit scales.
+
+If you omit either bound, `cmrdesign` uses the pilot minimum and/or maximum and
+prints a warning. That convenience path can be useful for exploratory work, but
+it is data-dependent and does not carry the finite-sample bounded-outcome CMR
+guarantee.
 
 If the outcome is not assumed bounded, use the two-arm unbounded extension:
 `cmr_unbounded(y, d, psi, ...)` or `cmr_two_arm(..., method = "unbounded",
-psi = ...)`. This requires a kurtosis bound `psi >= 1` and may return balance
-with no finite certificate when the pilot is too small for the requested
-confidence level.
+psi = ...)`. This requires a bounded-kurtosis input `psi >= 1`, is currently
+two-arm only, and may return balance with no finite certificate when the pilot
+is too small for the requested confidence level.
 
 ## What if my binary outcome is coded as 1/2, Yes/No, or 2/5?
 
@@ -75,6 +80,22 @@ a named vector of assignment shares over all arms, including the standardized
 control arm `"0"`. In stratified designs, `pi` gives total shares for each
 treatment/control by stratum cell; use `pi_matrix`, `sampling_margin`, and
 `treatment_margin` for easier applied interpretation.
+
+## How do I turn `pi` into integer main-wave counts?
+
+Use `realize_allocation(fit, n_main = ...)` in R or
+`cmr.realize_allocation(fit, n_main=...)` in Python. The helper uses
+deterministic largest-remainder rounding, returns integer `counts`, and reports
+the realized shares. When the input is a CMR result object, it also recomputes
+the regret certificate at the rounded shares when possible.
+
+For stratified designs with fixed field totals by stratum, pass named
+`strata_counts`. The helper preserves each stratum total exactly and rounds the
+treatment/control split within stratum.
+
+`realize_allocation()` does not generate a randomized assignment vector or
+randomization list. It returns auditable counts. Use your usual randomization
+workflow to assign units within the requested arms or strata.
 
 ## Are R and Python expected to match exactly?
 

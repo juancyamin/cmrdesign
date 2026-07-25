@@ -22,6 +22,9 @@ been reviewed and that package examples remain simulated-data examples only.
 - Confirm the four quick starts (root README, `docs/quickstart.md`,
   `r/README.md`, and `python/README.md`) show the same simulated two-arm
   example and the same default method.
+- Confirm examples and vignettes show how to turn CMR shares into integer
+  counts with `realize_allocation()` without generating randomized assignment
+  lists automatically.
 
 ## Local Checks
 
@@ -40,6 +43,10 @@ R CMD INSTALL r
 Rscript -e 'pkgload::load_all("r"); testthat::test_dir("r/tests/testthat")'
 Rscript validation/check_reference_values.R
 ```
+
+The shared fixture set should include `allocation.json` so deterministic
+integer rounding and realized-certificate recomputation are checked in both R
+and Python.
 
 Regenerate and check R documentation with the roxygen version recorded in
 `r/DESCRIPTION`:

@@ -1,11 +1,15 @@
 # Distribution-free bounded-outcome confidence rectangles.
 
-.cmr_sample_variance_01 <- function(y, na.rm = TRUE) {
+.cmr_raw_sample_variance_01 <- function(y, na.rm = TRUE) {
   y <- .cmr_clean_outcome_01(y, na.rm = na.rm)
   if (length(y) < 2L) {
     .cmr_stop("At least two observations are required to estimate a variance.")
   }
-  .cmr_clip(stats::var(y), 0, 0.25)
+  stats::var(y)
+}
+
+.cmr_sample_variance_01 <- function(y, na.rm = TRUE) {
+  .cmr_clip(.cmr_raw_sample_variance_01(y, na.rm = na.rm), 0, 0.25)
 }
 
 .cmr_binary_rectangle_object <- function(rectangle,
@@ -51,8 +55,11 @@
 #' @param cs,tilde_cs Logical flags for the MTR predictable-mixture variants.
 #'
 #' @return
-#' A list with lower bound `L`, upper bound `U`, sample variance `vhat`,
-#' method name, arm sample size `n`, and method-specific `statistic` details.
+#' A list with lower bound `L`, upper bound `U`, sample variance `vhat`, method
+#' name, arm sample size `n`, and method-specific `statistic` details. For
+#' Maurer-Pontil bounds, `vhat` is the raw Bessel sample variance and can
+#' slightly exceed `0.25` in finite samples even though the returned endpoints
+#' are capped to `[0, 0.25]`.
 #'
 #' @examples
 #' y <- c(0.10, 0.30, 0.40, 0.20, 0.70, 0.50)
@@ -72,8 +79,9 @@ variance_bounds_maurer_pontil <- function(y,
     .cmr_stop("At least two observations are required.")
   }
 
-  vhat <- .cmr_sample_variance_01(y, na.rm = FALSE)
+  vhat <- .cmr_raw_sample_variance_01(y, na.rm = FALSE)
   sdhat <- sqrt(vhat)
+  projected_vhat <- .cmr_clip(vhat, 0, 0.25)
 
   lower <- if (beta_l <= 0) {
     0
@@ -97,6 +105,7 @@ variance_bounds_maurer_pontil <- function(y,
     n = m,
     statistic = list(
       vhat = vhat,
+      projected_vhat = projected_vhat,
       sdhat = sdhat,
       beta_l = beta_l,
       beta_u = beta_u
@@ -474,9 +483,12 @@ variance_bounds_martinez_taboada_ramdas <- function(y,
 #' @param correction Endpoint error correction, either `"bonferroni"` or
 #'   `"sidak_arms"`.
 #' @param normalize If `TRUE`, normalize outcomes to `[0, 1]` before computing
-#'   variances.
+#'   variances. For guarantee-bearing bounded CMR on a non-unit scale, provide
+#'   known `lower` and `upper` bounds.
 #' @param lower,upper Optional lower and upper outcome bounds used when
-#'   `normalize = TRUE`.
+#'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
+#'   is used with a warning; that data-dependent normalization is exploratory
+#'   and does not carry the finite-sample bounded-outcome CMR guarantee.
 #' @param na.rm If `TRUE`, drop rows with missing `y` or `d`.
 #'
 #' @return

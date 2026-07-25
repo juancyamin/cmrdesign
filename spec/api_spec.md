@@ -15,14 +15,24 @@ as breaking unless this file is updated at the same time.
   R uses `na.rm`; Python uses `na_rm`.
 - Bounded-outcome variance routines use outcomes on the bounded scale `[0, 1]`.
   For non-unit bounded outcomes, users should set `normalize = TRUE` in R or
-  `normalize=True` in Python. When `method = "auto"` and normalization is
-  requested, dispatch is based on the raw outcome values before normalization.
+  `normalize=True` in Python with known `lower` and `upper` support bounds.
+  When either bound is omitted, the package may use the pilot minimum and/or
+  maximum as a convenience normalization, but must warn that this
+  data-dependent path does not carry the finite-sample bounded-outcome CMR
+  guarantee. When `method = "auto"` and normalization is requested, dispatch
+  is based on the raw outcome values before normalization.
+- Maurer-Pontil bounded-outcome bounds use the raw Bessel sample variance in
+  the finite-sample statistic; returned variance endpoints are still projected
+  to `[0, 1/4]`.
 - The unbounded-outcome routine uses raw finite numeric outcomes and requires a
   user-supplied kurtosis bound `psi`; it does not use bounded-scale
   normalization.
 - Confidence-set construction and CMR assignment are separable: every applied
   `cmr_*()` function should be reproducible from its corresponding
   `rectangle_*()` result.
+- Integer field allocations are a post-processing step: `realize_allocation()`
+  converts continuous CMR shares to deterministic counts and recomputes the
+  regret certificate at the realized shares when possible.
 - Public export and main-signature drift is checked in
   `r/tests/testthat/test-public-api.R` and `python/tests/test_public_api.py`.
   Any export addition, removal, rename, applied argument change, or default
@@ -175,6 +185,37 @@ Core options:
 Return: activation threshold, break-even share, feasible even pilot sizes,
 suggested pilot size, two-thirds-power default, desired-pilot status, and a
 necessary-not-sufficient caveat.
+
+### `realize_allocation(x, n_main, ...)`
+
+Purpose: turn continuous CMR shares into executable integer counts for the main
+experimental wave.
+
+Required inputs:
+
+- `x`: a CMR result object, a two-arm treatment share, or a named vector of
+  target shares.
+- `n_main`: total main-wave size, unless `strata_counts` is supplied.
+
+Core options:
+
+- `strata_counts`: named stratum totals for stratified implementation.
+- `min_per_arm = 1`: minimum count for each positive target share.
+- `max_vertices = 65536`: vertex cap for multi-arm/stratified certificate
+  recomputation.
+
+Rounding rule: deterministic largest-remainder rounding after enforcing
+`min_per_arm` for positive target shares. For stratified implementation with
+`strata_counts`, rounding happens within each stratum and preserves the supplied
+stratum totals exactly.
+
+Non-goal: this helper does not generate a randomized assignment vector or
+randomization list. It returns auditable counts for use in the user's field
+randomization workflow.
+
+Return: integer `counts`, realized `shares`, realized `pi`, normalized
+`target_pi`, `n_main`, rounding metadata, continuous and realized CMR
+certificates when available, the excess realized certificate, and diagnostics.
 
 ## Expert Functions
 

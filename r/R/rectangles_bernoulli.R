@@ -215,9 +215,12 @@ variance_bounds_bernoulli_exact <- function(y,
 #' @param correction Endpoint error correction, either `"bonferroni"` or
 #'   `"sidak_arms"` for two-arm workflows.
 #' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
-#'   computing variances.
+#'   computing variances. For guarantee-bearing bounded CMR on a non-unit
+#'   scale, provide known `lower` and `upper` bounds.
 #' @param lower,upper Optional lower and upper outcome bounds used when
-#'   `normalize = TRUE`.
+#'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
+#'   is used with a warning; that data-dependent normalization is exploratory
+#'   and does not carry the finite-sample bounded-outcome CMR guarantee.
 #' @param psi Bounded-kurtosis parameter used only when `method` is an
 #'   unbounded-outcome method.
 #' @param na.rm If `TRUE`, drop rows with missing `y` or `d`.

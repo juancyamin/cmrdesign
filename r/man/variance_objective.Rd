@@ -49,6 +49,7 @@ regret(0.5, v1, v0)
 Other assignment helpers: 
 \code{\link{assign_balance}()},
 \code{\link{multiarm_variance_objective}()},
+\code{\link{realize_allocation}()},
 \code{\link{stratified_variance_objective}()}
 }
 \concept{assignment helpers}

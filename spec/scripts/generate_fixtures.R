@@ -70,6 +70,38 @@ fit_two <- function(fit) {
   )
 }
 
+allocation_summary <- function(alloc) {
+  allocation_pi <- if (length(alloc$pi) == 1L) scalar(alloc$pi) else num_list(alloc$pi)
+  target_pi <- if (length(alloc$target_pi) == 1L) {
+    scalar(alloc$target_pi)
+  } else {
+    num_list(alloc$target_pi)
+  }
+  out <- list(
+    counts = num_list(alloc$counts),
+    shares = num_list(alloc$shares),
+    pi = allocation_pi,
+    target_pi = target_pi,
+    n_main = scalar(alloc$n_main),
+    rounding = alloc$rounding,
+    min_per_arm = scalar(alloc$min_per_arm),
+    diagnostics = list(
+      design = alloc$diagnostics$design,
+      certificate_recomputed = alloc$diagnostics$certificate_recomputed
+    )
+  )
+  if (!is.null(alloc$continuous_U_CMR)) {
+    out$continuous_U_CMR <- scalar(alloc$continuous_U_CMR)
+  }
+  if (!is.null(alloc$realized_U_CMR)) {
+    out$realized_U_CMR <- scalar(alloc$realized_U_CMR)
+  }
+  if (!is.null(alloc$excess_U_CMR)) {
+    out$excess_U_CMR <- scalar(alloc$excess_U_CMR)
+  }
+  out
+}
+
 write_fixture <- function(filename, purpose, cases, tolerance = 1e-10) {
   payload <- list(
     schema_version = 1L,
@@ -135,14 +167,18 @@ auto_norm_rect <- rectangle_two_arm(
   auto_norm_d,
   alpha = 0.05,
   method = "auto",
-  normalize = TRUE
+  normalize = TRUE,
+  lower = 2,
+  upper = 5
 )
 auto_norm_fit <- cmr_two_arm(
   auto_norm_y,
   auto_norm_d,
   alpha = 0.05,
   method = "auto",
-  normalize = TRUE
+  normalize = TRUE,
+  lower = 2,
+  upper = 5
 )
 write_fixture(
   "bounded_mp.json",
@@ -166,7 +202,7 @@ write_fixture(
     list(
       name = "auto_normalize_raw_two_value",
       input = list(y = as.list(auto_norm_y), d = as.list(auto_norm_d), alpha = 0.05,
-                   method = "auto", normalize = TRUE),
+                   method = "auto", normalize = TRUE, lower = 2, upper = 5),
       expected = list(rectangle = rectangle_list(auto_norm_rect$rectangle),
                       method = auto_norm_rect$method,
                       pi = scalar(auto_norm_fit$pi),
@@ -504,4 +540,65 @@ write_fixture(
     )
   ),
   tolerance = 1e-12
+)
+
+allocation_two <- realize_allocation(cmr_two_arm_from_rectangle(two_asym), n_main = 101)
+allocation_unbounded_rect <- c(v_l1 = 0.5, v_u1 = 1.4, v_l0 = 0.2, v_u0 = 1.0)
+allocation_unbounded <- realize_allocation(
+  cmr_unbounded_from_rectangle(allocation_unbounded_rect),
+  n_main = 99
+)
+allocation_raw_multiarm_pi <- c("0" = 0.34, "1" = 0.33, "2" = 0.33)
+allocation_raw_multiarm <- realize_allocation(
+  allocation_raw_multiarm_pi,
+  n_main = 10,
+  min_per_arm = 0
+)
+allocation_multiarm <- realize_allocation(
+  cmr_multiarm_from_rectangle(multi_general_rect),
+  n_main = 100
+)
+allocation_stratified_pi <- c("1:A" = 0.24, "0:A" = 0.16, "1:B" = 0.30, "0:B" = 0.30)
+allocation_stratified_counts <- c(A = 40, B = 60)
+allocation_stratified <- realize_allocation(
+  allocation_stratified_pi,
+  strata_counts = allocation_stratified_counts
+)
+write_fixture(
+  "allocation.json",
+  "Integer allocation realization, rounding, and realized-certificate cases.",
+  list(
+    list(
+      name = "two_arm_rectangle_counts",
+      input = list(workflow = "two_arm_rectangle",
+                   rectangle = rectangle_list(two_asym), n_main = 101),
+      expected = allocation_summary(allocation_two)
+    ),
+    list(
+      name = "unbounded_rectangle_counts",
+      input = list(workflow = "unbounded_rectangle",
+                   rectangle = rectangle_list(allocation_unbounded_rect), n_main = 99),
+      expected = allocation_summary(allocation_unbounded)
+    ),
+    list(
+      name = "raw_multiarm_largest_remainder",
+      input = list(workflow = "raw_shares", pi = num_list(allocation_raw_multiarm_pi),
+                   n_main = 10, min_per_arm = 0),
+      expected = allocation_summary(allocation_raw_multiarm)
+    ),
+    list(
+      name = "multiarm_rectangle_counts",
+      input = list(workflow = "multiarm_rectangle",
+                   rectangle = rectangle_list(multi_general_rect), n_main = 100),
+      expected = allocation_summary(allocation_multiarm)
+    ),
+    list(
+      name = "stratified_fixed_stratum_counts",
+      input = list(workflow = "stratified_counts",
+                   pi = num_list(allocation_stratified_pi),
+                   strata_counts = num_list(allocation_stratified_counts)),
+      expected = allocation_summary(allocation_stratified)
+    )
+  ),
+  tolerance = 1e-10
 )

@@ -63,10 +63,13 @@ across lower and upper endpoints using \code{correction}.}
 \code{"sidak_arms"} for two-arm bounded/Bernoulli/proxy workflows.}
 
 \item{normalize}{If \code{TRUE}, normalize bounded outcomes to \verb{[0, 1]} before
-computing the rectangle.}
+computing the rectangle. For guarantee-bearing bounded CMR on a non-unit
+scale, provide known \code{lower} and \code{upper} bounds.}
 
 \item{lower, upper}{Optional lower and upper outcome bounds used when
-\code{normalize = TRUE}.}
+\code{normalize = TRUE}. If either is omitted, the pilot minimum and/or maximum
+is used with a warning; that data-dependent normalization is exploratory
+and does not carry the finite-sample bounded-outcome CMR guarantee.}
 
 \item{psi}{Bounded-kurtosis parameter for unbounded-outcome methods. Provide
 a scalar or a treatment/control pair.}

@@ -17,6 +17,11 @@ y = np.r_[
 strata_share = {"urban": 0.55, "rural": 0.45}
 
 fit = cmr.cmr_stratified(y, d, strata, strata_share, alpha=0.05, method="bounded")
+allocation = cmr.realize_allocation(
+    fit,
+    strata_counts={"urban": 550, "rural": 450},
+)
 
 print(fit.pi)
 print(fit.extra["sampling_margin"])
+print(allocation.counts)

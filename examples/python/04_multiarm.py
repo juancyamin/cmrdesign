@@ -14,6 +14,13 @@ y = np.r_[
 ]
 
 fit = cmr.cmr_multiarm(y, arm, alpha=0.05, method="bounded")
+allocation = cmr.realize_allocation(fit, n_main=1200)
 
 print(fit.pi)
 print({"certificate": fit.U_CMR})
+print(
+    {
+        "counts": allocation.counts,
+        "realized_certificate": allocation.realized_U_CMR,
+    }
+)

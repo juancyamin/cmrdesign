@@ -49,10 +49,13 @@ according to \code{correction}.}
 \code{"sidak_arms"}.}
 
 \item{normalize}{If \code{TRUE}, normalize outcomes to \verb{[0, 1]} before computing
-variances.}
+variances. For guarantee-bearing bounded CMR on a non-unit scale, provide
+known \code{lower} and \code{upper} bounds.}
 
 \item{lower, upper}{Optional lower and upper outcome bounds used when
-\code{normalize = TRUE}.}
+\code{normalize = TRUE}. If either is omitted, the pilot minimum and/or maximum
+is used with a warning; that data-dependent normalization is exploratory
+and does not carry the finite-sample bounded-outcome CMR guarantee.}
 
 \item{na.rm}{If \code{TRUE}, drop rows with missing \code{y} or \code{d}.}
 }

@@ -74,6 +74,7 @@ assign_stratified_balance(c(A = 0.4, B = 0.6))
 \seealso{
 Other assignment helpers: 
 \code{\link{multiarm_variance_objective}()},
+\code{\link{realize_allocation}()},
 \code{\link{stratified_variance_objective}()},
 \code{\link{variance_objective}()}
 }

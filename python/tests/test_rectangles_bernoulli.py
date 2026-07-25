@@ -1,4 +1,5 @@
 import unittest
+import warnings
 
 import numpy as np
 
@@ -78,8 +79,50 @@ class BernoulliRectangleTests(unittest.TestCase):
     def test_auto_dispatch_uses_raw_scale_before_normalization(self):
         y_two_valued = [2, 5, 2, 5, 5, 2, 5, 2]
         d = [1, 1, 1, 1, 0, 0, 0, 0]
-        rect = cmr.rectangle_two_arm(y_two_valued, d, alpha=0.05, method="auto", normalize=True)
+        rect = cmr.rectangle_two_arm(
+            y_two_valued,
+            d,
+            alpha=0.05,
+            method="auto",
+            normalize=True,
+            lower=2,
+            upper=5,
+        )
         self.assertEqual(rect.method, "bounded")
+
+    def test_data_dependent_normalization_warns(self):
+        y_two_valued = [2, 5, 2, 5, 5, 2, 5, 2]
+        d = [1, 1, 1, 1, 0, 0, 0, 0]
+        with self.assertWarnsRegex(UserWarning, "cmr_unbounded"):
+            cmr.rectangle_two_arm(
+                y_two_valued,
+                d,
+                alpha=0.05,
+                method="auto",
+                normalize=True,
+            )
+
+    def test_known_support_normalization_does_not_warn(self):
+        y_two_valued = [2, 5, 2, 5, 5, 2, 5, 2]
+        d = [1, 1, 1, 1, 0, 0, 0, 0]
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            cmr.rectangle_two_arm(
+                y_two_valued,
+                d,
+                alpha=0.05,
+                method="auto",
+                normalize=True,
+                lower=2,
+                upper=5,
+            )
+        self.assertEqual(caught, [])
+
+    def test_bounded_scale_error_points_to_available_options(self):
+        y_two_valued = [2, 5, 2, 5, 5, 2, 5, 2]
+        d = [1, 1, 1, 1, 0, 0, 0, 0]
+        with self.assertRaisesRegex(ValueError, "cmr_unbounded"):
+            cmr.rectangle_two_arm(y_two_valued, d, alpha=0.05, method="bounded")
 
     def test_bernoulli_two_arm_alias_is_exported(self):
         self.assertIs(cmr.rectangle_bernoulli_two_arm, cmr.rectangle_bernoulli_binary)

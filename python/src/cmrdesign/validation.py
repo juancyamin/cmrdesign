@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import warnings
 from collections.abc import Iterable
 
 import numpy as np
@@ -10,6 +11,29 @@ import numpy as np
 
 def cmr_error(message: str) -> None:
     raise ValueError(message)
+
+
+NORMALIZATION_WARNING = (
+    "`normalize=True` without both `lower` and `upper` uses the pilot "
+    "minimum and/or maximum as support bounds. This data-dependent "
+    "normalization is a convenience for exploratory use and does not carry "
+    "the finite-sample bounded-outcome CMR guarantee. For guarantee-bearing "
+    "bounded CMR, pass known support bounds through `lower` and `upper`. "
+    "For two-arm raw finite outcomes without known support, consider "
+    "`cmr_unbounded(..., psi=...)`; it requires a bounded-kurtosis input "
+    "`psi`, is currently two-arm only, and may be conservative or return no "
+    "finite CMR certificate."
+)
+
+
+BOUNDED_OUTCOME_SCALE_ERROR = (
+    "`{name}` must lie in [0, 1] for bounded-outcome CMR methods. For known "
+    "non-unit support, set `normalize=True` with `lower` and `upper`. For "
+    "two-arm raw finite outcomes without known support, consider "
+    "`cmr_unbounded(..., psi=...)`; it requires a bounded-kurtosis input "
+    "`psi`, is currently two-arm only, and may be conservative or return no "
+    "finite CMR certificate."
+)
 
 
 def label_missing(x) -> bool:
@@ -104,7 +128,7 @@ def clean_outcome_01(y, name: str = "y") -> np.ndarray:
     if arr.size == 0:
         cmr_error(f"`{name}` has no observed values.")
     if np.any((arr < -1e-12) | (arr > 1 + 1e-12)):
-        cmr_error(f"`{name}` must lie in [0, 1].")
+        cmr_error(BOUNDED_OUTCOME_SCALE_ERROR.format(name=name))
     return np.clip(arr, 0, 1)
 
 
@@ -146,6 +170,8 @@ def split_binary_pilot(
 
 def normalize_01(x, lower=None, upper=None) -> tuple[np.ndarray, dict[str, float]]:
     arr = as_numeric_array(x, "y")
+    if lower is None or upper is None:
+        warnings.warn(NORMALIZATION_WARNING, UserWarning, stacklevel=2)
     if lower is None:
         lower = float(np.min(arr))
     if upper is None:

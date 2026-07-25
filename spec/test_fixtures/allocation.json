@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "source": "R reference implementation",
+  "generated_by": "spec/scripts/generate_fixtures.R",
+  "purpose": "Integer allocation realization, rounding, and realized-certificate cases.",
+  "tolerance": 1e-10,
+  "cases": [
+    {
+      "name": "two_arm_rectangle_counts",
+      "input": {
+        "workflow": "two_arm_rectangle",
+        "rectangle": {
+          "v_l1": 0.01,
+          "v_u1": 0.089999999999999997,
+          "v_l0": 0.040000000000000001,
+          "v_u0": 0.16
+        },
+        "n_main": 101
+      },
+      "expected": {
+        "counts": {
+          "treatment": 40,
+          "control": 61
+        },
+        "shares": {
+          "treatment": 0.39603960396039606,
+          "control": 0.60396039603960394
+        },
+        "pi": 0.39603960396039606,
+        "target_pi": 0.40000000000000002,
+        "n_main": 101,
+        "rounding": "largest_remainder",
+        "min_per_arm": 1,
+        "diagnostics": {
+          "design": "two_arm",
+          "certificate_recomputed": true
+        },
+        "continuous_U_CMR": 0.041666666666666699,
+        "realized_U_CMR": 0.043479508196721292,
+        "excess_U_CMR": 0.001812841530054593
+      }
+    },
+    {
+      "name": "unbounded_rectangle_counts",
+      "input": {
+        "workflow": "unbounded_rectangle",
+        "rectangle": {
+          "v_l1": 0.5,
+          "v_u1": 1.3999999999999999,
+          "v_l0": 0.20000000000000001,
+          "v_u0": 1
+        },
+        "n_main": 99
+      },
+      "expected": {
+        "counts": {
+          "treatment": 56,
+          "control": 43
+        },
+        "shares": {
+          "treatment": 0.56565656565656564,
+          "control": 0.43434343434343436
+        },
+        "pi": 0.56565656565656564,
+        "target_pi": 0.56638266943861759,
+        "n_main": 99,
+        "rounding": "largest_remainder",
+        "min_per_arm": 1,
+        "diagnostics": {
+          "design": "two_arm",
+          "certificate_recomputed": true
+        },
+        "continuous_U_CMR": 0.2747626977252739,
+        "realized_U_CMR": 0.27716459185323361,
+        "excess_U_CMR": 0.0024018941279597139
+      }
+    },
+    {
+      "name": "raw_multiarm_largest_remainder",
+      "input": {
+        "workflow": "raw_shares",
+        "pi": {
+          "0": 0.34000000000000002,
+          "1": 0.33000000000000002,
+          "2": 0.33000000000000002
+        },
+        "n_main": 10,
+        "min_per_arm": 0
+      },
+      "expected": {
+        "counts": {
+          "0": 4,
+          "1": 3,
+          "2": 3
+        },
+        "shares": {
+          "0": 0.40000000000000002,
+          "1": 0.29999999999999999,
+          "2": 0.29999999999999999
+        },
+        "pi": {
+          "0": 0.40000000000000002,
+          "1": 0.29999999999999999,
+          "2": 0.29999999999999999
+        },
+        "target_pi": {
+          "0": 0.34000000000000002,
+          "1": 0.33000000000000002,
+          "2": 0.33000000000000002
+        },
+        "n_main": 10,
+        "rounding": "largest_remainder",
+        "min_per_arm": 0,
+        "diagnostics": {
+          "design": "multiarm",
+          "certificate_recomputed": false
+        }
+      }
+    },
+    {
+      "name": "multiarm_rectangle_counts",
+      "input": {
+        "workflow": "multiarm_rectangle",
+        "rectangle": {
+          "v_l0": 0.02,
+          "v_u0": 0.080000000000000002,
+          "v_l1": 0.040000000000000001,
+          "v_u1": 0.12,
+          "v_l2": 0.01,
+          "v_u2": 0.070000000000000007
+        },
+        "n_main": 100
+      },
+      "expected": {
+        "counts": {
+          "0": 40,
+          "1": 35,
+          "2": 25
+        },
+        "shares": {
+          "0": 0.40000000000000002,
+          "1": 0.34999999999999998,
+          "2": 0.25
+        },
+        "pi": {
+          "0": 0.40000000000000002,
+          "1": 0.34999999999999998,
+          "2": 0.25
+        },
+        "target_pi": {
+          "0": 0.3988673167988554,
+          "1": 0.35334103145216333,
+          "2": 0.2477916517489813
+        },
+        "n_main": 100,
+        "rounding": "largest_remainder",
+        "min_per_arm": 1,
+        "diagnostics": {
+          "design": "multiarm",
+          "certificate_recomputed": true
+        },
+        "continuous_U_CMR": 0.064697465183187308,
+        "realized_U_CMR": 0.066446981343367462,
+        "excess_U_CMR": 0.0017495161601801534
+      }
+    },
+    {
+      "name": "stratified_fixed_stratum_counts",
+      "input": {
+        "workflow": "stratified_counts",
+        "pi": {
+          "1:A": 0.23999999999999999,
+          "0:A": 0.16,
+          "1:B": 0.29999999999999999,
+          "0:B": 0.29999999999999999
+        },
+        "strata_counts": {
+          "A": 40,
+          "B": 60
+        }
+      },
+      "expected": {
+        "counts": {
+          "1:A": 24,
+          "0:A": 16,
+          "1:B": 30,
+          "0:B": 30
+        },
+        "shares": {
+          "1:A": 0.23999999999999999,
+          "0:A": 0.16,
+          "1:B": 0.29999999999999999,
+          "0:B": 0.29999999999999999
+        },
+        "pi": {
+          "1:A": 0.23999999999999999,
+          "0:A": 0.16,
+          "1:B": 0.29999999999999999,
+          "0:B": 0.29999999999999999
+        },
+        "target_pi": {
+          "1:A": 0.23999999999999999,
+          "0:A": 0.16,
+          "1:B": 0.29999999999999999,
+          "0:B": 0.29999999999999999
+        },
+        "n_main": 100,
+        "rounding": "largest_remainder",
+        "min_per_arm": 1,
+        "diagnostics": {
+          "design": "stratified",
+          "certificate_recomputed": false
+        }
+      }
+    }
+  ]
+}

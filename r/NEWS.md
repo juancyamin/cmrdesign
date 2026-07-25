@@ -9,3 +9,10 @@ First CRAN-oriented release of `cmrdesign`.
   accompanying paper.
 - Added R/Python cross-language fixtures, reference validation, vignettes, and
   compact print/summary methods for core CMR results.
+- Added `realize_allocation()` to turn CMR target shares into integer
+  main-wave counts and recompute the rounded-design certificate when possible.
+- Added allocation cross-language fixtures and vignette/examples coverage for
+  integer count realization.
+- Added explicit warnings when `normalize = TRUE` uses pilot min/max support
+  bounds, clarifying that this convenience path is exploratory rather than
+  finite-sample guarantee-bearing.

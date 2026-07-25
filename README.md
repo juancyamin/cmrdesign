@@ -79,6 +79,10 @@ fit <- cmr_two_arm(y, d, alpha = 0.05, method = "auto")
 fit$pi
 fit$U_CMR
 summary(fit)
+
+allocation <- realize_allocation(fit, n_main = 1000)
+allocation$counts
+allocation$realized_U_CMR
 ```
 
 Python:
@@ -95,6 +99,10 @@ fit = cmr.cmr_two_arm(y, d, alpha=0.05, method="auto")
 fit.pi
 fit.U_CMR
 print(fit)
+
+allocation = cmr.realize_allocation(fit, n_main=1000)
+allocation.counts
+allocation.realized_U_CMR
 ```
 
 `pi` is the recommended treatment share for the main wave. `U_CMR` is the
@@ -112,6 +120,7 @@ confidence set for arm variances.
 | Multiple outcomes per unit | `cmr_multiple_outcomes()` | outcome matrix `y`, `d`, `weights` |
 | Proxy or delayed primary outcome | `cmr_proxy()` | `proxy_y`, `d`, bridge constant `zeta` |
 | Pilot versus main-wave sample-size planning | `cmr_plan()` | total `n`, pilot SD guesses |
+| Integer main-wave counts from CMR shares | `realize_allocation()` | a CMR result, `n_main` |
 
 The direct rectangle functions, such as `cmr_two_arm_from_rectangle()` and
 `cmr_multiarm_from_rectangle()`, are useful for auditing or teaching. Applied
@@ -129,9 +138,14 @@ confidence rectangle.
 | `method = "unbounded"` | Two-arm outcomes are raw finite values rather than bounded-scale values | Requires a kurtosis bound `psi`; use `cmr_unbounded()` for the clearest API. |
 
 For non-unit bounded outcomes, use `normalize = TRUE` in R or `normalize=True`
-in Python when the raw scale is known and meaningful. If a binary outcome is
-coded as something other than 0/1, recode it to 0/1 or explicitly set
-`method = "bernoulli"`.
+in Python with known `lower` and `upper` support bounds. If those bounds are
+omitted, the package falls back to the pilot minimum and/or maximum with a
+warning; that convenience normalization is exploratory and does not carry the
+finite-sample bounded-outcome CMR guarantee. For two-arm raw finite outcomes
+without known support, consider `cmr_unbounded(..., psi = ...)`, which requires
+a bounded-kurtosis input `psi` and may be conservative or return no finite CMR
+certificate. If a binary outcome is coded as something other than 0/1, recode
+it to 0/1 or explicitly set `method = "bernoulli"`.
 
 ## Interpreting Results
 
@@ -147,6 +161,11 @@ Most CMR result objects contain:
   dispatch.
 - `diagnostics`: solver and edge-case information, such as whether the
   confidence set collapsed or became a full no-information rectangle.
+
+Use `realize_allocation(fit, n_main = ...)` in R or
+`realize_allocation(fit, n_main=...)` in Python to convert continuous CMR
+shares into integer main-wave counts. When possible, the helper recomputes
+`U_CMR` at the realized shares so the rounded design has its own audit value.
 
 CMR is a design rule for allocating the next experimental wave. It is not a
 treatment-effect estimator, and `U_CMR` is not a treatment-effect confidence

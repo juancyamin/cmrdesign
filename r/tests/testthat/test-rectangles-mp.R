@@ -9,6 +9,25 @@ testthat::test_that("Maurer-Pontil variance bounds are valid endpoints", {
   testthat::expect_equal(bounds$n, length(y))
 })
 
+testthat::test_that("Maurer-Pontil uses raw Bessel statistic at activation threshold", {
+  beta <- 0.0125
+  inactive <- variance_bounds_maurer_pontil(
+    c(rep(c(0, 1), 17), 0),
+    beta_l = beta,
+    beta_u = beta
+  )
+  active <- variance_bounds_maurer_pontil(
+    rep(c(0, 1), 18),
+    beta_l = beta,
+    beta_u = beta
+  )
+
+  testthat::expect_equal(inactive$L, 0)
+  testthat::expect_gt(active$L, 0)
+  testthat::expect_gt(active$vhat, 0.25)
+  testthat::expect_equal(active$statistic$projected_vhat, 0.25)
+})
+
 testthat::test_that("bounded two-arm rectangles split treatment and control arms", {
   y <- c(0, 1, 0, 1, 0.2, 0.3, 0.4, 0.5)
   d <- c(1, 1, 1, 1, 0, 0, 0, 0)
@@ -23,4 +42,3 @@ testthat::test_that("bounded two-arm rectangles split treatment and control arms
   testthat::expect_equal(rect$n, c(n1 = 4, n0 = 4))
   testthat::expect_equal(rect$method, "bounded")
 })
-

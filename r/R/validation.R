@@ -4,6 +4,29 @@
   stop(paste0(...), call. = FALSE)
 }
 
+.cmr_data_dependent_normalization_warning <- paste0(
+  "`normalize = TRUE` without both `lower` and `upper` uses the pilot ",
+  "minimum and/or maximum as support bounds. This data-dependent ",
+  "normalization is a convenience for exploratory use and does not carry ",
+  "the finite-sample bounded-outcome CMR guarantee. For guarantee-bearing ",
+  "bounded CMR, pass known support bounds through `lower` and `upper`. ",
+  "For two-arm raw finite outcomes without known support, consider ",
+  "`cmr_unbounded(..., psi = ...)`; it requires a bounded-kurtosis input ",
+  "`psi`, is currently two-arm only, and may be conservative or return no ",
+  "finite CMR certificate."
+)
+
+.cmr_bounded_outcome_scale_error <- function(name) {
+  paste0(
+    "`", name, "` must lie in [0, 1] for bounded-outcome CMR methods. ",
+    "For known non-unit support, set `normalize = TRUE` with `lower` and ",
+    "`upper`. For two-arm raw finite outcomes without known support, ",
+    "consider `cmr_unbounded(..., psi = ...)`; it requires a ",
+    "bounded-kurtosis input `psi`, is currently two-arm only, and may be ",
+    "conservative or return no finite CMR certificate."
+  )
+}
+
 `%||%` <- function(a, b) {
   if (is.null(a)) b else a
 }
@@ -186,6 +209,10 @@
     .cmr_stop("`y` has no observed values.")
   }
 
+  if (is.null(lower) || is.null(upper)) {
+    warning(.cmr_data_dependent_normalization_warning, call. = FALSE)
+  }
+
   if (is.null(lower)) {
     lower <- min(observed)
   } else {
@@ -237,7 +264,7 @@
     .cmr_stop("`", name, "` must contain only finite values.")
   }
   if (any(y < -1e-12) || any(y > 1 + 1e-12)) {
-    .cmr_stop("`", name, "` must lie in [0, 1].")
+    .cmr_stop(.cmr_bounded_outcome_scale_error(name))
   }
   .cmr_clip(y, 0, 1)
 }

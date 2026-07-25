@@ -47,7 +47,53 @@ testthat::test_that("auto method dispatch checks the raw scale before normalizat
     d,
     alpha = 0.05,
     method = "auto",
-    normalize = TRUE
+    normalize = TRUE,
+    lower = 2,
+    upper = 5
   )
   testthat::expect_equal(rect$method, "bounded")
+})
+
+testthat::test_that("data-dependent normalization warns with unbounded guidance", {
+  y_two_valued <- c(2, 5, 2, 5, 5, 2, 5, 2)
+  d <- c(1, 1, 1, 1, 0, 0, 0, 0)
+
+  testthat::expect_warning(
+    rectangle_two_arm(
+      y_two_valued,
+      d,
+      alpha = 0.05,
+      method = "auto",
+      normalize = TRUE
+    ),
+    "cmr_unbounded"
+  )
+})
+
+testthat::test_that("known support normalization does not warn", {
+  y_two_valued <- c(2, 5, 2, 5, 5, 2, 5, 2)
+  d <- c(1, 1, 1, 1, 0, 0, 0, 0)
+
+  testthat::expect_warning(
+    rectangle_two_arm(
+      y_two_valued,
+      d,
+      alpha = 0.05,
+      method = "auto",
+      normalize = TRUE,
+      lower = 2,
+      upper = 5
+    ),
+    NA
+  )
+})
+
+testthat::test_that("bounded scale errors point to available options", {
+  y_two_valued <- c(2, 5, 2, 5, 5, 2, 5, 2)
+  d <- c(1, 1, 1, 1, 0, 0, 0, 0)
+
+  testthat::expect_error(
+    rectangle_two_arm(y_two_valued, d, alpha = 0.05, method = "bounded"),
+    "cmr_unbounded"
+  )
 })

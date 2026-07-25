@@ -10,5 +10,12 @@ d = np.r_[np.ones(n_pilot // 2), np.zeros(n_pilot // 2)]
 y = np.r_[rng.beta(2, 5, n_pilot // 2), rng.beta(4, 4, n_pilot // 2)]
 
 fit = cmr.cmr_two_arm(y, d, alpha=0.05, method="bounded")
+allocation = cmr.realize_allocation(fit, n_main=1000)
 
 print({"pi_treatment": fit.pi, "certificate": fit.U_CMR})
+print(
+    {
+        "counts": allocation.counts,
+        "realized_certificate": allocation.realized_U_CMR,
+    }
+)

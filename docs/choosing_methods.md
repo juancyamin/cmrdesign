@@ -47,8 +47,16 @@ binary, recode it to 0/1 or set `method = "bernoulli"` intentionally.
 `method = "bounded"` and its aliases `maurer_pontil` and `mp` use
 Maurer–Pontil variance bounds for outcomes on `[0, 1]`. This is the default
 non-binary route. Use `normalize = TRUE`/`normalize=True` when the raw outcome
-is bounded on another known scale. The resulting variance endpoints are clipped
-to the feasible `[0, 1/4]` range for unit-bounded outcomes.
+is bounded on another known scale, and pass known `lower` and `upper` bounds
+when you want the bounded-outcome guarantee. If either bound is omitted, the
+package uses the pilot minimum and/or maximum with a warning; that is a
+convenience normalization for exploratory work, not a finite-sample
+guarantee-bearing bounded CMR analysis. For two-arm raw finite outcomes without
+known support, consider `cmr_unbounded(..., psi = ...)`; it requires a
+bounded-kurtosis input `psi`, is currently two-arm only, and may be conservative
+or return no finite CMR certificate. The resulting bounded-method variance
+endpoints are clipped to the feasible `[0, 1/4]` range for unit-bounded
+outcomes.
 
 ## Bernoulli Outcomes
 

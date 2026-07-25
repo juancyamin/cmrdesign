@@ -51,6 +51,7 @@ multiarm_regret(pi, variances)
 \seealso{
 Other assignment helpers: 
 \code{\link{assign_balance}()},
+\code{\link{realize_allocation}()},
 \code{\link{stratified_variance_objective}()},
 \code{\link{variance_objective}()}
 

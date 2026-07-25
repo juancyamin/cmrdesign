@@ -30,10 +30,15 @@ def _clean_bound_outcome_01(y, na_rm: bool = True) -> np.ndarray:
 
 
 def sample_variance_01(y, na_rm: bool = True) -> float:
+    """Return the projected Bessel sample variance for bounded [0, 1] outcomes."""
+    return float(np.clip(_raw_sample_variance_01(y, na_rm=na_rm), 0, 0.25))
+
+
+def _raw_sample_variance_01(y, na_rm: bool = True) -> float:
     y = _clean_bound_outcome_01(y, na_rm=na_rm)
     if y.size < 2:
         cmr_error("At least two observations are required to estimate a variance.")
-    return float(np.clip(np.var(y, ddof=1), 0, 0.25))
+    return float(np.var(y, ddof=1))
 
 
 def variance_bounds_maurer_pontil(
@@ -48,8 +53,9 @@ def variance_bounds_maurer_pontil(
     m = y.size
     if m < 2:
         cmr_error("At least two observations are required.")
-    vhat = sample_variance_01(y, na_rm=False)
+    vhat = _raw_sample_variance_01(y, na_rm=False)
     sdhat = math.sqrt(vhat)
+    projected_vhat = float(np.clip(vhat, 0, 0.25))
     if beta_l <= 0:
         lower = 0.0
     else:
@@ -66,7 +72,13 @@ def variance_bounds_maurer_pontil(
         "vhat": vhat,
         "method": "bounded",
         "n": int(m),
-        "statistic": {"vhat": vhat, "sdhat": sdhat, "beta_l": beta_l, "beta_u": beta_u},
+        "statistic": {
+            "vhat": vhat,
+            "projected_vhat": projected_vhat,
+            "sdhat": sdhat,
+            "beta_l": beta_l,
+            "beta_u": beta_u,
+        },
     }
 
 

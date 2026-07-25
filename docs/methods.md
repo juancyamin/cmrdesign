@@ -23,6 +23,7 @@ auditing, teaching, and replication checks.
 | Multiple outcomes per unit | `cmr_multiple_outcomes(y, d, weights, estimand, ...)` | Treatment share `pi` for an index or co-primary objective |
 | Proxy or delayed primary outcome | `cmr_proxy(proxy_y, d, zeta, ...)` | Treatment share `pi` after bridge widening |
 | Pilot/main-wave planning before data collection | `cmr_plan(n, sigma1, sigma0, ...)` | Feasible pilot-size screen and suggested pilot size |
+| Turning CMR shares into field counts | `realize_allocation(fit, n_main, ...)` | Integer counts and realized-share certificate audit |
 
 Most result objects include `pi`, `U_CMR`, `rectangle` or `confidence_set`,
 `pilot`, `method`, and `diagnostics`. `U_CMR` is a design certificate, not a
@@ -119,6 +120,23 @@ function returns balance with no finite certificate.
 
 The unbounded method is not currently implemented for multi-arm, stratified,
 multiple-outcome, or proxy designs.
+
+## Integer Allocation Counts
+
+The CMR rules return continuous target shares. Use `realize_allocation()` after
+fitting a rule to turn those shares into executable integer counts for a fixed
+main-wave sample size. The helper uses deterministic largest-remainder rounding
+and reports both the normalized target shares and the realized shares.
+
+When the input is a CMR result object, `realize_allocation()` recomputes the
+regret certificate at the rounded shares whenever the result contains enough
+rectangle information. For stratified designs with fixed field totals by
+stratum, pass `strata_counts`; treatment/control counts are rounded within
+each stratum while preserving those stratum totals exactly.
+
+The helper deliberately stops at counts. It does not generate a randomized
+assignment vector; use the returned counts inside the randomization workflow
+for the actual field implementation.
 
 ## Pilot Planning
 
