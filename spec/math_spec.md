@@ -84,7 +84,7 @@ L = max(0, s_hat - eta(beta_l))^2,
 U = min(1/4, (s_hat + eta(beta_u))^2).
 ```
 
-The statistic `s_hat^2` is not projected before applying the Maurer-Pontil
+The statistic `s_hat^2` is not projected before applying the Maurer–Pontil
 radius. In finite samples, the Bessel sample variance for `[0, 1]` data can
 slightly exceed `1/4`; only the returned confidence-rectangle endpoints are
 projected back to the feasible population-variance range `[0, 1/4]`.

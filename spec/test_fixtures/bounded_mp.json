@@ -2,7 +2,7 @@
   "schema_version": 1,
   "source": "R reference implementation",
   "generated_by": "spec/scripts/generate_fixtures.R",
-  "purpose": "Maurer-Pontil bounded-outcome variance bounds and two-arm rectangle.",
+  "purpose": "Maurer–Pontil bounded-outcome variance bounds and two-arm rectangle.",
   "tolerance": 1e-10,
   "cases": [
     {

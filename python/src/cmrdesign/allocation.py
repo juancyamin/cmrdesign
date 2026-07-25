@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import warnings
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any
@@ -70,14 +71,14 @@ def _largest_remainder_counts(
     min_per_arm = scalar_int(min_per_arm, "min_per_arm", lower=0)
     shares = _normalize_shares(shares, labels)
     active = shares > 1e-12
+    if n_main == 0:
+        return dict(zip(labels, [0] * len(labels), strict=True))
     min_counts = np.where(active, min_per_arm, 0).astype(int)
     if int(np.sum(min_counts)) > n_main:
         cmr_error(
             "`n_main` is too small for `min_per_arm` and the positive target shares; "
             "increase `n_main` or set `min_per_arm=0`."
         )
-    if n_main == 0:
-        return dict(zip(labels, [0] * len(labels), strict=True))
 
     remaining = int(n_main - np.sum(min_counts))
     desired = np.maximum(n_main * shares - min_counts, 0)
@@ -96,7 +97,22 @@ def _largest_remainder_counts(
             for idx in order[:leftover]:
                 extras[idx] += 1
         counts = min_counts + extras
-    return dict(zip(labels, map(int, counts), strict=True))
+    out = dict(zip(labels, map(int, counts), strict=True))
+    dropped = [
+        label
+        for label, is_active in zip(labels, active, strict=True)
+        if is_active and out[label] == 0
+    ]
+    if dropped:
+        warnings.warn(
+            "Positive target shares received zero realized units: "
+            + ", ".join(dropped)
+            + ". Increase `n_main` or `min_per_arm` if every positive target "
+            "share must be represented.",
+            UserWarning,
+            stacklevel=2,
+        )
+    return out
 
 
 def _two_arm_regret(pi: float, v1: float, v0: float) -> float:
@@ -138,6 +154,8 @@ def _two_arm_realized_certificate(rectangle, pi: float) -> dict[str, Any] | None
 def _multiarm_realized_certificate(fit: CMRResult, shares, max_vertices: int):
     from .multiarm import _multiarm_vertex_problem
 
+    if fit.rectangle is None:
+        return None
     problem = _multiarm_vertex_problem(fit.rectangle, max_vertices=max_vertices)
     pi = np.asarray([shares[arm] for arm in problem["arms"]], dtype=float)
     details = vertex_certificate(
@@ -202,6 +220,8 @@ def _continuous_certificate(fit) -> float | None:
 def _excess(realized, continuous):
     if realized is None or continuous is None:
         return None
+    if math.isinf(realized) and math.isfinite(continuous):
+        return math.inf
     if not math.isfinite(realized) or not math.isfinite(continuous):
         return None
     return float(realized - continuous)
@@ -236,16 +256,38 @@ def _realize_stratified_counts(target, strata_counts, min_per_arm):
             strata.append(stratum)
     if not isinstance(strata_counts, Mapping):
         cmr_error("`strata_counts` must be a mapping from stratum label to count.")
+    stratum_count_labels = [str(key) for key in strata_counts]
+    if len(set(stratum_count_labels)) != len(stratum_count_labels):
+        cmr_error("`strata_counts` labels must be unique after string conversion.")
+    extra_strata = [label for label in stratum_count_labels if label not in strata]
+    if extra_strata:
+        cmr_error(
+            "`strata_counts` contains unknown strata: "
+            + ", ".join(extra_strata)
+            + "."
+        )
+    stratum_counts = {
+        str(key): value for key, value in strata_counts.items()
+    }
     counts: dict[str, int] = {}
     for stratum in strata:
-        if stratum not in strata_counts:
+        if stratum not in stratum_counts:
             cmr_error(f"`strata_counts` is missing stratum `{stratum}`.")
         n_stratum = scalar_int(
-            strata_counts[stratum],
+            stratum_counts[stratum],
             f"strata_counts[{stratum!r}]",
             lower=0,
         )
+        labels_in_stratum = [
+            label for label in target if label.split(":", 1)[1] == stratum
+        ]
         labels = [f"1:{stratum}", f"0:{stratum}"]
+        extra_cells = [label for label in labels_in_stratum if label not in labels]
+        if extra_cells:
+            cmr_error(
+                "`strata_counts` currently supports two-arm stratified targets only; "
+                "unexpected cells: " + ", ".join(extra_cells) + "."
+            )
         missing = [label for label in labels if label not in target]
         if missing:
             cmr_error(f"Stratified targets are missing cells: {', '.join(missing)}.")
@@ -311,6 +353,14 @@ def realize_allocation(
             values = arr
         else:
             labels, values = _ordered_mapping_values(target)
+        if len(labels) < 2:
+            cmr_error(
+                "Named or vector target shares must contain at least two arms "
+                "or cells; "
+                "use a scalar for a two-arm treatment share."
+            )
+        if len(set(labels)) != len(labels):
+            cmr_error("Target share labels must be unique.")
         normalized_values = _normalize_shares(values, labels)
         target_map = dict(zip(labels, map(float, normalized_values), strict=True))
         target_pi = target_map
@@ -321,6 +371,11 @@ def realize_allocation(
                 strata_counts,
                 min_per_arm,
             )
+            if n_main is not None and sum(counts.values()) != n_main:
+                cmr_error(
+                    "`n_main` must equal the sum of `strata_counts` when both "
+                    "are supplied."
+                )
             realized_pi = realized
             n_main = sum(counts.values())
             diagnostics = {"design": "stratified", "strata_counts": dict(strata_counts)}
@@ -351,13 +406,14 @@ def realize_allocation(
 
     continuous = _continuous_certificate(fit)
     realized_u = None if cert is None else float(cert["value"])
+    certificate_recomputed = cert is not None
     if fit is not None and fit.rectangle is None and math.isinf(float(fit.U_CMR)):
         realized_u = math.inf
     if cert is not None:
         for key, value in cert.items():
             if key != "value":
                 diagnostics[key] = value
-    diagnostics["certificate_recomputed"] = realized_u is not None
+    diagnostics["certificate_recomputed"] = certificate_recomputed
 
     return AllocationResult(
         counts=counts,

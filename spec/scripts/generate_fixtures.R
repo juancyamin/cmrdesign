@@ -182,7 +182,7 @@ auto_norm_fit <- cmr_two_arm(
 )
 write_fixture(
   "bounded_mp.json",
-  "Maurer-Pontil bounded-outcome variance bounds and two-arm rectangle.",
+  "Maurer–Pontil bounded-outcome variance bounds and two-arm rectangle.",
   list(
     list(
       name = "variance_bounds_rep_01",
@@ -218,7 +218,7 @@ mtr_d <- c(rep(1, 100), rep(0, 108))
 mtr_fit <- cmr_two_arm(mtr_y, mtr_d, alpha = 0.10, method = "mtr")
 write_fixture(
   "bounded_mtr.json",
-  "Martinez-Taboada-Ramdas bounded-outcome variance bounds and applied CMR.",
+  "Martinez-Taboada–Ramdas bounded-outcome variance bounds and applied CMR.",
   list(
     list(
       name = "variance_bounds_regression",

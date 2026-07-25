@@ -18,36 +18,6 @@
   )
 }
 
-.cmr_variance_bounds_by_method <- function(y,
-                                           beta_l,
-                                           beta_u,
-                                           method,
-                                           tol = 1e-11) {
-  if (method == "bernoulli") {
-    return(variance_bounds_bernoulli_exact(
-      y,
-      beta_l = beta_l,
-      beta_u = beta_u,
-      na.rm = FALSE,
-      tol = tol
-    ))
-  }
-  if (method == "martinez_taboada_ramdas") {
-    return(variance_bounds_martinez_taboada_ramdas(
-      y,
-      beta_l = beta_l,
-      beta_u = beta_u,
-      na.rm = FALSE
-    ))
-  }
-  variance_bounds_maurer_pontil(
-    y,
-    beta_l = beta_l,
-    beta_u = beta_u,
-    na.rm = FALSE
-  )
-}
-
 .cmr_split_multiarm_pilot <- function(y,
                                       arm,
                                       control_arm = 0,

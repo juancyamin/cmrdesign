@@ -62,7 +62,11 @@ and does not carry the finite-sample bounded-outcome CMR guarantee.}
 \value{
 A \code{cmr_binary_rectangle} list with \code{rectangle}, one-arm bound objects for
 treatment and control, endpoint error allocation, sample sizes, pilot
-variance estimates, normalization details, and method metadata.
+variance estimates, normalization details, and method metadata. For
+Maurer–Pontil bounds, the top-level \code{vhat} entries are raw Bessel sample
+variances and can exceed \code{0.25}; the projected unit-interval values are in
+\code{treatment$statistic$projected_vhat} and
+\code{control$statistic$projected_vhat}.
 }
 \description{
 Construct a two-arm variance confidence rectangle for bounded outcomes using

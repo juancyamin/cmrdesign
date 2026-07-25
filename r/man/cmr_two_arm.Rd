@@ -81,7 +81,12 @@ a scalar or a treatment/control pair.}
 \value{
 A list of class \code{cmr_two_arm} with treatment share \code{pi}, regret certificate
 \code{U_CMR}, confidence rectangle, pilot summaries, endpoint error allocation,
-and diagnostics. The object has compact \code{print()} and \code{summary()} methods.
+and diagnostics. For Maurer–Pontil bounded-outcome fits, \code{pilot$vhat}
+contains raw Bessel sample variances and can exceed \code{0.25} in finite samples;
+use \code{confidence_set$treatment$statistic$projected_vhat} and
+\code{confidence_set$control$statistic$projected_vhat} for diagnostics that
+require unit-interval variances. The object has compact \code{print()} and
+\code{summary()} methods.
 }
 \description{
 Estimate a finite-sample variance confidence rectangle from pilot data and

@@ -1,4 +1,4 @@
-# Validation And Provenance Checks
+# Validation and provenance checks
 
 This directory is separate from `spec/test_fixtures/` on purpose.
 

@@ -57,9 +57,10 @@
 #' @return
 #' A list with lower bound `L`, upper bound `U`, sample variance `vhat`, method
 #' name, arm sample size `n`, and method-specific `statistic` details. For
-#' Maurer-Pontil bounds, `vhat` is the raw Bessel sample variance and can
+#' Maurer–Pontil bounds, `vhat` is the raw Bessel sample variance and can
 #' slightly exceed `0.25` in finite samples even though the returned endpoints
-#' are capped to `[0, 0.25]`.
+#' are capped to `[0, 0.25]`; use `statistic$projected_vhat` for diagnostics
+#' that require a variance on the unit-interval scale.
 #'
 #' @examples
 #' y <- c(0.10, 0.30, 0.40, 0.20, 0.70, 0.50)
@@ -494,7 +495,11 @@ variance_bounds_martinez_taboada_ramdas <- function(y,
 #' @return
 #' A `cmr_binary_rectangle` list with `rectangle`, one-arm bound objects for
 #' treatment and control, endpoint error allocation, sample sizes, pilot
-#' variance estimates, normalization details, and method metadata.
+#' variance estimates, normalization details, and method metadata. For
+#' Maurer–Pontil bounds, the top-level `vhat` entries are raw Bessel sample
+#' variances and can exceed `0.25`; the projected unit-interval values are in
+#' `treatment$statistic$projected_vhat` and
+#' `control$statistic$projected_vhat`.
 #'
 #' @examples
 #' d <- rep(c(1, 0), each = 5)

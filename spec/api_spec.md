@@ -21,7 +21,7 @@ as breaking unless this file is updated at the same time.
   data-dependent path does not carry the finite-sample bounded-outcome CMR
   guarantee. When `method = "auto"` and normalization is requested, dispatch
   is based on the raw outcome values before normalization.
-- Maurer-Pontil bounded-outcome bounds use the raw Bessel sample variance in
+- Maurer–Pontil bounded-outcome bounds use the raw Bessel sample variance in
   the finite-sample statistic; returned variance endpoints are still projected
   to `[0, 1/4]`.
 - The unbounded-outcome routine uses raw finite numeric outcomes and requires a
@@ -193,21 +193,26 @@ experimental wave.
 
 Required inputs:
 
-- `x`: a CMR result object, a two-arm treatment share, or a named vector of
-  target shares.
-- `n_main`: total main-wave size, unless `strata_counts` is supplied.
+- `x`: a CMR result object, an unnamed scalar two-arm treatment share, or a
+  named vector/mapping of target shares. Named or vector targets must contain at
+  least two arms or cells.
+- `n_main`: total main-wave size, unless `strata_counts` is supplied. If both
+  are supplied, `n_main` must equal the sum of `strata_counts`.
 
 Core options:
 
-- `strata_counts`: named stratum totals for stratified implementation.
+- `strata_counts`: named stratum totals for two-arm stratified implementation.
+  Unknown strata, missing strata, and cells outside the documented `1:<stratum>`
+  / `0:<stratum>` form are errors.
 - `min_per_arm = 1`: minimum count for each positive target share.
 - `max_vertices = 65536`: vertex cap for multi-arm/stratified certificate
   recomputation.
 
 Rounding rule: deterministic largest-remainder rounding after enforcing
-`min_per_arm` for positive target shares. For stratified implementation with
-`strata_counts`, rounding happens within each stratum and preserves the supplied
-stratum totals exactly.
+`min_per_arm` for positive target shares. If `min_per_arm = 0`, a positive
+target share can round to zero; implementations warn in that case. For
+stratified implementation with `strata_counts`, rounding happens within each
+stratum and preserves the supplied stratum totals exactly.
 
 Non-goal: this helper does not generate a randomized assignment vector or
 randomization list. It returns auditable counts for use in the user's field
@@ -222,9 +227,9 @@ certificates when available, the excess realized certificate, and diagnostics.
 Expert functions are public but should not be presented as the primary applied
 workflow.
 
-Python also exposes `CMRResult` and `RectangleResult` as public result
-containers. R exposes S3 list classes through returned objects and methods
-rather than standalone constructor classes.
+Python also exposes `CMRResult`, `RectangleResult`, and `AllocationResult` as
+public result containers. R exposes S3 list classes through returned objects and
+methods rather than standalone constructor classes.
 
 ### Rectangle Constructors
 

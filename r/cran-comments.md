@@ -9,10 +9,10 @@ This is a new submission.
 - Local: R 4.5.0 on macOS Sequoia 15.7.4, aarch64-apple-darwin20.
 - GitHub Actions: Ubuntu, macOS, and Windows with R release.
 - R-universe: version 0.1.0 fresh-install smoke check on macOS.
-- win-builder R-release: R 4.6.1 (2026-06-24 ucrt), Windows Server 2022 x64,
-  Status: 1 NOTE.
-- win-builder R-devel: R Under development (unstable) (2026-07-24 r90297 ucrt),
-  Windows Server 2022 x64, Status: 1 NOTE.
+- win-builder R-release: previous pre-allocation-hardening tarball checked on
+  Windows with Status: 1 NOTE.
+- win-builder R-devel: previous pre-allocation-hardening tarball checked on
+  Windows with Status: 1 NOTE.
 
 ## R CMD Check Results
 
@@ -22,8 +22,8 @@ building vignettes with Pandoc available on `PATH`.
 Result: 0 ERRORs, 0 WARNINGs, 3 NOTEs in the local restricted-network
 environment.
 
-Final win-builder R-release and R-devel checks both returned 0 ERRORs,
-0 WARNINGs, and 1 NOTE.
+Final win-builder R-release and R-devel checks will be rerun on the
+post-allocation-hardening source tarball before CRAN submission.
 
 ## Notes
 

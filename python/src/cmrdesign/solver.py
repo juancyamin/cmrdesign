@@ -45,15 +45,23 @@ def hyperrectangle_vertices(
         )
     if names is None:
         names = [f"component_{i + 1}" for i in range(n_dim)]
+    names = list(map(str, names))
     if len(names) != n_dim:
         cmr_error("`names` must have one label per rectangle dimension.")
     rows = []
+    vertex_names = []
     for bits in itertools.product((0, 1), repeat=n_dim):
         rows.append(np.where(np.asarray(bits, dtype=bool), upper, lower))
+        vertex_names.append(
+            "_".join(
+                ("u" if bit else "l") + names[idx]
+                for idx, bit in enumerate(bits)
+            )
+        )
     return {
         "vertices": np.asarray(rows, dtype=float),
-        "names": list(map(str, names)),
-        "vertex_names": [f"vertex_{i + 1}" for i in range(n_vertices)],
+        "names": names,
+        "vertex_names": vertex_names,
     }
 
 

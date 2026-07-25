@@ -5,20 +5,10 @@ labeled by package.
 
 ## Unreleased
 
-- R/Python: Maurer-Pontil bounded-outcome bounds now use the raw Bessel sample
-  variance in the finite-sample statistic and project only the returned
-  confidence-rectangle endpoints to `[0, 1/4]`.
-- R/Python: `normalize = TRUE`/`normalize=True` without known `lower` and
-  `upper` now warns that pilot min/max normalization is exploratory and does
-  not carry the finite-sample bounded-outcome CMR guarantee.
-- R/Python: added `realize_allocation()` to convert continuous CMR shares into
-  integer main-wave counts with deterministic largest-remainder rounding and,
-  when possible, a recomputed certificate at the realized shares.
-- R/Python: added cross-language allocation fixtures and updated simulated
-  examples/vignettes to show integer count realization after computing CMR
-  shares.
+- Python: prepare the stable `0.1.0` release to match the CRAN R release after
+  CRAN acceptance.
 
-## R 0.1.0 - 2026-07-24 (CRAN-readiness candidate)
+## R 0.1.0 - 2026-07-25 (CRAN submission candidate)
 
 - Moved the R package version from development-only `0.0.0.9000` to
   CRAN-style `0.1.0`.
@@ -31,6 +21,21 @@ labeled by package.
   and the root README citation section.
 - Added `r/inst/CITATION` and `r/NEWS.md` for R citation and changelog
   workflows.
+- Maurer–Pontil bounded-outcome bounds now use the raw Bessel sample variance
+  in the finite-sample statistic and project only the returned
+  confidence-rectangle endpoints to `[0, 1/4]`.
+- `normalize = TRUE` without known `lower` and `upper` now warns that pilot
+  min/max normalization is exploratory and does not carry the finite-sample
+  bounded-outcome CMR guarantee.
+- Added `realize_allocation()` to convert continuous CMR shares into integer
+  main-wave counts with deterministic largest-remainder rounding and, when
+  possible, a recomputed certificate at the realized shares.
+- Hardened `realize_allocation()` validation for named length-one targets,
+  fixed stratum counts, zero-count realized arms, and certificate
+  recomputation diagnostics.
+- Added cross-language allocation fixtures and updated simulated
+  examples/vignettes to show integer count realization after computing CMR
+  shares.
 
 ## Python 0.1.0a2 - 2026-07-24 (pre-release)
 

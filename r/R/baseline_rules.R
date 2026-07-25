@@ -95,18 +95,6 @@ assign_feasible_neyman <- function(vhat1, vhat0) {
   assign_neyman(vhat1, vhat0)
 }
 
-assign_cairafi_feasible_neyman <- function(vhat1, vhat0) {
-  vhat1 <- .cmr_check_variance(vhat1, "vhat1")
-  vhat0 <- .cmr_check_variance(vhat0, "vhat0")
-  args <- .cmr_recycle_common(vhat1, vhat0, arg_names = c("vhat1", "vhat0"))
-  s1 <- sqrt(args$vhat1)
-  s0 <- sqrt(args$vhat0)
-  denom <- s1 + s0
-  out <- ifelse(denom > 0, s1 / denom, 0.5)
-  out[args$vhat1 == 0 | args$vhat0 == 0] <- 0.5
-  out
-}
-
 #' @rdname assign_balance
 #' @export
 assign_trimmed_neyman <- function(vhat1, vhat0, trim = 0.10) {
@@ -129,21 +117,6 @@ assign_additive_regularized_neyman <- function(vhat1, vhat0, nu) {
   s0 <- sqrt(args$vhat0)
   denom <- (s1 + s0) * (1 + nu)
   ifelse(denom > 0, (s1 + nu * s0) / denom, 0.5)
-}
-
-assign_cairafi_additive_neyman <- function(vhat1, vhat0, nu) {
-  vhat1 <- .cmr_check_variance(vhat1, "vhat1")
-  vhat0 <- .cmr_check_variance(vhat0, "vhat0")
-  nu <- .cmr_check_numeric(nu, "nu")
-  if (length(nu) != 1L || nu < 0) {
-    .cmr_stop("`nu` must be a nonnegative scalar.")
-  }
-  out <- assign_additive_regularized_neyman(vhat1, vhat0, nu = nu)
-  if (nu == 0) {
-    args <- .cmr_recycle_common(vhat1, vhat0, arg_names = c("vhat1", "vhat0"))
-    out[args$vhat1 == 0 | args$vhat0 == 0] <- 0.5
-  }
-  out
 }
 
 #' @rdname assign_balance
@@ -177,66 +150,4 @@ assign_exponential_regularized_neyman <- function(vhat1,
   }
 
   out
-}
-
-assign_cairafi_exponential_neyman <- function(vhat1, vhat0, tau) {
-  assign_exponential_regularized_neyman(
-    vhat1 = vhat1,
-    vhat0 = vhat0,
-    tau = tau,
-    zero_guard = "any"
-  )
-}
-
-.cairafi_variance_wald_component <- function(y) {
-  if (length(y) < 2L) {
-    .cmr_stop("Each pilot arm must contain at least two observations.")
-  }
-  mu <- mean(y)
-  mu2 <- mean(y^2)
-  centered_y <- y - mu
-  centered_y2 <- y^2 - mu2
-  cov_22 <- mean(centered_y2^2)
-  cov_12 <- mean(centered_y * centered_y2)
-  cov_11 <- mean(centered_y^2)
-  c(1, -2 * mu) %*%
-    matrix(c(cov_22, cov_12, cov_12, cov_11), nrow = 2L) %*%
-    c(1, -2 * mu)
-}
-
-cairafi_homoskedasticity_wald <- function(y, d, na.rm = TRUE) {
-  pilot <- .cmr_split_binary_pilot(y, d, na.rm = na.rm)
-  if (length(pilot$y1) < 2L || length(pilot$y0) < 2L) {
-    .cmr_stop("Each pilot arm must contain at least two observations.")
-  }
-
-  sigma2_1 <- mean(pilot$y1^2) - mean(pilot$y1)^2
-  sigma2_0 <- mean(pilot$y0^2) - mean(pilot$y0)^2
-  se2 <- as.numeric(.cairafi_variance_wald_component(pilot$y1)) / length(pilot$y1) +
-    as.numeric(.cairafi_variance_wald_component(pilot$y0)) / length(pilot$y0)
-
-  if (se2 <= 0) {
-    diff <- sigma2_1 - sigma2_0
-    return(ifelse(abs(diff) <= 1e-12, 0, sign(diff) * Inf))
-  }
-
-  (sigma2_1 - sigma2_0) / sqrt(se2)
-}
-
-assign_cairafi_test_neyman <- function(y, d, alpha = 0.05, na.rm = TRUE) {
-  alpha <- .cmr_check_alpha(alpha)
-  pilot <- .cmr_split_binary_pilot(y, d, na.rm = na.rm)
-  if (length(pilot$y1) < 2L || length(pilot$y0) < 2L) {
-    .cmr_stop("Each pilot arm must contain at least two observations.")
-  }
-
-  wald <- cairafi_homoskedasticity_wald(pilot$y, pilot$d, na.rm = FALSE)
-  if (abs(wald) <= stats::qnorm(1 - alpha / 2)) {
-    return(0.5)
-  }
-
-  assign_cairafi_feasible_neyman(
-    .cmr_clip(stats::var(pilot$y1), 0, 0.25),
-    .cmr_clip(stats::var(pilot$y0), 0, 0.25)
-  )
 }

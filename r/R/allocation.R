@@ -31,6 +31,15 @@
   if (is.null(labels) || any(labels == "")) {
     labels <- as.character(seq_along(values) - 1L)
   }
+  if (length(labels) < 2L) {
+    .cmr_stop(
+      "Named target share vectors must contain at least two arms or cells; ",
+      "use an unnamed scalar for a two-arm treatment share."
+    )
+  }
+  if (anyDuplicated(labels)) {
+    .cmr_stop("Target share labels must be unique.")
+  }
   shares <- .cmr_normalize_allocation_shares(values, labels)
   list(labels = labels, shares = shares)
 }
@@ -45,17 +54,17 @@
   shares <- .cmr_normalize_allocation_shares(shares, labels)
 
   active <- shares > 1e-12
+  if (n_main == 0L) {
+    out <- rep(0L, length(labels))
+    names(out) <- labels
+    return(out)
+  }
   min_counts <- ifelse(active, min_per_arm, 0L)
   if (sum(min_counts) > n_main) {
     .cmr_stop(
       "`n_main` is too small for `min_per_arm` and the positive target shares; ",
       "increase `n_main` or set `min_per_arm = 0`."
     )
-  }
-  if (n_main == 0L) {
-    out <- rep(0L, length(labels))
-    names(out) <- labels
-    return(out)
   }
 
   remaining <- n_main - sum(min_counts)
@@ -78,6 +87,15 @@
 
   out <- as.integer(counts)
   names(out) <- labels
+  dropped <- labels[active & out == 0L]
+  if (length(dropped) > 0L) {
+    warning(
+      "Positive target shares received zero realized units: ",
+      paste(dropped, collapse = ", "),
+      ". Increase `n_main` or `min_per_arm` if every positive target share must be represented.",
+      call. = FALSE
+    )
+  }
   out
 }
 
@@ -116,6 +134,13 @@
   if (is.null(names(strata_counts)) || any(names(strata_counts) == "")) {
     .cmr_stop("`strata_counts` must be named by stratum.")
   }
+  if (anyDuplicated(names(strata_counts))) {
+    .cmr_stop("`strata_counts` names must be unique.")
+  }
+  extra_strata <- setdiff(names(strata_counts), strata)
+  if (length(extra_strata) > 0L) {
+    .cmr_stop("`strata_counts` contains unknown strata: ", paste(extra_strata, collapse = ", "), ".")
+  }
 
   counts <- integer(0)
   for (stratum in strata) {
@@ -127,7 +152,15 @@
       paste0("strata_counts[", stratum, "]"),
       lower = 0L
     )
+    labels_in_stratum <- names(target)[sub("^[^:]+:", "", names(target)) == stratum]
     labels <- paste0(c("1:", "0:"), stratum)
+    extra_cells <- setdiff(labels_in_stratum, labels)
+    if (length(extra_cells) > 0L) {
+      .cmr_stop(
+        "`strata_counts` currently supports two-arm stratified targets only; ",
+        "unexpected cells: ", paste(extra_cells, collapse = ", "), "."
+      )
+    }
     missing <- setdiff(labels, names(target))
     if (length(missing) > 0L) {
       .cmr_stop("Stratified targets are missing cells: ", paste(missing, collapse = ", "), ".")
@@ -186,6 +219,9 @@
 }
 
 .cmr_multiarm_allocation_certificate <- function(fit, shares, max_vertices) {
+  if (is.null(fit$rectangle)) {
+    return(NULL)
+  }
   rectangle <- .cmr_check_multiarm_rectangle(fit$rectangle)
   arms <- rownames(rectangle)
   missing <- setdiff(arms, names(shares))
@@ -277,10 +313,19 @@
   if (is.null(realized) || is.null(continuous)) {
     return(NULL)
   }
+  if (is.infinite(realized) && is.finite(continuous)) {
+    return(Inf)
+  }
   if (!is.finite(realized) || !is.finite(continuous)) {
     return(NULL)
   }
   realized - continuous
+}
+
+.cmr_is_unnamed_scalar_target <- function(x) {
+  is.numeric(x) &&
+    length(x) == 1L &&
+    (is.null(names(x)) || identical(names(x), "") || all(names(x) == ""))
 }
 
 #' Convert CMR target shares to integer allocation counts
@@ -291,15 +336,19 @@
 #' `realize_allocation()` also recomputes the regret certificate at the realized
 #' integer shares whenever the result contains enough rectangle information.
 #'
-#' @param x A CMR result object, a two-arm treatment share, or a named vector of
-#'   target assignment shares. Multi-arm targets should be named by arm, with
-#'   control arm `"0"` when using CMR multi-arm fits. Stratified targets should
-#'   use cell names like `"1:A"` and `"0:A"`.
+#' @param x A CMR result object, an unnamed scalar two-arm treatment share, or
+#'   a named vector of target assignment shares. Named target vectors must have
+#'   at least two arms or cells. Multi-arm targets should be named by arm, with
+#'   control arm `"0"` when using CMR multi-arm fits. Stratified fixed-count
+#'   targets currently support two-arm cells named like `"1:A"` and `"0:A"`.
 #' @param n_main Main-wave sample size to allocate. Required unless
-#'   `strata_counts` is supplied.
+#'   `strata_counts` is supplied. If both are supplied, `n_main` must equal the
+#'   sum of `strata_counts`.
 #' @param strata_counts Optional named vector or list of fixed main-wave counts
 #'   by stratum. When supplied, treatment/control counts are rounded within each
-#'   stratum while preserving the stratum totals exactly.
+#'   stratum while preserving the stratum totals exactly. Unknown strata,
+#'   missing strata, and non-two-arm cells are rejected rather than silently
+#'   ignored.
 #' @param min_per_arm Minimum integer count assigned to each positive target
 #'   share. Set to `0` when zero counts are acceptable.
 #' @param max_vertices Maximum number of hyperrectangle vertices to enumerate
@@ -310,6 +359,8 @@
 #' A list of class `cmr_allocation` with integer `counts`, realized `shares`,
 #' realized `pi`, normalized `target_pi`, total `n_main`, rounding metadata,
 #' continuous and realized CMR certificates when available, and diagnostics.
+#' The diagnostics field `certificate_recomputed` is `TRUE` only when a
+#' realized certificate was recomputed from rectangle information.
 #'
 #' @examples
 #' set.seed(21)
@@ -336,7 +387,7 @@ realize_allocation <- function(x,
     n_main <- .cmr_check_scalar_integer(n_main, "n_main", lower = 1L)
   }
 
-  if (is.numeric(target) && length(target) == 1L && is.null(strata_counts)) {
+  if (.cmr_is_unnamed_scalar_target(target) && is.null(strata_counts)) {
     if (is.null(n_main)) {
       .cmr_stop("`n_main` is required unless `strata_counts` is supplied.")
     }
@@ -364,6 +415,11 @@ realize_allocation <- function(x,
         strata_counts = strata_counts,
         min_per_arm = min_per_arm
       )
+      if (!is.null(n_main) && sum(realized$counts) != n_main) {
+        .cmr_stop(
+          "`n_main` must equal the sum of `strata_counts` when both are supplied."
+        )
+      }
       n_main <- sum(realized$counts)
       realized_pi <- realized$shares
       design <- "stratified"
@@ -393,13 +449,14 @@ realize_allocation <- function(x,
   )
   continuous_U_CMR <- if (!is.null(fit)) fit$U_CMR else NULL
   realized_U_CMR <- if (!is.null(certificate)) certificate$value else NULL
+  certificate_recomputed <- !is.null(certificate)
   if (!is.null(fit) && is.null(fit$rectangle) && is.infinite(fit$U_CMR)) {
     realized_U_CMR <- Inf
   }
   if (!is.null(certificate)) {
     diagnostics <- c(diagnostics, certificate[setdiff(names(certificate), "value")])
   }
-  diagnostics$certificate_recomputed <- !is.null(realized_U_CMR)
+  diagnostics$certificate_recomputed <- certificate_recomputed
 
   out <- list(
     counts = realized$counts,

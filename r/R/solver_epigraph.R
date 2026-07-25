@@ -51,14 +51,23 @@
   if (n_vertices > max_vertices) {
     .cmr_stop("The hyperrectangle has ", n_vertices, " vertices, exceeding `max_vertices`.")
   }
+  component_names <- names(lower)
+  if (is.null(component_names) || any(component_names == "")) {
+    component_names <- paste0("component_", seq_len(n_dim))
+  }
 
   grid <- expand.grid(rep(list(c(0, 1)), n_dim))
   vertices <- matrix(NA_real_, nrow = nrow(grid), ncol = n_dim)
   for (j in seq_len(n_dim)) {
     vertices[, j] <- ifelse(grid[[j]] == 0, lower[[j]], upper[[j]])
   }
-  colnames(vertices) <- names(lower)
-  rownames(vertices) <- paste0("vertex_", seq_len(nrow(vertices)))
+  colnames(vertices) <- component_names
+  bits <- as.matrix(grid)
+  rownames(vertices) <- apply(
+    bits,
+    1L,
+    function(row) paste0(ifelse(row == 1L, "u", "l"), component_names, collapse = "_")
+  )
   vertices
 }
 

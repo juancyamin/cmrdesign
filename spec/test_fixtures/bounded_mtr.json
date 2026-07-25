@@ -2,7 +2,7 @@
   "schema_version": 1,
   "source": "R reference implementation",
   "generated_by": "spec/scripts/generate_fixtures.R",
-  "purpose": "Martinez-Taboada-Ramdas bounded-outcome variance bounds and applied CMR.",
+  "purpose": "Martinez-Taboada–Ramdas bounded-outcome variance bounds and applied CMR.",
   "tolerance": 1e-10,
   "cases": [
     {

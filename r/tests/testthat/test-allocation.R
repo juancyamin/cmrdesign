@@ -36,6 +36,13 @@ testthat::test_that("raw multi-arm shares use largest-remainder rounding", {
   testthat::expect_false(alloc$diagnostics$certificate_recomputed)
 })
 
+testthat::test_that("named length-one targets are rejected as ambiguous", {
+  testthat::expect_error(
+    realize_allocation(c(a = 0.4), n_main = 10),
+    "at least two arms or cells"
+  )
+})
+
 testthat::test_that("minimum per positive target share is enforced", {
   alloc <- realize_allocation(c(a = 0.98, b = 0.01, c = 0.01), n_main = 5)
 
@@ -69,6 +76,35 @@ testthat::test_that("stratified counts respect fixed stratum sizes", {
   testthat::expect_equal(alloc$diagnostics$design, "stratified")
 })
 
+testthat::test_that("stratified fixed counts reject misspecified cells and strata", {
+  testthat::expect_error(
+    realize_allocation(
+      c("1:A" = 0.3, "0:A" = 0.3, "2:A" = 0.4),
+      strata_counts = c(A = 10),
+      min_per_arm = 0
+    ),
+    "two-arm stratified targets only"
+  )
+  testthat::expect_error(
+    realize_allocation(c("1:A" = 0.5, "0:A" = 0.5), strata_counts = c(A = 10, Z = 10)),
+    "unknown strata"
+  )
+  testthat::expect_error(
+    realize_allocation(c("1:A" = 0.5, "0:A" = 0.5), n_main = 999, strata_counts = c(A = 10)),
+    "sum of `strata_counts`"
+  )
+})
+
+testthat::test_that("zero-size strata are allowed when other strata have units", {
+  alloc <- realize_allocation(
+    c("1:A" = 0.25, "0:A" = 0.25, "1:B" = 0.25, "0:B" = 0.25),
+    strata_counts = c(A = 0, B = 10)
+  )
+
+  testthat::expect_equal(alloc$counts[c("1:A", "0:A")], c("1:A" = 0L, "0:A" = 0L))
+  testthat::expect_equal(sum(alloc$counts), 10)
+})
+
 testthat::test_that("stratified fit recomputes certificate with fixed stratum sizes", {
   rect <- list(
     lower = rbind(treatment = c(A = 0.01, B = 0.04),
@@ -86,6 +122,26 @@ testthat::test_that("stratified fit recomputes certificate with fixed stratum si
   testthat::expect_true(alloc$diagnostics$certificate_recomputed)
 })
 
+testthat::test_that("allocation diagnostics distinguish missing and infinite certificates", {
+  fit <- list(pi = c(a = 0.5, b = 0.5), U_CMR = Inf, rectangle = NULL)
+  alloc <- realize_allocation(fit, n_main = 10, min_per_arm = 0)
+
+  testthat::expect_identical(alloc$realized_U_CMR, Inf)
+  testthat::expect_false(alloc$diagnostics$certificate_recomputed)
+})
+
+testthat::test_that("zero realized positive arms warn and report infinite excess", {
+  fit <- cmr_two_arm_from_rectangle(c(v_l1 = 0.01, v_u1 = 0.09, v_l0 = 0.04, v_u0 = 0.16))
+
+  testthat::expect_warning(
+    alloc <- realize_allocation(fit, n_main = 1, min_per_arm = 0),
+    "zero realized units"
+  )
+  testthat::expect_identical(alloc$realized_U_CMR, Inf)
+  testthat::expect_identical(alloc$excess_U_CMR, Inf)
+  testthat::expect_true(alloc$diagnostics$certificate_recomputed)
+})
+
 testthat::test_that("allocation errors when minimum counts do not fit", {
   testthat::expect_error(
     realize_allocation(c(a = 0.5, b = 0.5, c = 0), n_main = 1),
@@ -99,4 +155,15 @@ testthat::test_that("allocation has compact print method", {
 
   testthat::expect_match(printed[[1]], "<cmr_allocation>", fixed = TRUE)
   testthat::expect_match(paste(printed, collapse = "\n"), "counts:", fixed = TRUE)
+})
+
+testthat::test_that("binding vertex labels are order-independent corners", {
+  vertices <- multiarm_rectangle_vertices(c(
+    v_l0 = 0.02, v_u0 = 0.08,
+    v_l1 = 0.04, v_u1 = 0.12,
+    v_l2 = 0.01, v_u2 = 0.07
+  ))
+
+  testthat::expect_true("l0_l1_l2" %in% rownames(vertices))
+  testthat::expect_false(any(grepl("^vertex_", rownames(vertices))))
 })

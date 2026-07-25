@@ -16,17 +16,21 @@ realize_allocation(
 \method{print}{cmr_allocation}(x, ...)
 }
 \arguments{
-\item{x}{A CMR result object, a two-arm treatment share, or a named vector of
-target assignment shares. Multi-arm targets should be named by arm, with
-control arm \code{"0"} when using CMR multi-arm fits. Stratified targets should
-use cell names like \code{"1:A"} and \code{"0:A"}.}
+\item{x}{A CMR result object, an unnamed scalar two-arm treatment share, or
+a named vector of target assignment shares. Named target vectors must have
+at least two arms or cells. Multi-arm targets should be named by arm, with
+control arm \code{"0"} when using CMR multi-arm fits. Stratified fixed-count
+targets currently support two-arm cells named like \code{"1:A"} and \code{"0:A"}.}
 
 \item{n_main}{Main-wave sample size to allocate. Required unless
-\code{strata_counts} is supplied.}
+\code{strata_counts} is supplied. If both are supplied, \code{n_main} must equal the
+sum of \code{strata_counts}.}
 
 \item{strata_counts}{Optional named vector or list of fixed main-wave counts
 by stratum. When supplied, treatment/control counts are rounded within each
-stratum while preserving the stratum totals exactly.}
+stratum while preserving the stratum totals exactly. Unknown strata,
+missing strata, and non-two-arm cells are rejected rather than silently
+ignored.}
 
 \item{min_per_arm}{Minimum integer count assigned to each positive target
 share. Set to \code{0} when zero counts are acceptable.}
@@ -40,6 +44,8 @@ when recomputing multi-arm or stratified certificates.}
 A list of class \code{cmr_allocation} with integer \code{counts}, realized \code{shares},
 realized \code{pi}, normalized \code{target_pi}, total \code{n_main}, rounding metadata,
 continuous and realized CMR certificates when available, and diagnostics.
+The diagnostics field \code{certificate_recomputed} is \code{TRUE} only when a
+realized certificate was recomputed from rectangle information.
 }
 \description{
 Convert the continuous assignment shares returned by a CMR rule into

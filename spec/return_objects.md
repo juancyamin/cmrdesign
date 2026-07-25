@@ -47,7 +47,7 @@ Required conceptual fields:
 - `joint_error_bound`.
 - `diagnostics`.
 
-For Maurer-Pontil bounded-outcome bounds, `vhat` is the raw Bessel sample
+For Maurer–Pontil bounded-outcome bounds, `vhat` is the raw Bessel sample
 variance and can slightly exceed `1/4`; the rectangle endpoints themselves
 remain projected to the feasible population-variance range `[0, 1/4]`.
 
@@ -78,9 +78,12 @@ treatment row `1` and control row `0`, or equivalent named mappings in Python.
 - `continuous_U_CMR`: the original CMR certificate when `x` was a CMR result.
 - `realized_U_CMR`: the recomputed certificate at realized shares, when the
   rectangle information is available.
-- `excess_U_CMR`: `realized_U_CMR - continuous_U_CMR` when both are finite.
+- `excess_U_CMR`: `realized_U_CMR - continuous_U_CMR` when both are finite,
+  and `Inf` when rounding makes realized regret infinite from a finite
+  continuous certificate.
 - `diagnostics`: design type, certificate details, fixed stratum counts when
-  relevant, and a `certificate_recomputed` flag.
+  relevant, and a `certificate_recomputed` flag. The flag is `TRUE` only when a
+  realized certificate was recomputed from rectangle information.
 
 ## Extension Fields
 
@@ -129,7 +132,7 @@ Planning:
 - desired-pilot status when requested.
 - caveat that the screen is necessary, not sufficient.
 
-## Non-Goals For Return Objects
+## Non-goals for return objects
 
 - The main applied functions should not require users to pass summary variances
   or arm counts.
