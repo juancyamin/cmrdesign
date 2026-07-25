@@ -93,7 +93,11 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/cmr_two_arm.html">cmr_two_arm</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">d</span>, alpha <span class="op">=</span> <span class="fl">0.05</span>, method <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">pi</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">U_CMR</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">allocation</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/realize_allocation.html">realize_allocation</a></span><span class="op">(</span><span class="va">fit</span>, n_main <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="va">allocation</span><span class="op">$</span><span class="va">counts</span></span>
+<span><span class="va">allocation</span><span class="op">$</span><span class="va">realized_U_CMR</span></span></code></pre></div>
 <p><code>pi</code> is the recommended treatment share for the main wave. <code>U_CMR</code> is the worst-case regret certificate over the confidence set for arm variances.</p>
 </div>
 <div class="section level2">
@@ -132,6 +136,10 @@
 <tr>
 <td>Pilot versus main-wave sample-size planning</td>
 <td><code><a href="reference/pilot_plan.html">cmr_plan()</a></code></td>
+</tr>
+<tr>
+<td>Integer main-wave counts from CMR shares</td>
+<td><code><a href="reference/realize_allocation.html">realize_allocation()</a></code></td>
 </tr>
 </tbody>
 </table>

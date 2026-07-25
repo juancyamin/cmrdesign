@@ -47,6 +47,10 @@ fit <- cmr_two_arm(y, d, alpha = 0.05, method = "auto")
 fit$pi
 fit$U_CMR
 summary(fit)
+
+allocation <- realize_allocation(fit, n_main = 1000)
+allocation$counts
+allocation$realized_U_CMR
 ```
 
 `pi` is the recommended treatment share for the main wave. `U_CMR` is
@@ -64,6 +68,7 @@ variances.
 | Multiple outcomes per unit | [`cmr_multiple_outcomes()`](https://juancyamin.github.io/cmrdesign/reference/cmr_multiple_outcomes.md) |
 | Proxy or delayed primary outcome | [`cmr_proxy()`](https://juancyamin.github.io/cmrdesign/reference/cmr_proxy.md) |
 | Pilot versus main-wave sample-size planning | [`cmr_plan()`](https://juancyamin.github.io/cmrdesign/reference/pilot_plan.md) |
+| Integer main-wave counts from CMR shares | [`realize_allocation()`](https://juancyamin.github.io/cmrdesign/reference/realize_allocation.md) |
 
 The direct rectangle functions, such as
 [`cmr_two_arm_from_rectangle()`](https://juancyamin.github.io/cmrdesign/reference/binary_rectangle_corners.md)

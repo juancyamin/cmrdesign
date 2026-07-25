@@ -76,11 +76,15 @@ rectangle_delayed_outcome(
 - normalize:
 
   If `TRUE`, normalize bounded proxy outcomes to `[0, 1]` before
-  computing variances.
+  computing variances. For guarantee-bearing bounded CMR on a non-unit
+  scale, provide known `lower` and `upper` bounds.
 
 - lower, upper:
 
   Optional lower and upper outcome bounds used when `normalize = TRUE`.
+  If either is omitted, the pilot minimum and/or maximum is used with a
+  warning; that data-dependent normalization is exploratory and does not
+  carry the finite-sample bounded-outcome CMR guarantee.
 
 - na.rm:
 
@@ -148,6 +152,9 @@ rectangle_proxy(proxy_y, d, zeta = 0.05)
 #> $treatment$statistic$vhat
 #> [1] 0.01197773
 #> 
+#> $treatment$statistic$projected_vhat
+#> [1] 0.01197773
+#> 
 #> $treatment$statistic$sdhat
 #> [1] 0.1094428
 #> 
@@ -183,6 +190,9 @@ rectangle_proxy(proxy_y, d, zeta = 0.05)
 #> 
 #> $control$statistic
 #> $control$statistic$vhat
+#> [1] 0.02927848
+#> 
+#> $control$statistic$projected_vhat
 #> [1] 0.02927848
 #> 
 #> $control$statistic$sdhat
@@ -254,6 +264,9 @@ rectangle_proxy(proxy_y, d, zeta = 0.05)
 #> $treatment$statistic$vhat
 #> [1] 0.01197773
 #> 
+#> $treatment$statistic$projected_vhat
+#> [1] 0.01197773
+#> 
 #> $treatment$statistic$sdhat
 #> [1] 0.1094428
 #> 
@@ -283,6 +296,9 @@ rectangle_proxy(proxy_y, d, zeta = 0.05)
 #> 
 #> $control$statistic
 #> $control$statistic$vhat
+#> [1] 0.02927848
+#> 
+#> $control$statistic$projected_vhat
 #> [1] 0.02927848
 #> 
 #> $control$statistic$sdhat

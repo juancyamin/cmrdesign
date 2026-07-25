@@ -54,6 +54,7 @@ over treatment/control by stratum cells.
 Other assignment helpers:
 [`assign_balance()`](https://juancyamin.github.io/cmrdesign/reference/assign_balance.md),
 [`multiarm_variance_objective()`](https://juancyamin.github.io/cmrdesign/reference/multiarm_variance_objective.md),
+[`realize_allocation()`](https://juancyamin.github.io/cmrdesign/reference/realize_allocation.md),
 [`variance_objective()`](https://juancyamin.github.io/cmrdesign/reference/variance_objective.md)
 
 Other rectangle helpers:

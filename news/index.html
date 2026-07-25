@@ -48,6 +48,9 @@
 <ul><li>Added applied Conditional Minimax Regret rules for two-arm, unbounded two-arm, shared-control multi-arm, stratified, multiple-outcome, and proxy outcome designs.</li>
 <li>Added pilot/main-wave sample-size planning tools from Appendix E of the accompanying paper.</li>
 <li>Added R/Python cross-language fixtures, reference validation, vignettes, and compact print/summary methods for core CMR results.</li>
+<li>Added <code><a href="../reference/realize_allocation.html">realize_allocation()</a></code> to turn CMR target shares into integer main-wave counts and recompute the rounded-design certificate when possible.</li>
+<li>Added allocation cross-language fixtures and vignette/examples coverage for integer count realization.</li>
+<li>Added explicit warnings when <code>normalize = TRUE</code> uses pilot min/max support bounds, clarifying that this convenience path is exploratory rather than finite-sample guarantee-bearing.</li>
 </ul></div>
   </main></div>
 

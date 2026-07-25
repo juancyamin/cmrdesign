@@ -81,6 +81,7 @@ assignment shares for treatment and control cells named like `"1:A"` and
 
 Other assignment helpers:
 [`multiarm_variance_objective()`](https://juancyamin.github.io/cmrdesign/reference/multiarm_variance_objective.md),
+[`realize_allocation()`](https://juancyamin.github.io/cmrdesign/reference/realize_allocation.md),
 [`stratified_variance_objective()`](https://juancyamin.github.io/cmrdesign/reference/stratified_variance_objective.md),
 [`variance_objective()`](https://juancyamin.github.io/cmrdesign/reference/variance_objective.md)
 

@@ -80,11 +80,15 @@ cmr_binary(
 - normalize:
 
   If `TRUE`, normalize bounded outcomes to `[0, 1]` before computing the
-  rectangle.
+  rectangle. For guarantee-bearing bounded CMR on a non-unit scale,
+  provide known `lower` and `upper` bounds.
 
 - lower, upper:
 
   Optional lower and upper outcome bounds used when `normalize = TRUE`.
+  If either is omitted, the pilot minimum and/or maximum is used with a
+  warning; that data-dependent normalization is exploratory and does not
+  carry the finite-sample bounded-outcome CMR guarantee.
 
 - psi:
 

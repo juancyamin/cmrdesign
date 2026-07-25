@@ -136,12 +136,31 @@ confidence interval.</p>
 <span><span class="co">#&gt; [1] 0.05</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="convert-the-share-to-integer-counts">Convert the share to integer counts<a class="anchor" aria-label="anchor" href="#convert-the-share-to-integer-counts"></a>
+</h2>
+<p>After choosing a main-wave size, use
+<code><a href="../reference/realize_allocation.html">realize_allocation()</a></code> to turn the continuous CMR target
+share into executable treatment/control counts. The helper recomputes
+the certificate at the rounded shares.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">allocation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/realize_allocation.html">realize_allocation</a></span><span class="op">(</span><span class="va">fit_bounded</span>, n_main <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">allocation</span><span class="op">$</span><span class="va">counts</span></span>
+<span><span class="co">#&gt; treatment   control </span></span>
+<span><span class="co">#&gt;       499       501</span></span>
+<span><span class="va">allocation</span><span class="op">$</span><span class="va">shares</span></span>
+<span><span class="co">#&gt; treatment   control </span></span>
+<span><span class="co">#&gt;     0.499     0.501</span></span>
+<span><span class="va">allocation</span><span class="op">$</span><span class="va">realized_U_CMR</span></span>
+<span><span class="co">#&gt; [1] 0.249002</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="compare-confidence-set-methods">Compare confidence-set methods<a class="anchor" aria-label="anchor" href="#compare-confidence-set-methods"></a>
 </h2>
 <p>The package exposes the bounded/MP and MTR variance confidence sets
 through the same interface. The MTR option implements the
 Martinez-Taboada–Ramdas one-sided variance bounds.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">methods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bounded"</span>, <span class="st">"mp"</span>, <span class="st">"mtr"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">methods</span>, <span class="kw">function</span><span class="op">(</span><span class="va">method</span><span class="op">)</span> <span class="op">{</span></span>
@@ -171,7 +190,7 @@ report, and record the method in the analysis plan.</p>
 </h2>
 <p>If the rectangle was computed elsewhere, the CMR rule can be applied
 directly.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">manual_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/binary_rectangle_corners.html">cmr_two_arm_from_rectangle</a></span><span class="op">(</span><span class="va">fit_bounded</span><span class="op">$</span><span class="va">rectangle</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">manual_fit</span><span class="op">$</span><span class="va">pi</span></span>

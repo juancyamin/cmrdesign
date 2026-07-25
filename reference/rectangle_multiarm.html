@@ -102,12 +102,15 @@ named vector allocation may also be supplied.</p></dd>
 
 <dt id="arg-normalize">normalize<a class="anchor" aria-label="anchor" href="#arg-normalize"></a></dt>
 <dd><p>If <code>TRUE</code>, normalize bounded outcomes to <code>[0, 1]</code> before
-computing variances.</p></dd>
+computing variances. For guarantee-bearing bounded CMR on a non-unit
+scale, provide known <code>lower</code> and <code>upper</code> bounds.</p></dd>
 
 
 <dt id="arg-lower-upper">lower, upper<a class="anchor" aria-label="anchor" href="#arg-lower-upper"></a></dt>
 <dd><p>Optional lower and upper outcome bounds used when
-<code>normalize = TRUE</code>.</p></dd>
+<code>normalize = TRUE</code>. If either is omitted, the pilot minimum and/or maximum
+is used with a warning; that data-dependent normalization is exploratory
+and does not carry the finite-sample bounded-outcome CMR guarantee.</p></dd>
 
 
 <dt id="arg-na-rm">na.rm<a class="anchor" aria-label="anchor" href="#arg-na-rm"></a></dt>
@@ -181,6 +184,9 @@ variance estimates, normalization details, and method metadata.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $arm_results$`0`$statistic$vhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01942598</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $arm_results$`0`$statistic$projected_vhat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01942598</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $arm_results$`0`$statistic$sdhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1393771</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -212,6 +218,9 @@ variance estimates, normalization details, and method metadata.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $arm_results$`1`$statistic$vhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.02244602</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $arm_results$`1`$statistic$projected_vhat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.02244602</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $arm_results$`1`$statistic$sdhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.14982</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -241,6 +250,9 @@ variance estimates, normalization details, and method metadata.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $arm_results$`2`$statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $arm_results$`2`$statistic$vhat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.03277218</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $arm_results$`2`$statistic$projected_vhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.03277218</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $arm_results$`2`$statistic$sdhat</span>

@@ -46,6 +46,7 @@ share, and `regret()` returns excess variance relative to the oracle.
 Other assignment helpers:
 [`assign_balance()`](https://juancyamin.github.io/cmrdesign/reference/assign_balance.md),
 [`multiarm_variance_objective()`](https://juancyamin.github.io/cmrdesign/reference/multiarm_variance_objective.md),
+[`realize_allocation()`](https://juancyamin.github.io/cmrdesign/reference/realize_allocation.md),
 [`stratified_variance_objective()`](https://juancyamin.github.io/cmrdesign/reference/stratified_variance_objective.md)
 
 ## Examples

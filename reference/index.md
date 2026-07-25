@@ -116,6 +116,9 @@ examples, and simulations.
   [`assign_neyman()`](https://juancyamin.github.io/cmrdesign/reference/variance_objective.md)
   [`regret()`](https://juancyamin.github.io/cmrdesign/reference/variance_objective.md)
   : Two-arm variance objectives and Neyman allocation
+- [`realize_allocation()`](https://juancyamin.github.io/cmrdesign/reference/realize_allocation.md)
+  [`print(`*`<cmr_allocation>`*`)`](https://juancyamin.github.io/cmrdesign/reference/realize_allocation.md)
+  : Convert CMR target shares to integer allocation counts
 
 ## Diagnostics
 

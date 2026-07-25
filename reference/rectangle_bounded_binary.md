@@ -64,10 +64,15 @@ rectangle_bounded_binary(
 - normalize:
 
   If `TRUE`, normalize outcomes to `[0, 1]` before computing variances.
+  For guarantee-bearing bounded CMR on a non-unit scale, provide known
+  `lower` and `upper` bounds.
 
 - lower, upper:
 
   Optional lower and upper outcome bounds used when `normalize = TRUE`.
+  If either is omitted, the pilot minimum and/or maximum is used with a
+  warning; that data-dependent normalization is exploratory and does not
+  carry the finite-sample bounded-outcome CMR guarantee.
 
 - na.rm:
 
@@ -129,6 +134,9 @@ rectangle_bounded_binary(y, d, method = "bounded")
 #> $treatment$statistic$vhat
 #> [1] 0.037
 #> 
+#> $treatment$statistic$projected_vhat
+#> [1] 0.037
+#> 
 #> $treatment$statistic$sdhat
 #> [1] 0.1923538
 #> 
@@ -158,6 +166,9 @@ rectangle_bounded_binary(y, d, method = "bounded")
 #> 
 #> $control$statistic
 #> $control$statistic$vhat
+#> [1] 0.025
+#> 
+#> $control$statistic$projected_vhat
 #> [1] 0.025
 #> 
 #> $control$statistic$sdhat

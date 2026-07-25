@@ -74,6 +74,28 @@ fit_bounded$joint_error_bound
 #> [1] 0.05
 ```
 
+## Convert the share to integer counts
+
+After choosing a main-wave size, use
+[`realize_allocation()`](https://juancyamin.github.io/cmrdesign/reference/realize_allocation.md)
+to turn the continuous CMR target share into executable
+treatment/control counts. The helper recomputes the certificate at the
+rounded shares.
+
+``` r
+
+allocation <- realize_allocation(fit_bounded, n_main = 1000)
+
+allocation$counts
+#> treatment   control 
+#>       499       501
+allocation$shares
+#> treatment   control 
+#>     0.499     0.501
+allocation$realized_U_CMR
+#> [1] 0.249002
+```
+
 ## Compare confidence-set methods
 
 The package exposes the bounded/MP and MTR variance confidence sets

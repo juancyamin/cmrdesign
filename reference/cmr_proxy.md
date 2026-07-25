@@ -76,11 +76,15 @@ cmr_delayed_outcome(
 - normalize:
 
   If `TRUE`, normalize bounded proxy outcomes to `[0, 1]` before
-  computing variances.
+  computing variances. For guarantee-bearing bounded CMR on a non-unit
+  scale, provide known `lower` and `upper` bounds.
 
 - lower, upper:
 
   Optional lower and upper outcome bounds used when `normalize = TRUE`.
+  If either is omitted, the pilot minimum and/or maximum is used with a
+  warning; that data-dependent normalization is exploratory and does not
+  carry the finite-sample bounded-outcome CMR guarantee.
 
 - na.rm:
 

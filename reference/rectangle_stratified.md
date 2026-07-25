@@ -59,11 +59,15 @@ rectangle_stratified(
 - normalize:
 
   If `TRUE`, normalize bounded outcomes to `[0, 1]` before computing
-  variances.
+  variances. For guarantee-bearing bounded CMR on a non-unit scale,
+  provide known `lower` and `upper` bounds.
 
 - lower, upper:
 
   Optional lower and upper outcome bounds used when `normalize = TRUE`.
+  If either is omitted, the pilot minimum and/or maximum is used with a
+  warning; that data-dependent normalization is exploratory and does not
+  carry the finite-sample bounded-outcome CMR guarantee.
 
 - na.rm:
 
@@ -178,6 +182,9 @@ rectangle_stratified(y, d, strata, strata_share = c(A = 0.45, B = 0.55))
 #> $cell_results$`1:A`$statistic$vhat
 #> [1] 0.01535518
 #> 
+#> $cell_results$`1:A`$statistic$projected_vhat
+#> [1] 0.01535518
+#> 
 #> $cell_results$`1:A`$statistic$sdhat
 #> [1] 0.123916
 #> 
@@ -207,6 +214,9 @@ rectangle_stratified(y, d, strata, strata_share = c(A = 0.45, B = 0.55))
 #> 
 #> $cell_results$`0:A`$statistic
 #> $cell_results$`0:A`$statistic$vhat
+#> [1] 0.03202178
+#> 
+#> $cell_results$`0:A`$statistic$projected_vhat
 #> [1] 0.03202178
 #> 
 #> $cell_results$`0:A`$statistic$sdhat
@@ -240,6 +250,9 @@ rectangle_stratified(y, d, strata, strata_share = c(A = 0.45, B = 0.55))
 #> $cell_results$`1:B`$statistic$vhat
 #> [1] 0.0462582
 #> 
+#> $cell_results$`1:B`$statistic$projected_vhat
+#> [1] 0.0462582
+#> 
 #> $cell_results$`1:B`$statistic$sdhat
 #> [1] 0.2150772
 #> 
@@ -269,6 +282,9 @@ rectangle_stratified(y, d, strata, strata_share = c(A = 0.45, B = 0.55))
 #> 
 #> $cell_results$`0:B`$statistic
 #> $cell_results$`0:B`$statistic$vhat
+#> [1] 0.02022631
+#> 
+#> $cell_results$`0:B`$statistic$projected_vhat
 #> [1] 0.02022631
 #> 
 #> $cell_results$`0:B`$statistic$sdhat

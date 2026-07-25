@@ -105,12 +105,15 @@ is split across all lower and upper treatment/control by stratum endpoints.</p><
 
 <dt id="arg-normalize">normalize<a class="anchor" aria-label="anchor" href="#arg-normalize"></a></dt>
 <dd><p>If <code>TRUE</code>, normalize bounded outcomes to <code>[0, 1]</code> before
-computing variances.</p></dd>
+computing variances. For guarantee-bearing bounded CMR on a non-unit
+scale, provide known <code>lower</code> and <code>upper</code> bounds.</p></dd>
 
 
 <dt id="arg-lower-upper">lower, upper<a class="anchor" aria-label="anchor" href="#arg-lower-upper"></a></dt>
 <dd><p>Optional lower and upper outcome bounds used when
-<code>normalize = TRUE</code>.</p></dd>
+<code>normalize = TRUE</code>. If either is omitted, the pilot minimum and/or maximum
+is used with a warning; that data-dependent normalization is exploratory
+and does not carry the finite-sample bounded-outcome CMR guarantee.</p></dd>
 
 
 <dt id="arg-na-rm">na.rm<a class="anchor" aria-label="anchor" href="#arg-na-rm"></a></dt>
@@ -225,6 +228,9 @@ estimates, normalization details, and method metadata.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`1:A`$statistic$vhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01535518</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`1:A`$statistic$projected_vhat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01535518</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`1:A`$statistic$sdhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.123916</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -254,6 +260,9 @@ estimates, normalization details, and method metadata.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`0:A`$statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`0:A`$statistic$vhat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.03202178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`0:A`$statistic$projected_vhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.03202178</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`0:A`$statistic$sdhat</span>
@@ -287,6 +296,9 @@ estimates, normalization details, and method metadata.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`1:B`$statistic$vhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0462582</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`1:B`$statistic$projected_vhat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0462582</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`1:B`$statistic$sdhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2150772</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -316,6 +328,9 @@ estimates, normalization details, and method metadata.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`0:B`$statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`0:B`$statistic$vhat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.02022631</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`0:B`$statistic$projected_vhat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.02022631</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cell_results$`0:B`$statistic$sdhat</span>

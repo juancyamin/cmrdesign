@@ -110,6 +110,14 @@ result.</p>
 <span><span class="co">#&gt; 180 180 180</span></span></code></pre></div>
 <p>The returned <code>pi</code> is a named vector of total main-wave
 assignment shares across control and all treatment arms.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">multi_counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/realize_allocation.html">realize_allocation</a></span><span class="op">(</span><span class="va">fit_multi</span>, n_main <span class="op">=</span> <span class="fl">1200</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">multi_counts</span><span class="op">$</span><span class="va">counts</span></span>
+<span><span class="co">#&gt;   0   1   2 </span></span>
+<span><span class="co">#&gt; 497 357 346</span></span>
+<span><span class="va">multi_counts</span><span class="op">$</span><span class="va">realized_U_CMR</span></span>
+<span><span class="co">#&gt; [1] 0.4325058</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="stratified-designs">Stratified designs<a class="anchor" aria-label="anchor" href="#stratified-designs"></a>
@@ -118,7 +126,7 @@ assignment shares across control and all treatment arms.</p>
 should adapt across known target-population strata. The
 <code>strata_share</code> input should describe the target population
 shares, not only the realized pilot composition.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">506</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">n_per_cell</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
@@ -158,6 +166,18 @@ treatment/control by stratum cell. <code>sampling_margin</code> gives
 the total sample share assigned to each stratum, and
 <code>treatment_margin</code> gives the treatment share within each
 stratum.</p>
+<p>If field implementation fixes the number of main-wave units in each
+stratum, pass those totals through <code>strata_counts</code>; the
+function rounds the treatment/control split within stratum.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">strata_counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/realize_allocation.html">realize_allocation</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_strata</span>,</span>
+<span>  strata_counts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>urban <span class="op">=</span> <span class="fl">550</span>, rural <span class="op">=</span> <span class="fl">450</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">strata_counts</span><span class="op">$</span><span class="va">counts</span></span>
+<span><span class="co">#&gt; 1:urban 0:urban 1:rural 0:rural </span></span>
+<span><span class="co">#&gt;     274     276     222     228</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="raw-unbounded-outcomes">Raw unbounded outcomes<a class="anchor" aria-label="anchor" href="#raw-unbounded-outcomes"></a>
@@ -166,7 +186,7 @@ stratum.</p>
 finite but not assumed to be bounded on a known scale. This method
 requires a bounded-kurtosis input <code>psi</code>. It is currently a
 two-arm extension only.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">507</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">n_per_arm</span> <span class="op">&lt;-</span> <span class="fl">1500</span></span>

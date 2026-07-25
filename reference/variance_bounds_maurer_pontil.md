@@ -59,7 +59,9 @@ variance_bounds_martinez_taboada_ramdas(
 
 A list with lower bound `L`, upper bound `U`, sample variance `vhat`,
 method name, arm sample size `n`, and method-specific `statistic`
-details.
+details. For Maurer-Pontil bounds, `vhat` is the raw Bessel sample
+variance and can slightly exceed `0.25` in finite samples even though
+the returned endpoints are capped to `[0, 0.25]`.
 
 ## See also
 
@@ -103,6 +105,9 @@ variance_bounds_maurer_pontil(y, beta_l = 0.025, beta_u = 0.025)
 #> 
 #> $statistic
 #> $statistic$vhat
+#> [1] 0.04666667
+#> 
+#> $statistic$projected_vhat
 #> [1] 0.04666667
 #> 
 #> $statistic$sdhat

@@ -154,6 +154,9 @@ rectangle_multiple_outcomes(y, d, weights = c(0.6, 0.4))
 #> $outcome_bounds$y1$treatment$statistic$vhat
 #> [1] 0.01749479
 #> 
+#> $outcome_bounds$y1$treatment$statistic$projected_vhat
+#> [1] 0.01749479
+#> 
 #> $outcome_bounds$y1$treatment$statistic$sdhat
 #> [1] 0.1322679
 #> 
@@ -183,6 +186,9 @@ rectangle_multiple_outcomes(y, d, weights = c(0.6, 0.4))
 #> 
 #> $outcome_bounds$y1$control$statistic
 #> $outcome_bounds$y1$control$statistic$vhat
+#> [1] 0.01650368
+#> 
+#> $outcome_bounds$y1$control$statistic$projected_vhat
 #> [1] 0.01650368
 #> 
 #> $outcome_bounds$y1$control$statistic$sdhat
@@ -218,6 +224,9 @@ rectangle_multiple_outcomes(y, d, weights = c(0.6, 0.4))
 #> $outcome_bounds$y2$treatment$statistic$vhat
 #> [1] 0.03168856
 #> 
+#> $outcome_bounds$y2$treatment$statistic$projected_vhat
+#> [1] 0.03168856
+#> 
 #> $outcome_bounds$y2$treatment$statistic$sdhat
 #> [1] 0.1780128
 #> 
@@ -247,6 +256,9 @@ rectangle_multiple_outcomes(y, d, weights = c(0.6, 0.4))
 #> 
 #> $outcome_bounds$y2$control$statistic
 #> $outcome_bounds$y2$control$statistic$vhat
+#> [1] 0.01994388
+#> 
+#> $outcome_bounds$y2$control$statistic$projected_vhat
 #> [1] 0.01994388
 #> 
 #> $outcome_bounds$y2$control$statistic$sdhat

@@ -48,6 +48,17 @@ fit_multi$pilot$n
 The returned `pi` is a named vector of total main-wave assignment shares
 across control and all treatment arms.
 
+``` r
+
+multi_counts <- realize_allocation(fit_multi, n_main = 1200)
+
+multi_counts$counts
+#>   0   1   2 
+#> 497 357 346
+multi_counts$realized_U_CMR
+#> [1] 0.4325058
+```
+
 ## Stratified designs
 
 Use
@@ -98,6 +109,22 @@ fit_strata$U_CMR
 by stratum cell. `sampling_margin` gives the total sample share assigned
 to each stratum, and `treatment_margin` gives the treatment share within
 each stratum.
+
+If field implementation fixes the number of main-wave units in each
+stratum, pass those totals through `strata_counts`; the function rounds
+the treatment/control split within stratum.
+
+``` r
+
+strata_counts <- realize_allocation(
+  fit_strata,
+  strata_counts = c(urban = 550, rural = 450)
+)
+
+strata_counts$counts
+#> 1:urban 0:urban 1:rural 0:rural 
+#>     274     276     222     228
+```
 
 ## Raw unbounded outcomes
 

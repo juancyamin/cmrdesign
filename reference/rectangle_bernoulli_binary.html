@@ -148,12 +148,15 @@ for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.</p></dd>
 
 <dt id="arg-normalize">normalize<a class="anchor" aria-label="anchor" href="#arg-normalize"></a></dt>
 <dd><p>If <code>TRUE</code>, normalize bounded outcomes to <code>[0, 1]</code> before
-computing variances.</p></dd>
+computing variances. For guarantee-bearing bounded CMR on a non-unit
+scale, provide known <code>lower</code> and <code>upper</code> bounds.</p></dd>
 
 
 <dt id="arg-lower-upper">lower, upper<a class="anchor" aria-label="anchor" href="#arg-lower-upper"></a></dt>
 <dd><p>Optional lower and upper outcome bounds used when
-<code>normalize = TRUE</code>.</p></dd>
+<code>normalize = TRUE</code>. If either is omitted, the pilot minimum and/or maximum
+is used with a warning; that data-dependent normalization is exploratory
+and does not carry the finite-sample bounded-outcome CMR guarantee.</p></dd>
 
 
 <dt id="arg-psi">psi<a class="anchor" aria-label="anchor" href="#arg-psi"></a></dt>

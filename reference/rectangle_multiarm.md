@@ -55,11 +55,15 @@ rectangle_multiarm(
 - normalize:
 
   If `TRUE`, normalize bounded outcomes to `[0, 1]` before computing
-  variances.
+  variances. For guarantee-bearing bounded CMR on a non-unit scale,
+  provide known `lower` and `upper` bounds.
 
 - lower, upper:
 
   Optional lower and upper outcome bounds used when `normalize = TRUE`.
+  If either is omitted, the pilot minimum and/or maximum is used with a
+  warning; that data-dependent normalization is exploratory and does not
+  carry the finite-sample bounded-outcome CMR guarantee.
 
 - na.rm:
 
@@ -132,6 +136,9 @@ rectangle_multiarm(y, arm, method = "bounded")
 #> $arm_results$`0`$statistic$vhat
 #> [1] 0.01942598
 #> 
+#> $arm_results$`0`$statistic$projected_vhat
+#> [1] 0.01942598
+#> 
 #> $arm_results$`0`$statistic$sdhat
 #> [1] 0.1393771
 #> 
@@ -163,6 +170,9 @@ rectangle_multiarm(y, arm, method = "bounded")
 #> $arm_results$`1`$statistic$vhat
 #> [1] 0.02244602
 #> 
+#> $arm_results$`1`$statistic$projected_vhat
+#> [1] 0.02244602
+#> 
 #> $arm_results$`1`$statistic$sdhat
 #> [1] 0.14982
 #> 
@@ -192,6 +202,9 @@ rectangle_multiarm(y, arm, method = "bounded")
 #> 
 #> $arm_results$`2`$statistic
 #> $arm_results$`2`$statistic$vhat
+#> [1] 0.03277218
+#> 
+#> $arm_results$`2`$statistic$projected_vhat
 #> [1] 0.03277218
 #> 
 #> $arm_results$`2`$statistic$sdhat

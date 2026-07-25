@@ -49,6 +49,7 @@ one row per variance-rectangle vertex.
 
 Other assignment helpers:
 [`assign_balance()`](https://juancyamin.github.io/cmrdesign/reference/assign_balance.md),
+[`realize_allocation()`](https://juancyamin.github.io/cmrdesign/reference/realize_allocation.md),
 [`stratified_variance_objective()`](https://juancyamin.github.io/cmrdesign/reference/stratified_variance_objective.md),
 [`variance_objective()`](https://juancyamin.github.io/cmrdesign/reference/variance_objective.md)
 
