@@ -7,9 +7,9 @@ authors:
     given-names: "Juan C."
 license: MIT
 repository-code: "https://github.com/juancyamin/cmrdesign"
-url: "https://juancyamin.github.io/cmrdesign/"
+url: "https://CRAN.R-project.org/package=cmrdesign"
 version: "0.1.0"
-date-released: "2026-07-24"
+date-released: "2026-08-05"
 identifiers:
   - type: doi
     value: "10.48550/arXiv.2607.16982"

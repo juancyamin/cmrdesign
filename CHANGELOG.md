@@ -5,18 +5,27 @@ labeled by package.
 
 ## Unreleased
 
-- Python: prepare the stable `0.1.0` release to match the CRAN R release after
-  CRAN acceptance.
+- No unreleased user-visible changes.
 
-## R 0.1.0 - 2026-07-25 (CRAN submission candidate)
+## Python 0.1.0 - 2026-08-05
 
+- Promoted the current checked implementation from the `0.1.0a2` alpha line to
+  the first non-pre-release Python package version.
+- Updated Python metadata, installation instructions, and PyPI project links
+  to point users to the package documentation site.
+- Kept the PyPI development-status classifier at Beta for the initial public
+  Python release while the package continues to collect applied-user feedback.
+
+## R 0.1.0 - 2026-08-05 (CRAN release)
+
+- Published `cmrdesign` 0.1.0 on CRAN.
 - Moved the R package version from development-only `0.0.0.9000` to
   CRAN-style `0.1.0`.
 - Simplified R package author metadata so `Authors@R` is the single source of
   truth for the package author and maintainer.
 - Added a CRAN-readiness audit note recording the local `R CMD check
   --as-cran` result, vignette build status, and remaining expected notes.
-- Added R-package `cran-comments.md` for the eventual initial CRAN submission.
+- Added R-package `cran-comments.md` to document the initial CRAN submission.
 - Added CRAN-style paper references in R metadata, GitHub citation metadata,
   and the root README citation section.
 - Added `r/inst/CITATION` and `r/NEWS.md` for R citation and changelog

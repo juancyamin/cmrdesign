@@ -6,7 +6,13 @@ simulated vectors with columns from your pilot data set.
 
 ## Install
 
-R via R-universe:
+R via CRAN:
+
+```r
+install.packages("cmrdesign")
+```
+
+R development build via R-universe:
 
 ```r
 install.packages(
@@ -22,10 +28,10 @@ install.packages("remotes")
 remotes::install_github("juancyamin/cmrdesign", subdir = "r")
 ```
 
-Python alpha from PyPI:
+Python via PyPI:
 
 ```bash
-python -m pip install --pre cmrdesign
+python -m pip install cmrdesign
 ```
 
 Python development version from GitHub:

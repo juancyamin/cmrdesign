@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cmrdesign"
-version = "0.1.0a2"
+version = "0.1.0"
 description = "Conditional Minimax Regret design rules for pilot-informed experiments"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -20,7 +20,7 @@ keywords = [
   "treatment-assignment"
 ]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
@@ -41,7 +41,7 @@ dependencies = [
 Homepage = "https://juancyamin.github.io/cmrdesign/"
 Repository = "https://github.com/juancyamin/cmrdesign"
 Issues = "https://github.com/juancyamin/cmrdesign/issues"
-Documentation = "https://github.com/juancyamin/cmrdesign/tree/main/docs"
+Documentation = "https://juancyamin.github.io/cmrdesign/"
 Changelog = "https://github.com/juancyamin/cmrdesign/blob/main/CHANGELOG.md"
 Paper = "https://arxiv.org/abs/2607.16982"
 

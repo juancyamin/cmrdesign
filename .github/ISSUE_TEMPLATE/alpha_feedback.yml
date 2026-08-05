@@ -1,6 +1,6 @@
-name: Alpha feedback
-description: Share applied-user feedback before the beta/API freeze.
-title: "[Alpha feedback]: "
+name: General feedback
+description: Share applied-user feedback about the public package.
+title: "[Feedback]: "
 body:
   - type: markdown
     attributes:

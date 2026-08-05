@@ -11,6 +11,20 @@ by Juan C. Yamin. This repository is software only: examples use simulated
 data, and paper replications or empirical calibration scripts are kept outside
 the package.
 
+## Install
+
+Install the R package from CRAN:
+
+```r
+install.packages("cmrdesign")
+```
+
+Install the Python package from PyPI:
+
+```bash
+python -m pip install cmrdesign
+```
+
 ## Where to Start
 
 | If you want to... | Read... |

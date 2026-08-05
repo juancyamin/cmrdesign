@@ -1,7 +1,7 @@
 # Contributing
 
-This project is in pre-release implementation mode. Contributions should keep
-the R and Python packages aligned and should update the shared specification
+This project is a public implementation package. Contributions should keep the
+R and Python packages aligned and should update the shared specification
 whenever behavior changes.
 
 Implementation contributions should include:
@@ -15,7 +15,7 @@ For applied-user feedback, please use the GitHub issue forms:
 
 - Bug reports: <https://github.com/juancyamin/cmrdesign/issues/new?template=bug_report.yml>
 - Usage questions: <https://github.com/juancyamin/cmrdesign/issues/new?template=usage_question.yml>
-- Alpha feedback: <https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml>
+- General feedback: <https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml>
 
 Please use simulated, public, or redacted data in issues.
 

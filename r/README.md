@@ -10,7 +10,13 @@ by [Juan C. Yamin](https://juancyamin.github.io/).
 
 ## Installation
 
-Install the R package from R-universe:
+Install the R package from CRAN:
+
+```r
+install.packages("cmrdesign")
+```
+
+For the latest development build, install from R-universe:
 
 ```r
 install.packages(
@@ -96,4 +102,4 @@ or redacted data:
 
 - [Bug reports](https://github.com/juancyamin/cmrdesign/issues/new?template=bug_report.yml)
 - [Usage questions](https://github.com/juancyamin/cmrdesign/issues/new?template=usage_question.yml)
-- [Alpha feedback](https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml)
+- [General feedback](https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml)
