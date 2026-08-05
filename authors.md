@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/juancyamin/cmrdesign/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/juancyamin/cmrdesign/blob/v0.1.0/inst/CITATION)
 
 Yamin J (2026). “When and How to Pilot: Design Rules for Two-Wave
 Experiments.”
