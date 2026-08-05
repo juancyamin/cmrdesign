@@ -26,12 +26,12 @@ Experiments.”
     }
 
 Yamin J (2026). *cmrdesign: Conditional Minimax Regret Design Rules*. R
-package version 0.1.0, <https://juancyamin.github.io/cmrdesign/>.
+package version 0.1.0, <https://CRAN.R-project.org/package=cmrdesign>.
 
     @Manual{,
       title = {cmrdesign: Conditional Minimax Regret Design Rules},
       author = {Juan C. Yamin},
       year = {2026},
       note = {R package version 0.1.0},
-      url = {https://juancyamin.github.io/cmrdesign/},
+      url = {https://CRAN.R-project.org/package=cmrdesign},
     }

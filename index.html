@@ -68,22 +68,25 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the R package from R-universe:</p>
+<p>Install the R package from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"cmrdesign"</span><span class="op">)</span></span></code></pre></div>
+<p>For the latest development build, install from R-universe:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span></span>
 <span>  <span class="st">"cmrdesign"</span>,</span>
 <span>  repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://juancyamin.r-universe.dev"</span>, <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Or install the development version from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"juancyamin/cmrdesign"</span>, subdir <span class="op">=</span> <span class="st">"r"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"juancyamin/cmrdesign"</span>, subdir <span class="op">=</span> <span class="st">"r"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <p>In a two-arm design, <code>y</code> is one vector of pilot outcomes and <code>d</code> marks the arm for each observation. Here the first 40 observations are treatment and the next 40 are control.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://juancyamin.github.io/cmrdesign/">cmrdesign</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
@@ -196,13 +199,14 @@
 <ul>
 <li><a href="https://github.com/juancyamin/cmrdesign/issues/new?template=bug_report.yml" class="external-link">Bug reports</a></li>
 <li><a href="https://github.com/juancyamin/cmrdesign/issues/new?template=usage_question.yml" class="external-link">Usage questions</a></li>
-<li><a href="https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml" class="external-link">Alpha feedback</a></li>
+<li><a href="https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml" class="external-link">General feedback</a></li>
 </ul>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li><a href="https://cloud.r-project.org/package=cmrdesign" class="external-link">View on CRAN</a></li>
 <li><a href="https://github.com/juancyamin/cmrdesign/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/juancyamin/cmrdesign/issues" class="external-link">Report a bug</a></li>
 </ul>
