@@ -15,16 +15,16 @@ kept out of the package repository.
 
 ## Installation
 
-Install the current Python alpha from PyPI:
+Install the Python package from PyPI:
 
 ```bash
-python -m pip install --pre cmrdesign
+python -m pip install cmrdesign
 ```
 
-For exact reproducibility, pin the current alpha version:
+For exact reproducibility, pin the release version:
 
 ```bash
-python -m pip install cmrdesign==0.1.0a2
+python -m pip install cmrdesign==0.1.0
 ```
 
 For the development version from GitHub:

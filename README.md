@@ -5,9 +5,10 @@
 [![pkgdown](https://github.com/juancyamin/cmrdesign/actions/workflows/pkgdown.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/pkgdown.yml)
 [![Fixtures](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/fixtures.yml)
 [![Validation](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml/badge.svg)](https://github.com/juancyamin/cmrdesign/actions/workflows/validation.yml)
+[![CRAN](https://www.r-pkg.org/badges/version/cmrdesign)](https://CRAN.R-project.org/package=cmrdesign)
 [![PyPI](https://img.shields.io/pypi/v/cmrdesign?label=PyPI)](https://pypi.org/project/cmrdesign/)
 [![Python versions](https://img.shields.io/pypi/pyversions/cmrdesign)](https://pypi.org/project/cmrdesign/)
-[![GitHub release](https://img.shields.io/github/v/release/juancyamin/cmrdesign?include_prereleases&label=GitHub%20release)](https://github.com/juancyamin/cmrdesign/releases)
+[![GitHub release](https://img.shields.io/github/v/release/juancyamin/cmrdesign?label=GitHub%20release)](https://github.com/juancyamin/cmrdesign/releases)
 [![R-universe version](https://juancyamin.r-universe.dev/cmrdesign/badges/version)](https://juancyamin.r-universe.dev/cmrdesign)
 [![R-universe checks](https://juancyamin.r-universe.dev/cmrdesign/badges/checks)](https://juancyamin.r-universe.dev/cmrdesign)
 [![arXiv](https://img.shields.io/badge/arXiv-2607.16982-b31b1b.svg)](https://arxiv.org/abs/2607.16982)
@@ -27,12 +28,16 @@ simulation output.
 
 ## Installation
 
-The R package is available from R-universe. The Python package is available
-from PyPI as a pre-release alpha; use `--pre` until a stable Python release is
-available. For exact reproducibility, pin the current alpha version
-`cmrdesign==0.1.0a2`.
+The R package is available on CRAN and the Python package is available on
+PyPI. For exact reproducibility, pin the version in your analysis environment.
 
-R via R-universe:
+R via CRAN:
+
+```r
+install.packages("cmrdesign")
+```
+
+R development build via R-universe:
 
 ```r
 install.packages(
@@ -48,10 +53,16 @@ install.packages("remotes")
 remotes::install_github("juancyamin/cmrdesign", subdir = "r")
 ```
 
-Python alpha from PyPI:
+Python via PyPI:
 
 ```bash
-python -m pip install --pre cmrdesign
+python -m pip install cmrdesign
+```
+
+For exact reproducibility:
+
+```bash
+python -m pip install cmrdesign==0.1.0
 ```
 
 Python development version from GitHub:
@@ -189,17 +200,17 @@ All examples use simulated data.
 - R vignettes in [r/vignettes](r/vignettes): applied tutorials for the core
   two-arm rule, confidence-method variants, extensions, and pilot planning.
 
-## Alpha Feedback
+## Feedback
 
-`cmrdesign` is in alpha release. Applied-user feedback is especially useful
-before the beta/API freeze:
+`cmrdesign` is an early public release. Applied-user feedback is especially
+useful as the package evolves:
 
 - [Bug reports](https://github.com/juancyamin/cmrdesign/issues/new?template=bug_report.yml):
   incorrect results, installation failures, solver errors, or R/Python
   inconsistencies.
 - [Usage questions](https://github.com/juancyamin/cmrdesign/issues/new?template=usage_question.yml):
   help choosing between CMR functions, confidence methods, or input formats.
-- [Alpha feedback](https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml):
+- [General feedback](https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml):
   comments on names, return objects, examples, documentation, or applied
   workflow.
 
@@ -223,15 +234,16 @@ If you use `cmrdesign`, please cite the paper and the software:
   author = {Yamin, Juan C.},
   year = {2026},
   note = {R package version 0.1.0},
-  url = {https://juancyamin.github.io/cmrdesign/}
+  url = {https://CRAN.R-project.org/package=cmrdesign}
 }
 ```
 
 ## For Contributors
 
-`cmrdesign` is pre-release software. The R and Python APIs are intended to be
-parallel, and cross-language JSON fixtures check that the two implementations
-return the same numerical results on shared cases.
+`cmrdesign` is a public R and Python package. The R package is distributed on
+CRAN; the two APIs are intended to remain parallel, and cross-language JSON
+fixtures check that the implementations return the same numerical results on
+shared cases.
 
 ```text
 spec/        Shared math/API specs and cross-language fixtures.

@@ -1,6 +1,6 @@
 # cmrdesign 0.1.0
 
-First CRAN-oriented release of `cmrdesign`.
+First CRAN release of `cmrdesign`, published on 2026-08-05.
 
 - Added applied Conditional Minimax Regret rules for two-arm, unbounded
   two-arm, shared-control multi-arm, stratified, multiple-outcome, and proxy

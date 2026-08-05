@@ -1,12 +1,12 @@
 # Public API Review
 
 Date: 2026-07-23
-Updated: 2026-07-24
+Updated: 2026-08-05
 
-This note records the pre-release review of the CMR-focused public API for the
-R and Python implementations. It is not an API freeze or a release
-announcement; it is the decision trail for what should be treated as reviewed
-before packaging polish, PyPI/CRAN preparation, or formal versioning.
+This note records the initial-release review of the CMR-focused public API for
+the R and Python implementations. It is not an API freeze; it is the decision
+trail for what should be treated as reviewed before package releases or public
+API changes.
 
 ## Scope Reviewed
 
@@ -141,9 +141,9 @@ This is intentional. The Python package should stay focused on the CMR applied
 workflow unless a secondary helper becomes important enough to promote into the
 shared expert API.
 
-## Remaining Pre-Release Checks
+## Ongoing Release Checks
 
-Before declaring the API frozen for an initial release branch or tag:
+Before a future release branch or tag:
 
 - Run the full R and Python test suites.
 - Run fixture drift checks.

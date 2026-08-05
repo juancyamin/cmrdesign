@@ -3,19 +3,17 @@
 This page records the Python packaging path for `cmrdesign`. It is for
 maintainers preparing TestPyPI or PyPI releases, not for ordinary applied use.
 
-The Python package alpha version `0.1.0a2` is available on
-[PyPI](https://pypi.org/project/cmrdesign/0.1.0a2/) and
-[TestPyPI](https://test.pypi.org/project/cmrdesign/0.1.0a2/). For future
-releases, make an explicit version decision:
+The Python package version `0.1.0` is the first non-pre-release public
+release. It supersedes the `0.1.0a1` and `0.1.0a2` alpha artifacts on PyPI and
+TestPyPI. For future releases, make an explicit version decision:
 
-- Keep `0.0.0.9000` only for local/GitHub development builds.
-- Use `0.1.0a1` for a first public pre-release.
-- Use `0.1.0` only when the API, docs, and validation story are ready for a
-  stable initial release.
+- Use a development or pre-release suffix only for intentionally incomplete
+  public artifacts.
+- Increment the patch version for backward-compatible fixes and the minor
+  version for additive public API changes.
 
 Uploads to TestPyPI and PyPI are external side effects. Do not upload without
-an explicit maintainer decision and a clean CI run for the exact commit being
-released.
+a maintainer decision and a clean CI run for the exact commit being released.
 
 ## Pre-Upload Gate
 
