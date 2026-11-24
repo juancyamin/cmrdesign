@@ -3,11 +3,7 @@
 `cmrdesign` versions the R and Python packages separately; entries below are
 labeled by package.
 
-## Unreleased
-
-- No unreleased user-visible changes.
-
-## Python 0.1.1 (prepared, not yet on PyPI)
+## Python development version (after 0.1.0, not on PyPI)
 
 - Fixed `cmr_multiarm()` and `rectangle_multiarm()` for treatment arm labels
   that start with "v", such as `"variant_a"` or `"v1"`. They raised a
@@ -36,7 +32,7 @@ labeled by package.
 - The package passes `ruff` and `mypy`, and both run in CI. Python 3.13 is
   tested and declared.
 
-## R 0.1.1 (prepared, not yet on CRAN)
+## R development version (after 0.1.0, not on CRAN)
 
 - See `r/NEWS.md` for the full list. In short: fixed `cmr_multiarm()` for arm
   labels that start with "v" and `cmr_stratified()` for stratum labels that

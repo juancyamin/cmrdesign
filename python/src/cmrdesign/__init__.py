@@ -73,7 +73,7 @@ from .variance_bounds import (
 try:
     __version__ = version("cmrdesign")
 except PackageNotFoundError:  # pragma: no cover - source tree without install
-    __version__ = "0.1.1"
+    __version__ = "0.1.1.dev0"
 
 __all__ = [
     "AllocationResult",

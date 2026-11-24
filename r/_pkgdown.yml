@@ -3,7 +3,7 @@ template:
   bootstrap: 5
 
 development:
-  mode: release
+  mode: auto
 
 home:
   title: Conditional Minimax Regret design rules

@@ -24,7 +24,7 @@ python -m pip install cmrdesign
 For exact reproducibility, pin the release version:
 
 ```bash
-python -m pip install cmrdesign==0.1.1
+python -m pip install cmrdesign==0.1.0
 ```
 
 For the development version from GitHub:

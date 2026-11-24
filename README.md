@@ -31,6 +31,10 @@ simulation output.
 The R package is available on CRAN and the Python package is available on
 PyPI. For exact reproducibility, pin the version in your analysis environment.
 
+The released version is 0.1.0. The `main` branch holds the development
+version, and this page and the files under `docs/` describe it. `r/NEWS.md`
+and `CHANGELOG.md` list what differs from the release.
+
 R via CRAN:
 
 ```r
@@ -62,7 +66,7 @@ python -m pip install cmrdesign
 For exact reproducibility:
 
 ```bash
-python -m pip install cmrdesign==0.1.1
+python -m pip install cmrdesign==0.1.0
 ```
 
 Python development version from GitHub:
@@ -241,7 +245,7 @@ If you use `cmrdesign`, please cite the paper and the software:
   title = {cmrdesign: Conditional Minimax Regret Design Rules},
   author = {Yamin, Juan C.},
   year = {2026},
-  note = {R package version 0.1.1},
+  note = {R package version 0.1.0},
   url = {https://CRAN.R-project.org/package=cmrdesign}
 }
 ```

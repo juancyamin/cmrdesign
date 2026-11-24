@@ -1,4 +1,4 @@
-# cmrdesign 0.1.1
+# cmrdesign (development version)
 
 ## Bug fixes
 
