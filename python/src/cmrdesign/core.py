@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from .validation import check_probability, check_variance
+from .validation import check_probability, check_scale, check_variance
 
 
 def _maybe_scalar(x):
@@ -12,10 +12,11 @@ def _maybe_scalar(x):
     return float(arr.reshape(-1)[0]) if arr.size == 1 else arr
 
 
-def variance_objective(pi, v1, v0):
+def variance_objective(pi, v1, v0, scale: str = "unit"):
+    scale = check_scale(scale)
     pi = check_probability(pi, "pi", allow_boundary=True)
-    v1 = check_variance(v1, "v1")
-    v0 = check_variance(v0, "v0")
+    v1 = check_variance(v1, "v1", scale=scale)
+    v0 = check_variance(v0, "v0", scale=scale)
     pi, v1, v0 = np.broadcast_arrays(pi, v1, v0)
     out = np.empty_like(pi, dtype=float)
     interior = (pi > 0) & (pi < 1)
@@ -27,16 +28,18 @@ def variance_objective(pi, v1, v0):
     return _maybe_scalar(out)
 
 
-def oracle_variance(v1, v0):
-    v1 = check_variance(v1, "v1")
-    v0 = check_variance(v0, "v0")
+def oracle_variance(v1, v0, scale: str = "unit"):
+    scale = check_scale(scale)
+    v1 = check_variance(v1, "v1", scale=scale)
+    v0 = check_variance(v0, "v0", scale=scale)
     v1, v0 = np.broadcast_arrays(v1, v0)
     return _maybe_scalar((np.sqrt(v1) + np.sqrt(v0)) ** 2)
 
 
-def assign_neyman(v1, v0):
-    v1 = check_variance(v1, "v1")
-    v0 = check_variance(v0, "v0")
+def assign_neyman(v1, v0, scale: str = "unit"):
+    scale = check_scale(scale)
+    v1 = check_variance(v1, "v1", scale=scale)
+    v0 = check_variance(v0, "v0", scale=scale)
     v1, v0 = np.broadcast_arrays(v1, v0)
     s1 = np.sqrt(v1)
     s0 = np.sqrt(v0)
@@ -46,10 +49,11 @@ def assign_neyman(v1, v0):
     return _maybe_scalar(out)
 
 
-def regret(pi, v1, v0):
+def regret(pi, v1, v0, scale: str = "unit"):
+    scale = check_scale(scale)
     pi = check_probability(pi, "pi", allow_boundary=True)
-    v1 = check_variance(v1, "v1")
-    v0 = check_variance(v0, "v0")
+    v1 = check_variance(v1, "v1", scale=scale)
+    v0 = check_variance(v0, "v0", scale=scale)
     pi, v1, v0 = np.broadcast_arrays(pi, v1, v0)
     out = np.empty_like(pi, dtype=float)
     interior = (pi > 0) & (pi < 1)

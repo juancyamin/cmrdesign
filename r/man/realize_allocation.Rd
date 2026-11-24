@@ -56,8 +56,8 @@ integer shares whenever the result contains enough rectangle information.
 }
 \examples{
 set.seed(21)
-d <- rep(c(1, 0), each = 40)
-y <- c(rbeta(40, 2, 6), rbeta(40, 4, 4))
+d <- rep(c(1, 0), each = 200)
+y <- c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8))
 fit <- cmr_two_arm(y, d)
 realize_allocation(fit, n_main = 101)
 

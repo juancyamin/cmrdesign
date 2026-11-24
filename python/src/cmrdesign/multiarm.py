@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 
 import numpy as np
 
+from .rectangles import prepare_outcome_scale
 from .results import CMRResult, RectangleResult
-from .rectangles import canonical_method
 from .solver import (
     hyperrectangle_vertices,
     inverse_share_sums,
@@ -23,8 +24,8 @@ from .validation import (
     check_variance,
     clean_outcome_01,
     cmr_error,
+    error_context,
     label_missing,
-    normalize_01,
 )
 from .variance_bounds import variance_bounds_by_method
 
@@ -36,8 +37,18 @@ def _arm_order(arms) -> list[str]:
     return [arm for arm in arms if arm == "0"] + [arm for arm in arms if arm != "0"]
 
 
-def _strip_v(label: str) -> str:
-    return str(label)[1:] if str(label).startswith("v") else str(label)
+def _standardize_arm_labels(labels) -> list[str]:
+    """Drop the ``v`` prefix only when every label has the form ``v0``, ``v1``, ...
+
+    Pilot arm labels such as ``"variant_a"`` or ``"v1"`` (next to a control
+    already standardized to ``"0"``) are never renamed.
+    """
+
+    labels = [str(label) for label in labels]
+    prefixed = labels and all(re.fullmatch(r"v[0-9]+", label) for label in labels)
+    if prefixed and "0" not in labels:
+        return [label[1:] for label in labels]
+    return labels
 
 
 def check_multiarm_variances(variances, name: str = "variances") -> dict[str, float]:
@@ -47,9 +58,10 @@ def check_multiarm_variances(variances, name: str = "variances") -> dict[str, fl
             cmr_error(f"`{name}` must contain control plus at least one treatment arm.")
         variances = {str(i): float(value) for i, value in enumerate(arr)}
     else:
+        labels = _standardize_arm_labels(variances.keys())
         variances = {
-            _strip_v(key): float(check_variance(value, f"{name}[{key}]").reshape(-1)[0])
-            for key, value in variances.items()
+            label: float(check_variance(value, f"{name}[{key}]").reshape(-1)[0])
+            for label, (key, value) in zip(labels, variances.items(), strict=True)
         }
     if "0" not in variances:
         cmr_error(f"`{name}` must include control arm `0`.")
@@ -92,6 +104,8 @@ def check_multiarm_rectangle(rectangle) -> dict[str, dict[str, float]]:
                     "lower": float(check_variance(endpoints["lower"], "lower").reshape(-1)[0]),
                     "upper": float(check_variance(endpoints["upper"], "upper").reshape(-1)[0]),
                 }
+            labels = _standardize_arm_labels(out.keys())
+            out = dict(zip(labels, out.values(), strict=True))
     else:
         arr = check_variance(rectangle, "rectangle")
         if arr.ndim != 2 or arr.shape[1] != 2:
@@ -210,7 +224,12 @@ def cmr_multiarm_from_rectangle(
             "value": details["value"],
             "vertex_regrets": details["vertex_regrets"],
             "active_vertices": details["active_vertices"],
-            "diagnostics": {"solver": "collapsed_closed_form", "converged": True},
+            "diagnostics": {
+                "solver": "collapsed_closed_form",
+                "optimality_gap": 0.0,
+                "directional_violation": 0.0,
+                "converged": True,
+            },
         }
     elif all(
         endpoints["lower"] == 0 and endpoints["upper"] == 0.25
@@ -225,7 +244,12 @@ def cmr_multiarm_from_rectangle(
             "value": details["value"],
             "vertex_regrets": details["vertex_regrets"],
             "active_vertices": details["active_vertices"],
-            "diagnostics": {"solver": "full_rectangle_closed_form", "converged": True},
+            "diagnostics": {
+                "solver": "full_rectangle_closed_form",
+                "optimality_gap": 0.0,
+                "directional_violation": 0.0,
+                "converged": True,
+            },
         }
     else:
         control = {} if control is None else dict(control)
@@ -341,12 +365,14 @@ def rectangle_multiarm(
             "use `cmr_unbounded()` or `cmr_two_arm(..., method='unbounded')`."
         )
     pilot = _split_multiarm_pilot(y, arm, control_arm=control_arm, na_rm=na_rm)
-    normalization = None
-    if normalize:
-        pilot["y"], normalization = normalize_01(pilot["y"], lower=lower, upper=upper)
-    else:
-        pilot["y"] = clean_outcome_01(pilot["y"])
-    resolved_method = canonical_method(method, y=pilot["y"])
+    pilot["y"], resolved_method, normalization = prepare_outcome_scale(
+        pilot["y"],
+        method,
+        normalize=normalize,
+        lower=lower,
+        upper=upper,
+    )
+    pilot["y"] = clean_outcome_01(pilot["y"])
     beta_out = _resolve_multiarm_beta(alpha, pilot["arms"], beta=beta)
 
     arm_results = {}
@@ -355,13 +381,15 @@ def rectangle_multiarm(
     vhat = {}
     for arm_label in pilot["arms"]:
         y_arm = pilot["y"][pilot["arm"] == arm_label]
-        result = variance_bounds_by_method(
-            y_arm,
-            beta_l=beta_out[arm_label]["lower"],
-            beta_u=beta_out[arm_label]["upper"],
-            method=resolved_method,
-            tol=tol,
-        )
+        shown_label = pilot["control_arm"] if arm_label == "0" else arm_label
+        with error_context(f"Arm `{shown_label}`"):
+            result = variance_bounds_by_method(
+                y_arm,
+                beta_l=beta_out[arm_label]["lower"],
+                beta_u=beta_out[arm_label]["upper"],
+                method=resolved_method,
+                tol=tol,
+            )
         arm_results[arm_label] = result
         rectangle[arm_label] = {"lower": result["L"], "upper": result["U"]}
         n[arm_label] = int(result["n"])

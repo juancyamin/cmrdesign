@@ -40,6 +40,7 @@ activation_threshold_bernoulli(alpha = 0.05)
 Other pilot planning: 
 \code{\link{break_even_pilot_share}()},
 \code{\link{pilot_plan}()},
-\code{\link{pilot_viability_band}()}
+\code{\link{pilot_viability_band}()},
+\code{\link{print.cmr_pilot_plan}()}
 }
 \concept{pilot planning}

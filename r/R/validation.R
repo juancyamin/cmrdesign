@@ -53,8 +53,18 @@
   x
 }
 
-.cmr_check_variance <- function(v, name) {
+.cmr_match_scale <- function(scale) {
+  match.arg(scale, c("unit", "nonnegative"))
+}
+
+.cmr_check_variance <- function(v, name, scale = "unit") {
   v <- .cmr_check_numeric(v, name)
+  if (identical(scale, "nonnegative")) {
+    if (any(v < -1e-12)) {
+      .cmr_stop("`", name, "` must be nonnegative.")
+    }
+    return(pmax(v, 0))
+  }
   if (any(v < -1e-12) || any(v > 0.25 + 1e-12)) {
     .cmr_stop("`", name, "` must lie in [0, 1/4].")
   }
@@ -166,7 +176,32 @@
   if (is.null(beta)) {
     return(.cmr_equal_beta(alpha, correction = correction))
   }
+  if (.cmr_is_unnamed_scalar(beta)) {
+    # A scalar is the common one-sided error for all four endpoints.
+    beta_one <- .cmr_check_tail_error(beta, "beta")
+    beta <- c(
+      beta_l1 = beta_one,
+      beta_u1 = beta_one,
+      beta_l0 = beta_one,
+      beta_u0 = beta_one
+    )
+  }
   .cmr_check_beta_vector(beta, alpha = alpha, correction = correction)
+}
+
+.cmr_is_unnamed_scalar <- function(x) {
+  (is.numeric(x) || is.integer(x)) &&
+    length(x) == 1L &&
+    (is.null(names(x)) || all(names(x) == ""))
+}
+
+# Prefix an error raised while processing one arm, cell, or outcome with the
+# label of that unit, so the user can tell which part of the pilot failed.
+.cmr_with_context <- function(expr, context) {
+  tryCatch(
+    expr,
+    error = function(e) .cmr_stop(context, ": ", conditionMessage(e))
+  )
 }
 
 .cmr_check_scalar_integer <- function(x, name, lower = 1L) {
@@ -197,7 +232,7 @@
                               lower = NULL,
                               upper = NULL,
                               na.rm = TRUE,
-                              constant = c("zero", "half", "na"),
+                              constant = c("half", "zero", "na"),
                               return_params = FALSE) {
   constant <- match.arg(constant)
   if (is.logical(x)) {
@@ -242,6 +277,56 @@
     return(list(values = out, lower = lower, upper = upper))
   }
   out
+}
+
+.cmr_bernoulli_normalization_warning <- paste0(
+  "`normalize = TRUE` was ignored: `method = \"auto\"` found raw 0/1 ",
+  "outcomes and used exact Bernoulli bounds on that scale. If the outcome ",
+  "is not binary on the stated support, choose `method = \"bounded\"`."
+)
+
+# Resolve the confidence-set method and the outcome scale in one place, so
+# every design applies the same rule. `method = "auto"` looks at the raw
+# outcome values. An explicit method is applied to the normalized outcome.
+.cmr_prepare_outcome_scale <- function(y,
+                                       method,
+                                       normalize = FALSE,
+                                       lower = NULL,
+                                       upper = NULL) {
+  resolved_method <- switch(
+    method,
+    auto = if (.cmr_is_dummy(y, na.rm = FALSE)) "bernoulli" else "bounded",
+    bounded = "bounded",
+    maurer_pontil = "bounded",
+    mp = "bounded",
+    bernoulli = "bernoulli",
+    bernoulli_exact = "bernoulli",
+    martinez_taboada_ramdas = "martinez_taboada_ramdas",
+    mtr = "martinez_taboada_ramdas"
+  )
+
+  normalization <- NULL
+  if (isTRUE(normalize)) {
+    if (method == "auto" && resolved_method == "bernoulli") {
+      rescales <- (.cmr_is_unnamed_scalar(lower) && lower != 0) ||
+        (.cmr_is_unnamed_scalar(upper) && upper != 1)
+      if (rescales) {
+        warning(.cmr_bernoulli_normalization_warning, call. = FALSE)
+      }
+    } else {
+      normalized <- .cmr_normalize_01(
+        y,
+        lower = lower,
+        upper = upper,
+        na.rm = FALSE,
+        return_params = TRUE
+      )
+      y <- normalized$values
+      normalization <- list(lower = normalized$lower, upper = normalized$upper)
+    }
+  }
+
+  list(y = y, method = resolved_method, normalization = normalization)
 }
 
 .cmr_clean_outcome_01 <- function(y, na.rm = TRUE, name = "y") {
@@ -405,21 +490,22 @@
   pmax(x, 0)
 }
 
-.cmr_check_truth_binary <- function(truth) {
+.cmr_check_truth_binary <- function(truth, scale = "unit") {
   required <- c("v1", "v0")
   truth <- .cmr_check_named_vector(truth, required, "truth")
-  truth <- .cmr_check_variance(truth, "truth")
+  truth <- .cmr_check_variance(truth, "truth", scale = scale)
   names(truth) <- required
   truth
 }
 
-.cmr_check_binary_rectangle <- function(rectangle) {
+.cmr_check_binary_rectangle <- function(rectangle, scale = "unit") {
   if (is.list(rectangle) && !is.null(rectangle$rectangle)) {
     rectangle <- rectangle$rectangle
   }
   required <- c("v_l1", "v_u1", "v_l0", "v_u0")
   rectangle <- .cmr_check_named_vector(rectangle, required, "rectangle")
-  rectangle <- .cmr_check_variance(rectangle, "rectangle")
+  rectangle <- .cmr_check_variance(rectangle, "rectangle", scale = scale)
+  names(rectangle) <- required
   if (rectangle[["v_l1"]] > rectangle[["v_u1"]] + 1e-12) {
     .cmr_stop("Treatment lower endpoint cannot exceed treatment upper endpoint.")
   }

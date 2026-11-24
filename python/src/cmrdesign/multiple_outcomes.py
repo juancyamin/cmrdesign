@@ -15,6 +15,7 @@ from .validation import (
     check_weights,
     clean_outcome_01,
     cmr_error,
+    error_context,
 )
 from .variance_bounds import variance_bounds_by_method
 
@@ -124,20 +125,22 @@ def rectangle_multiple_outcomes(
     vhat1 = []
     vhat0 = []
     for col, name in enumerate(pilot["outcome_names"]):
-        b1 = variance_bounds_by_method(
-            pilot["y1"][:, col],
-            beta_l=beta_one,
-            beta_u=beta_one,
-            method=resolved_method,
-            tol=tol,
-        )
-        b0 = variance_bounds_by_method(
-            pilot["y0"][:, col],
-            beta_l=beta_one,
-            beta_u=beta_one,
-            method=resolved_method,
-            tol=tol,
-        )
+        with error_context(f"Outcome `{name}`, treatment arm"):
+            b1 = variance_bounds_by_method(
+                pilot["y1"][:, col],
+                beta_l=beta_one,
+                beta_u=beta_one,
+                method=resolved_method,
+                tol=tol,
+            )
+        with error_context(f"Outcome `{name}`, control arm"):
+            b0 = variance_bounds_by_method(
+                pilot["y0"][:, col],
+                beta_l=beta_one,
+                beta_u=beta_one,
+                method=resolved_method,
+                tol=tol,
+            )
         outcome_bounds[name] = {"treatment": b1, "control": b0}
         lower1.append(b1["L"])
         upper1.append(b1["U"])

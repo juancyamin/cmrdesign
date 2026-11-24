@@ -7,6 +7,18 @@
   c(which(arms == "0"), which(arms != "0"))
 }
 
+# Variance vectors and rectangles may label arms as `v0`, `v1`, ... . That
+# prefix is removed only when every label has that form, so that pilot arm
+# labels such as "variant_a" or "v1" (next to a control already standardized
+# to "0") are never renamed.
+.cmr_standardize_arm_labels <- function(arms) {
+  arms <- as.character(arms)
+  if (!"0" %in% arms && length(arms) > 0L && all(grepl("^v[0-9]+$", arms))) {
+    arms <- sub("^v", "", arms)
+  }
+  arms
+}
+
 .cmr_check_multiarm_variances <- function(variances, name = "variances") {
   if (is.list(variances) && !is.data.frame(variances)) {
     variances <- unlist(variances, use.names = TRUE)
@@ -19,7 +31,7 @@
   if (is.null(arms) || any(arms == "")) {
     arms <- as.character(seq_along(variances) - 1L)
   }
-  arms <- sub("^v", "", arms)
+  arms <- .cmr_standardize_arm_labels(arms)
   names(variances) <- arms
   if (!"0" %in% arms) {
     .cmr_stop("`", name, "` must include control arm `0`.")
@@ -45,8 +57,12 @@
     }
     arms <- if ("arm" %in% names(rect)) {
       as.character(rect$arm)
+    } else if (is.matrix(rectangle)) {
+      rownames(rectangle)
+    } else if (.row_names_info(rectangle) > 0L) {
+      rownames(rectangle)
     } else {
-      rownames(rect)
+      NULL
     }
     if (is.null(arms) || any(arms == "")) {
       arms <- as.character(seq_len(nrow(rect)) - 1L)
@@ -55,7 +71,7 @@
       lower = .cmr_check_variance(rect[[lower_col]], "lower"),
       upper = .cmr_check_variance(rect[[upper_col]], "upper")
     )
-    rownames(out) <- sub("^v", "", arms)
+    rownames(out) <- .cmr_standardize_arm_labels(arms)
   } else {
     if (is.list(rectangle)) {
       rectangle <- unlist(rectangle, use.names = TRUE)
@@ -199,15 +215,20 @@ multiarm_rectangle_vertices <- function(rectangle, max_vertices = 65536L) {
 #' @param rectangle Multi-arm variance rectangle, either a matrix/data frame
 #'   with `lower` and `upper` columns or a named vector with entries like
 #'   `v_l0`, `v_u0`, `v_l1`, `v_u1`.
-#' @param control Optional list of solver controls for the general vertex
-#'   epigraph solver.
+#' @param control Optional list of solver controls for general rectangles.
+#'   `gap_tol` is the target optimality gap relative to the problem scale
+#'   (default `1e-9`). `barrier = FALSE` skips the barrier Newton method and
+#'   uses the multi-start search directly. `max_starts`, `smooth_taus`,
+#'   `maxit`, and `mirror_iterations` tune that fallback search.
 #' @param max_vertices Maximum number of hyperrectangle vertices to enumerate.
 #'
 #' @return
 #' A list of class `cmr_multiarm` with named assignment shares `pi`, regret
 #' certificate `U_CMR`, checked rectangle, enumerated vertices, vertex regrets,
 #' binding vertices, and solver diagnostics. For collapsed or full rectangles,
-#' closed-form shortcuts are used.
+#' closed-form shortcuts are used. For general rectangles,
+#' `diagnostics$optimality_gap` bounds how far `U_CMR` can be from the minimax
+#' value.
 #'
 #' @examples
 #' rect <- c(
@@ -248,6 +269,7 @@ cmr_multiarm_from_rectangle <- function(rectangle,
       diagnostics = list(
         solver = "collapsed_closed_form",
         active_components = arms,
+        optimality_gap = 0,
         directional_violation = 0,
         converged = TRUE
       )
@@ -265,6 +287,7 @@ cmr_multiarm_from_rectangle <- function(rectangle,
       diagnostics = list(
         solver = "full_rectangle_closed_form",
         active_components = arms,
+        optimality_gap = 0,
         directional_violation = 0,
         converged = TRUE
       )
@@ -314,15 +337,20 @@ cmr_multiarm_from_rectangle <- function(rectangle,
 #' @param control_arm Label identifying the control arm in `arm`.
 #' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
 #'   computing variances. For guarantee-bearing bounded CMR on a non-unit
-#'   scale, provide known `lower` and `upper` bounds.
+#'   scale, provide known `lower` and `upper` bounds. With
+#'   `method = "auto"` and raw 0/1 outcomes, exact Bernoulli bounds are used
+#'   on the raw scale and normalization is skipped.
 #' @param lower,upper Optional lower and upper outcome bounds used when
 #'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
 #'   is used with a warning; that data-dependent normalization is exploratory
 #'   and does not carry the finite-sample bounded-outcome CMR guarantee.
 #' @param na.rm If `TRUE`, drop rows with missing `y` or `arm`.
 #' @param tol Numerical tolerance for exact Bernoulli bound inversion.
-#' @param solver_control Optional list of solver controls for the general
-#'   vertex epigraph solver.
+#' @param solver_control Optional list of solver controls for general rectangles.
+#'   `gap_tol` is the target optimality gap relative to the problem scale
+#'   (default `1e-9`). `barrier = FALSE` skips the barrier Newton method and
+#'   uses the multi-start search directly. `max_starts`, `smooth_taus`,
+#'   `maxit`, and `mirror_iterations` tune that fallback search.
 #' @param max_vertices Maximum number of hyperrectangle vertices to enumerate.
 #'
 #' @return
@@ -332,9 +360,9 @@ cmr_multiarm_from_rectangle <- function(rectangle,
 #'
 #' @examples
 #' set.seed(5)
-#' arm <- rep(c(0, 1, 2), each = 20)
-#' y <- c(rbeta(20, 4, 4), rbeta(20, 2, 6), rbeta(20, 5, 3))
-#' cmr_multiarm(y, arm, method = "bounded")
+#' arm <- rep(c("control", "variant_a", "variant_b"), each = 200)
+#' y <- c(rbeta(200, 8, 8), rbeta(200, 0.5, 0.5), rbeta(200, 2, 2))
+#' cmr_multiarm(y, arm, control_arm = "control", method = "bounded")
 #'
 #' @family CMR rules
 #' @export

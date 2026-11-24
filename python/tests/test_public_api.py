@@ -226,7 +226,7 @@ EXPECTED_MAIN_SIGNATURES = {
             "input": "sd",
             "accounting": "design_only",
             "desired_pilot": None,
-            "strict_upper": True,
+            "strict_upper": False,
         },
     },
     "realize_allocation": {
@@ -377,6 +377,7 @@ class PublicAPITests(unittest.TestCase):
                 "band",
                 "suggested_pilot",
                 "default_two_thirds_power",
+                "two_thirds_status",
                 "desired_pilot",
                 "desired_status",
                 "recommendation",

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import warnings
 from collections.abc import Mapping
 
 import numpy as np
@@ -14,12 +15,14 @@ from .unbounded import (
     rectangle_unbounded,
 )
 from .validation import (
+    BERNOULLI_NORMALIZATION_WARNING,
     check_alpha,
     check_probability,
     check_variance,
     clean_outcome_01,
     cmr_error,
     is_dummy,
+    normalize_01,
     split_binary_pilot,
 )
 from .variance_bounds import variance_bounds_by_method
@@ -57,19 +60,33 @@ def canonical_method(method: str, y=None) -> str:
     return aliases[method]
 
 
-def _equal_beta(alpha: float, correction: str) -> dict[str, float]:
-    alpha = check_alpha(alpha)
-    correction = _check_correction(correction)
-    if correction == "bonferroni":
-        beta_one = alpha / 4
-    else:
-        beta_one = (1 - math.sqrt(1 - alpha)) / 2
-    return {
-        "beta_l1": beta_one,
-        "beta_u1": beta_one,
-        "beta_l0": beta_one,
-        "beta_u0": beta_one,
-    }
+def prepare_outcome_scale(
+    y,
+    method: str,
+    normalize: bool = False,
+    lower=None,
+    upper=None,
+) -> tuple[np.ndarray, str, dict[str, float] | None]:
+    """Resolve the confidence-set method and the outcome scale together.
+
+    Every design applies the same rule. ``method="auto"`` looks at the raw
+    outcome values. An explicit method is applied to the normalized outcome.
+    """
+
+    y = np.asarray(y, dtype=float)
+    requested = str(method).lower()
+    resolved = canonical_method(requested, y=y)
+    normalization = None
+    if normalize:
+        if requested == "auto" and resolved == "bernoulli":
+            rescales = (lower is not None and float(lower) != 0) or (
+                upper is not None and float(upper) != 1
+            )
+            if rescales:
+                warnings.warn(BERNOULLI_NORMALIZATION_WARNING, UserWarning, stacklevel=3)
+        else:
+            y, normalization = normalize_01(y, lower=lower, upper=upper)
+    return y, resolved, normalization
 
 
 def _check_correction(correction: str) -> str:
@@ -232,8 +249,6 @@ def rectangle_bounded_binary(
     normalization = None
 
     if normalize:
-        from .validation import normalize_01
-
         y_norm, normalization = normalize_01(pilot["y"], lower=lower, upper=upper)
         pilot["y"] = y_norm
         pilot["y1"] = y_norm[pilot["d"] == 1]
@@ -350,11 +365,17 @@ def rectangle_two_arm(
             na_rm=na_rm,
         )
 
-    pilot = split_binary_pilot(y, d, na_rm=na_rm, check_outcome=not normalize)
-    resolved_method = canonical_method(method, y=pilot["y"])
+    pilot = split_binary_pilot(y, d, na_rm=na_rm, check_outcome=False)
+    y_scaled, resolved_method, normalization = prepare_outcome_scale(
+        pilot["y"],
+        method,
+        normalize=normalize,
+        lower=lower,
+        upper=upper,
+    )
     if resolved_method == "bernoulli":
-        return rectangle_bernoulli_binary(
-            pilot["y"],
+        out = rectangle_bernoulli_binary(
+            y_scaled,
             pilot["d"],
             alpha=alpha,
             beta=beta,
@@ -362,18 +383,20 @@ def rectangle_two_arm(
             na_rm=False,
             tol=tol,
         )
-    return rectangle_bounded_binary(
-        pilot["y"],
-        pilot["d"],
-        alpha=alpha,
-        method=resolved_method,
-        beta=beta,
-        correction=correction,
-        normalize=normalize,
-        lower=lower,
-        upper=upper,
-        na_rm=False,
-    )
+    else:
+        out = rectangle_bounded_binary(
+            y_scaled,
+            pilot["d"],
+            alpha=alpha,
+            method=resolved_method,
+            beta=beta,
+            correction=correction,
+            normalize=False,
+            na_rm=False,
+        )
+    out.diagnostics["normalization"] = normalization
+    out.extra["normalization"] = normalization
+    return out
 
 
 rectangle_binary = rectangle_two_arm

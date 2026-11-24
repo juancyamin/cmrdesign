@@ -69,7 +69,9 @@ rectangle_bernoulli_two_arm(
 \item{alpha}{Target joint error level.}
 
 \item{beta}{Optional endpoint error allocation. If \code{NULL}, error is split
-according to \code{correction}.}
+according to \code{correction}. A single number is used as the one-sided error of all four
+endpoints. A named vector with entries \code{beta_l1}, \code{beta_u1}, \code{beta_l0},
+\code{beta_u0} sets each endpoint separately.}
 
 \item{correction}{Endpoint error correction, either \code{"bonferroni"} or
 \code{"sidak_arms"} for two-arm workflows.}
@@ -83,7 +85,9 @@ for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.}
 
 \item{normalize}{If \code{TRUE}, normalize bounded outcomes to \verb{[0, 1]} before
 computing variances. For guarantee-bearing bounded CMR on a non-unit
-scale, provide known \code{lower} and \code{upper} bounds.}
+scale, provide known \code{lower} and \code{upper} bounds. With
+\code{method = "auto"} and raw 0/1 outcomes, exact Bernoulli bounds are used
+on the raw scale and normalization is skipped.}
 
 \item{lower, upper}{Optional lower and upper outcome bounds used when
 \code{normalize = TRUE}. If either is omitted, the pilot minimum and/or maximum
@@ -119,6 +123,7 @@ Other rectangle helpers:
 \code{\link{cmr_unbounded_from_rectangle}()},
 \code{\link{folded_binomial_pmf}()},
 \code{\link{multiarm_variance_objective}()},
+\code{\link{print.cmr_pilot_plan}()},
 \code{\link{rectangle_bounded_two_arm}()},
 \code{\link{rectangle_multiarm}()},
 \code{\link{rectangle_multiple_outcomes}()},

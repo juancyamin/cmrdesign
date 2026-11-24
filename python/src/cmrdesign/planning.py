@@ -65,9 +65,10 @@ def activation_threshold_bernoulli(alpha: float = 0.05) -> int:
 
 def break_even_pilot_share(sigma1, sigma0, input: str = "sd"):
     sigmas = _check_sd_pair(sigma1, sigma0, input=input)
-    numerator = (sigmas["sigma1"] - sigmas["sigma0"]) ** 2
-    denominator = 2 * (sigmas["sigma1"] ** 2 + sigmas["sigma0"] ** 2)
-    out = np.where(denominator > 0, numerator / denominator, 0)
+    numerator = np.asarray((sigmas["sigma1"] - sigmas["sigma0"]) ** 2, dtype=float)
+    denominator = np.asarray(2 * (sigmas["sigma1"] ** 2 + sigmas["sigma0"] ** 2), dtype=float)
+    out = np.zeros_like(denominator)
+    np.divide(numerator, denominator, out=out, where=denominator > 0)
     out = np.clip(out, 0, 0.5)
     return float(out.reshape(-1)[0]) if out.size == 1 else out
 
@@ -90,7 +91,7 @@ def pilot_viability_band(
     method: str = "bounded",
     input: str = "sd",
     accounting: str = "design_only",
-    strict_upper: bool = True,
+    strict_upper: bool = False,
 ) -> dict:
     method = str(method).lower()
     input = str(input).lower()
@@ -135,6 +136,26 @@ def pilot_viability_band(
     }
 
 
+def _pilot_size_status(m: int, band: dict) -> str:
+    """Classify one total pilot size against a viability band."""
+
+    cap = band["break_even_total"]
+    design_only = band["accounting"] == "design_only"
+    if m == 0:
+        return "no_pilot"
+    if m % 2 == 1:
+        return "not_admissible_odd"
+    if m < 4 or m > band["n"] - 2:
+        return "outside_budget"
+    if not math.isfinite(band["activation_threshold"]) or m < band["activation_threshold"]:
+        return "below_activation_threshold"
+    if design_only and band["strict_upper"] and m >= cap - 1e-12:
+        return "above_break_even_cap"
+    if design_only and not band["strict_upper"] and m > cap + 1e-12:
+        return "above_break_even_cap"
+    return "inside_viability_band"
+
+
 def pilot_plan(
     n: int,
     sigma1,
@@ -144,7 +165,7 @@ def pilot_plan(
     input: str = "sd",
     accounting: str = "design_only",
     desired_pilot=None,
-    strict_upper: bool = True,
+    strict_upper: bool = False,
 ) -> dict:
     band = pilot_viability_band(
         n=n,
@@ -157,31 +178,11 @@ def pilot_plan(
         strict_upper=strict_upper,
     )
     default_two_thirds_power = 2 * math.ceil(n ** (2 / 3) / 2)
+    two_thirds_status = _pilot_size_status(default_two_thirds_power, band)
     desired_status = None
     if desired_pilot is not None:
         desired_pilot = scalar_int(desired_pilot, "desired_pilot", lower=0)
-        if desired_pilot == 0:
-            desired_status = "no_pilot"
-        elif desired_pilot % 2 == 1:
-            desired_status = "not_admissible_odd"
-        elif desired_pilot < 4 or desired_pilot > band["n"] - 2:
-            desired_status = "outside_budget"
-        elif math.isfinite(band["activation_threshold"]) and desired_pilot < band["activation_threshold"]:
-            desired_status = "below_activation_threshold"
-        elif (
-            band["accounting"] == "design_only"
-            and strict_upper
-            and desired_pilot >= band["break_even_total"] - 1e-12
-        ):
-            desired_status = "above_break_even_cap"
-        elif (
-            band["accounting"] == "design_only"
-            and not strict_upper
-            and desired_pilot > band["break_even_total"] + 1e-12
-        ):
-            desired_status = "above_break_even_cap"
-        else:
-            desired_status = "inside_viability_band"
+        desired_status = _pilot_size_status(desired_pilot, band)
 
     if not band["nonempty"]:
         recommendation = (
@@ -197,6 +198,7 @@ def pilot_plan(
         "band": band,
         "suggested_pilot": band["min_feasible"] if band["nonempty"] else 0,
         "default_two_thirds_power": default_two_thirds_power,
+        "two_thirds_status": two_thirds_status,
         "desired_pilot": desired_pilot,
         "desired_status": desired_status,
         "recommendation": recommendation,

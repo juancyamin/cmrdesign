@@ -7,6 +7,7 @@ import math
 import numpy as np
 
 from .validation import (
+    as_numeric_array,
     check_tail_error,
     clean_outcome_01,
     cmr_error,
@@ -220,6 +221,35 @@ def _mtr_lower_variance(
     }
 
 
+def _check_mtr_constants(c1, c2, c3, c4, c5, lower_alpha_split) -> dict[str, float]:
+    values = {}
+    for name, value in (
+        ("c1", c1),
+        ("c2", c2),
+        ("c3", c3),
+        ("c4", c4),
+        ("c5", c5),
+        ("lower_alpha_split", lower_alpha_split),
+    ):
+        arr = as_numeric_array(value, name)
+        if arr.size != 1:
+            cmr_error(f"`{name}` must be a scalar.")
+        values[name] = float(arr.reshape(-1)[0])
+    if not 0 < values["c1"] < 1:
+        cmr_error("`c1` must be a scalar in (0, 1).")
+    if values["c2"] <= 0:
+        cmr_error("`c2` must be a positive scalar.")
+    if values["c3"] <= 0:
+        cmr_error("`c3` must be a positive scalar.")
+    if not 0 <= values["c4"] <= 1:
+        cmr_error("`c4` must be a scalar in [0, 1].")
+    if values["c5"] <= 0:
+        cmr_error("`c5` must be a positive scalar.")
+    if not 0 < values["lower_alpha_split"] < 1:
+        cmr_error("`lower_alpha_split` must be a scalar in (0, 1).")
+    return values
+
+
 def variance_bounds_martinez_taboada_ramdas(
     y,
     beta_l: float,
@@ -236,6 +266,9 @@ def variance_bounds_martinez_taboada_ramdas(
 ) -> dict:
     beta_l = check_tail_error(beta_l, "beta_l")
     beta_u = check_tail_error(beta_u, "beta_u")
+    constants = _check_mtr_constants(c1, c2, c3, c4, c5, lower_alpha_split)
+    c1, c2, c3, c4, c5 = (constants[key] for key in ("c1", "c2", "c3", "c4", "c5"))
+    lower_alpha_split = constants["lower_alpha_split"]
     y = _clean_bound_outcome_01(y, na_rm=na_rm)
     m = y.size
     if m < 2:
@@ -276,12 +309,21 @@ def variance_bounds_martinez_taboada_ramdas(
             "beta_u": beta_u,
             "alpha_lower_variance": alpha_lower_variance,
             "alpha_lower_mean": alpha_lower_mean,
+            "lower_alpha_split": lower_alpha_split,
             "raw_lower": lower_result["lower"],
             "raw_upper": upper_result["upper"],
             "upper_center": upper_result["center"],
             "upper_radius": upper_result["radius"],
             "lower_center": lower_result["center"],
             "lower_radius": lower_result["radius"],
+            "lower_quadratic": {
+                "a": lower_result["at"],
+                "b": lower_result["bt"],
+                "c": lower_result["ct"],
+            },
+            "constants": constants,
+            "cs": bool(cs),
+            "tilde_cs": bool(tilde_cs),
         },
     }
 

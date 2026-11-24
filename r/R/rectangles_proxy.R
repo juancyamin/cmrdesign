@@ -43,12 +43,16 @@
 #' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
 #'   for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.
 #' @param beta Optional endpoint error allocation. If `NULL`, error is split
-#'   according to `correction`.
+#'   according to `correction`. A single number is used as the one-sided error of all four
+#'   endpoints. A named vector with entries `beta_l1`, `beta_u1`, `beta_l0`,
+#'   `beta_u0` sets each endpoint separately.
 #' @param correction Endpoint error correction, either `"bonferroni"` or
 #'   `"sidak_arms"`.
 #' @param normalize If `TRUE`, normalize bounded proxy outcomes to `[0, 1]`
 #'   before computing variances. For guarantee-bearing bounded CMR on a
-#'   non-unit scale, provide known `lower` and `upper` bounds.
+#'   non-unit scale, provide known `lower` and `upper` bounds. With
+#'   `method = "auto"` and raw 0/1 outcomes, exact Bernoulli bounds are used
+#'   on the raw scale and normalization is skipped.
 #' @param lower,upper Optional lower and upper outcome bounds used when
 #'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
 #'   is used with a warning; that data-dependent normalization is exploratory

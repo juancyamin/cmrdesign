@@ -325,6 +325,15 @@ multi_general_rect <- c(v_l0 = 0.02, v_u0 = 0.08,
                         v_l1 = 0.04, v_u1 = 0.12,
                         v_l2 = 0.01, v_u2 = 0.07)
 multi_general <- cmr_multiarm_from_rectangle(multi_general_rect)
+multi_six_rect <- c(
+  v_l0 = 0.020, v_u0 = 0.090,
+  v_l1 = 0.050, v_u1 = 0.200,
+  v_l2 = 0.010, v_u2 = 0.040,
+  v_l3 = 0.080, v_u3 = 0.110,
+  v_l4 = 0.000, v_u4 = 0.150,
+  v_l5 = 0.030, v_u5 = 0.035
+)
+multi_six <- cmr_multiarm_from_rectangle(multi_six_rect)
 write_fixture(
   "multiarm.json",
   "Shared-control multi-arm objective, general rectangle, one-treatment reduction, and full rectangle.",
@@ -347,6 +356,12 @@ write_fixture(
       tolerance = 1e-6,
       input = list(rectangle = rectangle_list(multi_general_rect)),
       expected = list(pi = num_list(multi_general$pi), U_CMR = scalar(multi_general$U_CMR))
+    ),
+    list(
+      name = "general_asymmetric_6_components",
+      tolerance = 1e-6,
+      input = list(rectangle = rectangle_list(multi_six_rect)),
+      expected = list(pi = num_list(multi_six$pi), U_CMR = scalar(multi_six$U_CMR))
     ),
     list(
       name = "full_rectangle_k4",
@@ -381,6 +396,14 @@ strata_general_rect <- list(
                 control = c(A = 0.09, B = 0.10))
 )
 strata_general <- cmr_stratified_from_rectangle(strata_general_rect, strata_share)
+strata_three_share <- c(A = 0.2, B = 0.3, C = 0.5)
+strata_three_rect <- list(
+  lower = rbind(treatment = c(A = 0.01, B = 0.04, C = 0.00),
+                control = c(A = 0.02, B = 0.03, C = 0.10)),
+  upper = rbind(treatment = c(A = 0.08, B = 0.12, C = 0.20),
+                control = c(A = 0.09, B = 0.05, C = 0.16))
+)
+strata_three <- cmr_stratified_from_rectangle(strata_three_rect, strata_three_share)
 write_fixture(
   "stratified.json",
   "Stratified objective, general rectangle, one-stratum reduction, and full rectangle.",
@@ -407,6 +430,14 @@ write_fixture(
                                     upper = matrix_by_row(strata_general_rect$upper)),
                    strata_share = num_list(strata_share)),
       expected = list(pi = num_list(strata_general$pi), U_CMR = scalar(strata_general$U_CMR))
+    ),
+    list(
+      name = "general_asymmetric_3_strata",
+      tolerance = 1e-6,
+      input = list(rectangle = list(lower = matrix_by_row(strata_three_rect$lower),
+                                    upper = matrix_by_row(strata_three_rect$upper)),
+                   strata_share = num_list(strata_three_share)),
+      expected = list(pi = num_list(strata_three$pi), U_CMR = scalar(strata_three$U_CMR))
     ),
     list(
       name = "full_rectangle_representative_balance",
@@ -504,6 +535,11 @@ plan_design <- cmr_plan(n = 1000, sigma1 = 0.5, sigma0 = 0.25, alpha = 0.05,
                         method = "bounded", desired_pilot = 100, accounting = "design_only")
 plan_pooled <- cmr_plan(n = 1000, sigma1 = 0.5, sigma0 = 0.25, alpha = 0.05,
                         method = "bounded", desired_pilot = 100, accounting = "pooled")
+plan_strict <- cmr_plan(n = 1000, sigma1 = 0.5, sigma0 = 0.25, alpha = 0.05,
+                        method = "bounded", desired_pilot = 100, accounting = "design_only",
+                        strict_upper = TRUE)
+plan_two_thirds <- cmr_plan(n = 3000, sigma1 = 0.18, sigma0 = 0.28, alpha = 0.05,
+                            method = "bounded", desired_pilot = 120, accounting = "design_only")
 write_fixture(
   "pilot_planning.json",
   "Appendix E activation thresholds, break-even, and pilot-plan statuses.",
@@ -524,10 +560,37 @@ write_fixture(
                       break_even_share = scalar(plan_design$band$break_even_share),
                       break_even_total = scalar(plan_design$band$break_even_total),
                       default_two_thirds_power = plan_design$default_two_thirds_power,
+                      two_thirds_status = plan_design$two_thirds_status,
                       suggested_pilot = plan_design$suggested_pilot,
                       desired_status = plan_design$desired_status,
                       min_feasible = plan_design$band$min_feasible,
                       max_feasible = plan_design$band$max_feasible)
+    ),
+    list(
+      name = "strict_upper_excludes_cap",
+      input = list(n = 1000, sigma1 = 0.5, sigma0 = 0.25, alpha = 0.05,
+                   method = "bounded", desired_pilot = 100, accounting = "design_only",
+                   strict_upper = TRUE),
+      expected = list(activation_threshold = plan_strict$band$activation_threshold,
+                      break_even_total = scalar(plan_strict$band$break_even_total),
+                      default_two_thirds_power = plan_strict$default_two_thirds_power,
+                      two_thirds_status = plan_strict$two_thirds_status,
+                      desired_status = plan_strict$desired_status,
+                      min_feasible = plan_strict$band$min_feasible,
+                      max_feasible = plan_strict$band$max_feasible)
+    ),
+    list(
+      name = "two_thirds_above_cap",
+      input = list(n = 3000, sigma1 = 0.18, sigma0 = 0.28, alpha = 0.05,
+                   method = "bounded", desired_pilot = 120, accounting = "design_only"),
+      expected = list(activation_threshold = plan_two_thirds$band$activation_threshold,
+                      break_even_total = scalar(plan_two_thirds$band$break_even_total),
+                      default_two_thirds_power = plan_two_thirds$default_two_thirds_power,
+                      two_thirds_status = plan_two_thirds$two_thirds_status,
+                      suggested_pilot = plan_two_thirds$suggested_pilot,
+                      desired_status = plan_two_thirds$desired_status,
+                      min_feasible = plan_two_thirds$band$min_feasible,
+                      max_feasible = plan_two_thirds$band$max_feasible)
     ),
     list(
       name = "pooled_keeps_activation",
@@ -536,6 +599,7 @@ write_fixture(
       expected = list(activation_threshold = plan_pooled$band$activation_threshold,
                       break_even_total = "Inf",
                       default_two_thirds_power = plan_pooled$default_two_thirds_power,
+                      two_thirds_status = plan_pooled$two_thirds_status,
                       desired_status = plan_pooled$desired_status)
     )
   ),

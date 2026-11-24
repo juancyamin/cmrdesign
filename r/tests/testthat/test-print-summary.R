@@ -58,3 +58,46 @@ testthat::test_that("multi-arm and stratified results print allocations without 
   testthat::expect_match(stratified_printed[[1]], "<cmr_stratified>", fixed = TRUE)
   testthat::expect_false(any(grepl("vertex_regrets", stratified_printed, fixed = TRUE)))
 })
+
+testthat::test_that("pilot plans print a short summary", {
+  plan <- cmr_plan(n = 3000, sigma1 = 0.18, sigma0 = 0.28, desired_pilot = 120)
+  printed <- capture.output(print(plan))
+
+  testthat::expect_match(printed[[1]], "<cmr_pilot_plan>", fixed = TRUE)
+  testthat::expect_lte(length(printed), 10L)
+  testthat::expect_true(any(grepl("viability band: 72 to 134", printed, fixed = TRUE)))
+  testthat::expect_true(any(grepl("210 (above_break_even_cap)", printed, fixed = TRUE)))
+  testthat::expect_true(any(grepl("120 (inside_viability_band)", printed, fixed = TRUE)))
+
+  band_printed <- capture.output(print(plan$band))
+  testthat::expect_match(band_printed[[1]], "<cmr_pilot_viability_band>", fixed = TRUE)
+  testthat::expect_lte(length(band_printed), 8L)
+
+  empty <- capture.output(print(cmr_plan(n = 1000, sigma1 = 0.30, sigma0 = 0.29)))
+  testthat::expect_true(any(grepl("viability band: empty", empty, fixed = TRUE)))
+})
+
+testthat::test_that("confidence rectangles print a short summary", {
+  set.seed(105)
+  d <- rep(c(1, 0), each = 30)
+  y <- stats::runif(60)
+
+  two_arm <- capture.output(print(rectangle_two_arm(y, d)))
+  testthat::expect_match(two_arm[[1]], "<cmr_binary_rectangle>", fixed = TRUE)
+  testthat::expect_lte(length(two_arm), 8L)
+  testthat::expect_true(any(grepl("v_l1=", two_arm, fixed = TRUE)))
+
+  multiarm <- capture.output(print(rectangle_multiarm(y, rep(0:2, 20))))
+  testthat::expect_match(multiarm[[1]], "<cmr_multiarm_rectangle>", fixed = TRUE)
+  testthat::expect_true(any(grepl("lower:", multiarm, fixed = TRUE)))
+
+  stratified <- capture.output(print(
+    rectangle_stratified(y, d, rep(c("A", "B"), 30), c(A = 0.5, B = 0.5))
+  ))
+  testthat::expect_match(stratified[[1]], "<cmr_stratified_rectangle>", fixed = TRUE)
+  testthat::expect_true(any(grepl("1:A=", stratified, fixed = TRUE)))
+
+  unbounded <- capture.output(print(rectangle_unbounded(stats::rnorm(40), rep(c(1, 0), 20), psi = 3)))
+  testthat::expect_true(any(grepl("rectangle: none", unbounded, fixed = TRUE)))
+  testthat::expect_true(any(grepl("status:", unbounded, fixed = TRUE)))
+})

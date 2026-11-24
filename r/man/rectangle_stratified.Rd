@@ -27,7 +27,10 @@ rectangle_stratified(
 
 \item{strata}{Pilot stratum labels.}
 
-\item{strata_share}{Named stratum population shares that sum to one.}
+\item{strata_share}{Named stratum population shares that sum to one. Names
+must match the labels in \code{strata}. An unnamed vector is matched to strata
+in their order of first appearance in the pilot, so naming the shares is
+safer.}
 
 \item{alpha}{Target joint error level.}
 
@@ -39,7 +42,9 @@ is split across all lower and upper treatment/control by stratum endpoints.}
 
 \item{normalize}{If \code{TRUE}, normalize bounded outcomes to \verb{[0, 1]} before
 computing variances. For guarantee-bearing bounded CMR on a non-unit
-scale, provide known \code{lower} and \code{upper} bounds.}
+scale, provide known \code{lower} and \code{upper} bounds. With
+\code{method = "auto"} and raw 0/1 outcomes, exact Bernoulli bounds are used
+on the raw scale and normalization is skipped.}
 
 \item{lower, upper}{Optional lower and upper outcome bounds used when
 \code{normalize = TRUE}. If either is omitted, the pilot minimum and/or maximum
@@ -77,6 +82,7 @@ Other rectangle helpers:
 \code{\link{cmr_unbounded_from_rectangle}()},
 \code{\link{folded_binomial_pmf}()},
 \code{\link{multiarm_variance_objective}()},
+\code{\link{print.cmr_pilot_plan}()},
 \code{\link{rectangle_bernoulli_binary}()},
 \code{\link{rectangle_bounded_two_arm}()},
 \code{\link{rectangle_multiarm}()},

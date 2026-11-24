@@ -17,8 +17,11 @@ cmr_stratified_from_rectangle(
 
 \item{strata_share}{Named stratum population shares that sum to one.}
 
-\item{control}{Optional list of solver controls for the general vertex
-epigraph solver.}
+\item{control}{Optional list of solver controls for general rectangles.
+\code{gap_tol} is the target optimality gap relative to the problem scale
+(default \code{1e-9}). \code{barrier = FALSE} skips the barrier Newton method and
+uses the multi-start search directly. \code{max_starts}, \code{smooth_taus},
+\code{maxit}, and \code{mirror_iterations} tune that fallback search.}
 
 \item{max_vertices}{Maximum number of hyperrectangle vertices to enumerate.}
 }
@@ -26,6 +29,9 @@ epigraph solver.}
 A list of class \code{cmr_stratified} with assignment shares \code{pi}, \code{pi_matrix},
 stratum sampling margins, within-stratum treatment margins, CMR certificate
 \code{U_CMR}, checked rectangle, vertex diagnostics, and solver diagnostics.
+A stratum that receives no sample has an \code{NA} treatment margin.
+\code{diagnostics$optimality_gap} bounds how far \code{U_CMR} can be from the minimax
+value.
 }
 \description{
 Compute a stratified CMR allocation from a supplied cell-level variance
@@ -61,6 +67,7 @@ Other rectangle helpers:
 \code{\link{cmr_unbounded_from_rectangle}()},
 \code{\link{folded_binomial_pmf}()},
 \code{\link{multiarm_variance_objective}()},
+\code{\link{print.cmr_pilot_plan}()},
 \code{\link{rectangle_bernoulli_binary}()},
 \code{\link{rectangle_bounded_two_arm}()},
 \code{\link{rectangle_multiarm}()},

@@ -347,7 +347,8 @@ testthat::test_that("multi-arm fixtures match implementation", {
   )
   .expect_close(actual, neyman_case$expected, fixture$tolerance)
 
-  for (name in c("one_treatment_reduction", "general_asymmetric_3_components", "full_rectangle_k4")) {
+  for (name in c("one_treatment_reduction", "general_asymmetric_3_components",
+                 "general_asymmetric_6_components", "full_rectangle_k4")) {
     case <- .case(fixture, name)
     fit <- cmr_multiarm_from_rectangle(unlist(case$input$rectangle))
     actual <- list(pi = fit$pi, U_CMR = fit$U_CMR)
@@ -372,7 +373,8 @@ testthat::test_that("stratified fixtures match implementation", {
   )
   .expect_close(actual, neyman_case$expected, fixture$tolerance)
 
-  for (name in c("one_stratum_reduction", "general_asymmetric_2_strata", "full_rectangle_representative_balance")) {
+  for (name in c("one_stratum_reduction", "general_asymmetric_2_strata",
+                 "general_asymmetric_3_strata", "full_rectangle_representative_balance")) {
     case <- .case(fixture, name)
     rectangle <- .as_stratified_rectangle(case$input)
     shares <- unlist(case$input$strata_share)
@@ -458,7 +460,8 @@ testthat::test_that("planning fixtures match implementation", {
   )
   .expect_close(actual, activation_case$expected, fixture$tolerance)
 
-  for (name in c("design_only_break_even", "pooled_keeps_activation")) {
+  for (name in c("design_only_break_even", "pooled_keeps_activation",
+                 "strict_upper_excludes_cap", "two_thirds_above_cap")) {
     case <- .case(fixture, name)
     plan <- cmr_plan(
       n = case$input$n,
@@ -467,12 +470,14 @@ testthat::test_that("planning fixtures match implementation", {
       alpha = case$input$alpha,
       method = case$input$method,
       desired_pilot = case$input$desired_pilot,
-      accounting = case$input$accounting
+      accounting = case$input$accounting,
+      strict_upper = isTRUE(case$input$strict_upper)
     )
     actual <- list(
       activation_threshold = plan$band$activation_threshold,
       break_even_total = plan$band$break_even_total,
       default_two_thirds_power = plan$default_two_thirds_power,
+      two_thirds_status = plan$two_thirds_status,
       desired_status = plan$desired_status
     )
     for (field in c("break_even_share", "suggested_pilot", "min_feasible", "max_feasible")) {

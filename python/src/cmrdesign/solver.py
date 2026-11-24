@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import itertools
 import math
+import warnings
 
 import numpy as np
 
@@ -280,8 +281,8 @@ def _bfgs_smooth(z0, A, oracle, tau: float, maxit: int = 1000) -> dict:
         ys = float(np.dot(y, s))
         if ys > 1e-12:
             rho = 1.0 / ys
-            I = np.eye(n)
-            V = I - rho * np.outer(s, y)
+            identity = np.eye(n)
+            V = identity - rho * np.outer(s, y)
             H = V @ H @ V.T + rho * np.outer(s, s)
         else:
             H = np.eye(n)
@@ -352,15 +353,16 @@ def _nelder_mead_true(z0, A, oracle, maxit: int = 1000, tol: float = 1e-12) -> d
     return {"z": simplex[0], "value": float(values[0]), "converged": converged}
 
 
-def _smooth_bfgs_nelder_mead(A, oracle, default_start=None, control=None) -> dict:
+def _smooth_bfgs_nelder_mead(
+    A,
+    oracle,
+    default_start=None,
+    control=None,
+    scale_value: float = 1.0,
+) -> dict:
     control = {} if control is None else dict(control)
     max_starts = int(control.get("max_starts", 40))
     starts = _vertex_starts(A, default_start=default_start, max_starts=max_starts)
-    scale_value = max(
-        1.0,
-        float(np.max(np.abs(oracle))),
-        float(np.max(inverse_share_sums(np.full(A.shape[1], 1 / A.shape[1]), A))),
-    )
     taus = control.get(
         "smooth_taus",
         scale_value * np.asarray([1e-2, 3e-3, 1e-3, 3e-4, 1e-4, 3e-5, 1e-5]),
@@ -442,12 +444,16 @@ def solve_vertex_epigraph(A, oracle, default_start=None, control=None) -> dict:
             "diagnostics": {
                 "solver": "all_zero_coefficients",
                 "active_components": component_names,
+                "optimality_gap": 0.0,
                 "directional_violation": 0.0,
                 "converged": True,
             },
         }
 
     A_active = A[:, active_columns]
+    active_names = [
+        name for name, is_active in zip(component_names, active_columns, strict=True) if is_active
+    ]
     default_active = None
     if default_start is not None:
         default_start = normalize_simplex(default_start, "default_start")
@@ -458,43 +464,98 @@ def solve_vertex_epigraph(A, oracle, default_start=None, control=None) -> dict:
             default_active = None
 
     if A_active.shape[1] == 1:
-        pi_active = np.ones(1)
-        solver_name = "single_active_component"
-    elif A_active.shape[1] == 2:
-        solved = _golden_section_two_component(A_active, oracle)
-        pi_active = solved["pi"]
-        solver_name = "golden_section"
-        solver_extra = {}
-    else:
-        best = _smooth_bfgs_nelder_mead(
-            A_active,
-            oracle,
-            default_start=default_active,
-            control=control,
-        )
-        pi_active = best["pi"]
-        solver_name = "smooth_max_bfgs_nelder_mead"
-        solver_extra = {
-            "starts": best["starts"],
-            "best_start_value": best["best_start_value"],
-            "smooth_converged": best["converged"],
+        pi = np.zeros(A.shape[1])
+        pi[active_columns] = 1.0
+        details = vertex_certificate(pi, A, oracle, return_details=True)
+        return {
+            "pi": dict(zip(component_names, map(float, pi), strict=True)),
+            "pi_array": pi,
+            "value": details["value"],
+            "vertex_regrets": details["vertex_regrets"],
+            "active_vertices": details["active_vertices"],
+            "diagnostics": {
+                "solver": "single_active_component",
+                "active_components": active_names,
+                "optimality_gap": 0.0,
+                "directional_violation": 0.0,
+                "converged": True,
+                "active_column_mask": active_columns,
+            },
         }
 
+    n_active = A_active.shape[1]
+    scale_value = max(
+        1.0,
+        float(np.max(np.abs(oracle))),
+        float(np.max(inverse_share_sums(np.full(n_active, 1 / n_active), A_active))),
+    )
+    gap_tol = float(control.get("gap_tol", 1e-9)) * scale_value
+
+    # Primary path: the problem is convex, so a barrier Newton method solves it
+    # to a certified duality gap. The search methods below are the fallback.
+    barrier = None
+    if bool(control.get("barrier", True)):
+        barrier = barrier_solve(A_active, oracle, start=default_active, gap_tol=gap_tol)
+
+    solver_name = "barrier_newton"
+    solver_extra: dict = {}
+    fallback = None
+    if barrier is None or not barrier["converged"]:
+        if n_active == 2:
+            fallback = _golden_section_two_component(A_active, oracle)
+            solver_name = "golden_section"
+        else:
+            fallback = _smooth_bfgs_nelder_mead(
+                A_active,
+                oracle,
+                default_start=default_active,
+                control=control,
+                scale_value=scale_value,
+            )
+            solver_name = "smooth_max_bfgs_nelder_mead"
+            solver_extra = {
+                "starts": fallback["starts"],
+                "best_start_value": fallback["best_start_value"],
+            }
+
+    if fallback is not None and (barrier is None or fallback["value"] < barrier["value"]):
+        gap = math.nan
+        if barrier is not None and math.isfinite(barrier["dual_bound"]):
+            gap = fallback["value"] - barrier["dual_bound"]
+        best = {"pi": fallback["pi"], "value": fallback["value"], "gap": gap}
+    else:
+        assert barrier is not None
+        best = barrier
+        solver_name = "barrier_newton"
+
+    pi_active = np.asarray(best["pi"], dtype=float)
     pi = np.zeros(A.shape[1])
     pi[active_columns] = pi_active
     details = vertex_certificate(pi, A, oracle, return_details=True)
     violation = directional_violation(pi_active, A_active, oracle)
-    active_names = [
-        name for name, is_active in zip(component_names, active_columns, strict=True) if is_active
-    ]
+    optimality_gap = max(float(best["gap"]), 0.0) if math.isfinite(best["gap"]) else math.nan
+    if math.isfinite(optimality_gap):
+        converged = optimality_gap <= gap_tol
+    else:
+        converged = violation <= 1e-6
+    if not converged:
+        warnings.warn(
+            "The CMR allocation solver did not reach its optimality tolerance. "
+            "`U_CMR` is still the exact worst-case regret of the returned "
+            "allocation, but a slightly better allocation may exist. See "
+            "`diagnostics['optimality_gap']`.",
+            UserWarning,
+            stacklevel=3,
+        )
     diagnostics = {
         "solver": solver_name,
         "active_components": active_names,
+        "optimality_gap": optimality_gap,
         "directional_violation": violation,
-        "converged": violation <= 1e-6,
+        "converged": bool(converged),
         "active_column_mask": active_columns,
     }
-    diagnostics.update(solver_extra if "solver_extra" in locals() else {})
+    diagnostics.update(solver_extra)
     return {
         "pi": dict(zip(component_names, map(float, pi), strict=True)),
         "pi_array": pi,
@@ -502,4 +563,150 @@ def solve_vertex_epigraph(A, oracle, default_start=None, control=None) -> dict:
         "vertex_regrets": details["vertex_regrets"],
         "active_vertices": details["active_vertices"],
         "diagnostics": diagnostics,
+    }
+
+
+def barrier_solve(
+    A,
+    oracle,
+    start=None,
+    gap_tol: float = 1e-9,
+    max_outer: int = 80,
+    max_newton: int = 80,
+) -> dict:
+    """Barrier Newton method for the vertex epigraph problem.
+
+    The problem is ``min t`` over the simplex subject to ``f_v(pi) <= t`` for
+    every vertex ``v``, with ``f_v(pi) = sum_j A[v, j] / pi[j] - oracle[v]``.
+    Each ``f_v`` is convex, so the centering problems are smooth and convex.
+    The barrier multipliers give a probability vector ``lam`` over vertices,
+    and ``(sum_j sqrt(sum_v lam_v A[v, j]))**2 - sum_v lam_v oracle[v]`` is a
+    lower bound on the minimax value. The difference between the regret of
+    the returned allocation and that bound is a certified optimality gap.
+    """
+
+    A = np.asarray(A, dtype=float)
+    oracle = np.asarray(oracle, dtype=float).reshape(-1)
+    m, n = A.shape
+    eps = float(np.finfo(float).eps)
+
+    def regrets(p):
+        return A @ (1.0 / p) - oracle
+
+    def dual_bound(lam):
+        return float(np.sum(np.sqrt(np.maximum(A.T @ lam, 0.0))) ** 2 - np.sum(lam * oracle))
+
+    # The linear term is measured from a reference level so that differences
+    # in the barrier value stay resolvable when ``tau`` is large.
+    def barrier_value(p, tt, tau_now, t_ref):
+        if np.any(p <= 0):
+            return math.inf
+        s = tt - regrets(p)
+        if np.any(~np.isfinite(s)) or np.any(s <= 0):
+            return math.inf
+        return float(tau_now * (tt - t_ref) - np.sum(np.log(s)) - np.sum(np.log(p)))
+
+    pi = np.full(n, 1.0 / n) if start is None else np.asarray(start, dtype=float).reshape(-1)
+    pi = np.maximum(pi, 1e-6)
+    pi = pi / np.sum(pi)
+    fv = regrets(pi)
+    if np.any(~np.isfinite(fv)):
+        return {"pi": pi, "value": math.inf, "gap": math.nan, "dual_bound": -math.inf, "converged": False}
+
+    best_pi = pi.copy()
+    best_value = float(np.max(fv))
+    best_dual = -math.inf
+    slack0 = max(0.1 * abs(float(np.max(fv))), 1e-8)
+    t = float(np.max(fv)) + slack0
+    tau = (m + n) / slack0
+    converged = False
+
+    for _outer in range(max_outer):
+        centered = False
+        decrement = math.inf
+        t_ref = t
+        for _iter in range(max_newton):
+            inv = 1.0 / pi
+            s = t - (A @ inv - oracle)
+            w = 1.0 / s
+            G = -A * (inv**2).reshape(1, -1)
+            g_pi = G.T @ w - inv
+            g_t = tau - float(np.sum(w))
+            H = np.zeros((n + 2, n + 2))
+            Gw = G * w.reshape(-1, 1)
+            H[:n, :n] = Gw.T @ Gw
+            H[np.arange(n), np.arange(n)] += 2.0 * (A.T @ w) * inv**3 + inv**2
+            h_pt = -(G.T @ (w**2))
+            H[:n, n] = h_pt
+            H[n, :n] = h_pt
+            H[n, n] = float(np.sum(w**2))
+            # Rescale the barrier block so it is comparable to the unit
+            # entries of the simplex constraint. The Newton step is unchanged.
+            block_scale = float(np.max(np.abs(np.diag(H)[: n + 1])))
+            H = H / block_scale
+            H[:n, n + 1] = 1.0
+            H[n + 1, :n] = 1.0
+            rhs = np.concatenate([-g_pi, [-g_t, 0.0]]) / block_scale
+            try:
+                step = np.linalg.solve(H, rhs)
+            except np.linalg.LinAlgError:
+                break
+            if not np.all(np.isfinite(step)):
+                break
+            d_pi = step[:n]
+            d_t = float(step[n])
+            decrement = -(float(np.sum(g_pi * d_pi)) + g_t * d_t)
+            current = barrier_value(pi, t, tau, t_ref)
+            resolution = max(1e-7, 1e3 * eps * abs(current))
+            if not math.isfinite(decrement) or decrement <= resolution:
+                centered = math.isfinite(decrement)
+                break
+            size = 1.0
+            accepted = False
+            for _line in range(60):
+                candidate = barrier_value(pi + size * d_pi, t + size * d_t, tau, t_ref)
+                if math.isfinite(candidate) and candidate <= current - 0.25 * size * decrement:
+                    accepted = True
+                    break
+                size /= 2.0
+            if not accepted:
+                break
+            pi = pi + size * d_pi
+            t = t + size * d_t
+        # Near the floating-point limit the decrement stalls above the strict
+        # threshold. The iterate is then centered well enough for the dual
+        # bound, which is valid for any multiplier vector.
+        if not centered and math.isfinite(decrement) and decrement <= 1e-4:
+            centered = True
+
+        fv = regrets(pi)
+        s = t - fv
+        if np.any(~np.isfinite(s)) or np.any(s <= 0):
+            break
+        lam = (1.0 / s) / np.sum(1.0 / s)
+        best_dual = max(best_dual, dual_bound(lam))
+        if float(np.max(fv)) < best_value:
+            best_pi = pi.copy()
+            best_value = float(np.max(fv))
+        # The allocation that minimizes the Lagrangian is a second candidate.
+        recovered = np.sqrt(np.maximum(A.T @ lam, 0.0))
+        if np.all(recovered > 0):
+            recovered = recovered / np.sum(recovered)
+            recovered_value = float(np.max(regrets(recovered)))
+            if math.isfinite(recovered_value) and recovered_value < best_value:
+                best_pi = recovered
+                best_value = recovered_value
+        if best_value - best_dual <= gap_tol:
+            converged = True
+            break
+        if not centered:
+            break
+        tau *= 10.0
+
+    return {
+        "pi": best_pi / np.sum(best_pi),
+        "value": best_value,
+        "gap": best_value - best_dual,
+        "dual_bound": best_dual,
+        "converged": converged,
     }

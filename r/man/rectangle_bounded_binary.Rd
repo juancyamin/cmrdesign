@@ -43,7 +43,9 @@ rectangle_bounded_binary(
 bounds.}
 
 \item{beta}{Optional endpoint error allocation. If \code{NULL}, error is split
-according to \code{correction}.}
+according to \code{correction}. A single number is used as the one-sided error of all four
+endpoints. A named vector with entries \code{beta_l1}, \code{beta_u1}, \code{beta_l0},
+\code{beta_u0} sets each endpoint separately.}
 
 \item{correction}{Endpoint error correction, either \code{"bonferroni"} or
 \code{"sidak_arms"}.}
@@ -86,6 +88,7 @@ Other rectangle helpers:
 \code{\link{cmr_unbounded_from_rectangle}()},
 \code{\link{folded_binomial_pmf}()},
 \code{\link{multiarm_variance_objective}()},
+\code{\link{print.cmr_pilot_plan}()},
 \code{\link{rectangle_bernoulli_binary}()},
 \code{\link{rectangle_multiarm}()},
 \code{\link{rectangle_multiple_outcomes}()},

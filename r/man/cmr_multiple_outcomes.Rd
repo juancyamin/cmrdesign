@@ -33,7 +33,10 @@ weights are used.}
 \item{method}{Confidence-set method. \code{"auto"} chooses exact Bernoulli bounds
 for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.}
 
-\item{beta}{Optional scalar endpoint error allocation.}
+\item{beta}{Optional scalar one-sided endpoint error. With
+\code{estimand = "coprimary"} it applies to every arm-by-outcome endpoint.
+With \code{estimand = "index"} it applies to the four endpoints of the index
+outcome, and a named vector as in \code{\link[=cmr_two_arm]{cmr_two_arm()}} is also accepted.}
 
 \item{na.rm}{If \code{TRUE}, drop rows with missing \code{y} or \code{d}.}
 
@@ -51,10 +54,10 @@ return the CMR treatment share.
 }
 \examples{
 set.seed(10)
-d <- rep(c(1, 0), each = 20)
+d <- rep(c(1, 0), each = 300)
 y <- cbind(
-  y1 = c(rbeta(20, 2, 6), rbeta(20, 4, 4)),
-  y2 = c(rbeta(20, 5, 3), rbeta(20, 3, 5))
+  y1 = c(rbeta(300, 0.5, 0.5), rbeta(300, 8, 8)),
+  y2 = c(rbeta(300, 0.6, 0.6), rbeta(300, 6, 6))
 )
 cmr_multiple_outcomes(y, d, weights = c(0.6, 0.4))
 

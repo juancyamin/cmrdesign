@@ -12,7 +12,7 @@ pilot_viability_band(
   method = c("bounded", "bernoulli"),
   input = c("sd", "variance"),
   accounting = c("design_only", "pooled"),
-  strict_upper = TRUE
+  strict_upper = FALSE
 )
 }
 \arguments{
@@ -34,13 +34,16 @@ or variances (\code{"variance"}).}
 \item{accounting}{\code{"design_only"} applies the break-even pilot-share cap;
 \code{"pooled"} ignores that cap.}
 
-\item{strict_upper}{If \code{TRUE}, feasible pilot sizes must be strictly below
-the design-only break-even cap.}
+\item{strict_upper}{If \code{FALSE}, the default, a pilot size equal to the
+design-only break-even cap is feasible, as in the viability band of the
+accompanying paper. If \code{TRUE}, feasible pilot sizes must be strictly
+below the cap.}
 }
 \value{
 A list of class \code{cmr_pilot_viability_band} with total sample size, standard
 deviations, method, break-even share and total, activation threshold,
-feasible even pilot sizes, and min/max feasible pilot sizes.
+feasible even pilot sizes, and min/max feasible pilot sizes. The object has
+a compact \code{print()} method.
 }
 \description{
 Compute a necessary viability screen for pilot sizes before choosing a
@@ -54,6 +57,7 @@ pilot_viability_band(n = 3000, sigma1 = 0.18, sigma0 = 0.28)
 Other pilot planning: 
 \code{\link{activation_threshold_bounded}()},
 \code{\link{break_even_pilot_share}()},
-\code{\link{pilot_plan}()}
+\code{\link{pilot_plan}()},
+\code{\link{print.cmr_pilot_plan}()}
 }
 \concept{pilot planning}

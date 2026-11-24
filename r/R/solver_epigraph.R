@@ -243,7 +243,7 @@
     active <- which(values >= max(values) - 1e-9)
     grad <- -colMeans(A[active, , drop = FALSE] /
                         matrix(pi^2, nrow = length(active), ncol = length(pi), byrow = TRUE))
-    step <- 0.25 / sqrt(iter) / max(1, max(abs(grad)))
+    step <- 0.35 / sqrt(iter) / max(1, max(abs(grad)))
     log_pi <- log(pmax(pi, .Machine$double.eps)) - step * grad
     log_pi <- log_pi - max(log_pi)
     pi <- exp(log_pi)
@@ -285,6 +285,7 @@
       diagnostics = list(
         solver = "all_zero_coefficients",
         active_components = component_names,
+        optimality_gap = 0,
         directional_violation = 0,
         converged = TRUE
       )
@@ -318,26 +319,263 @@
       diagnostics = list(
         solver = "single_active_component",
         active_components = component_names[active_columns],
+        optimality_gap = 0,
         directional_violation = 0,
         converged = TRUE
       )
     ))
   }
 
-  max_starts <- control$max_starts %||% 40L
-  starts <- .cmr_vertex_starts(A_active, default_start = default_active, max_starts = max_starts)
   scale_value <- max(
     1,
     max(abs(oracle)),
     max(.cmr_inverse_share_sums(rep(1 / ncol(A_active), ncol(A_active)), A_active))
   )
-  taus <- control$smooth_taus %||% (scale_value * c(1e-2, 3e-3, 1e-3, 3e-4, 1e-4))
+  gap_tol <- (control$gap_tol %||% 1e-9) * scale_value
+
+  # Primary path: the problem is convex, so a barrier Newton method solves it
+  # to a certified duality gap. The multi-start search below is the fallback.
+  barrier <- NULL
+  if (isTRUE(control$barrier %||% TRUE)) {
+    barrier <- .cmr_barrier_solve(
+      A_active,
+      oracle,
+      start = default_active,
+      gap_tol = gap_tol
+    )
+  }
+
+  solver <- "barrier_newton"
+  heuristic <- NULL
+  if (is.null(barrier) || !isTRUE(barrier$converged)) {
+    heuristic <- .cmr_solve_vertex_heuristic(
+      A_active,
+      oracle,
+      default_active = default_active,
+      scale_value = scale_value,
+      control = control
+    )
+    solver <- "smooth_max_bfgs_nelder_mead"
+  }
+
+  best <- barrier
+  if (!is.null(heuristic) && (is.null(best) || heuristic$value < best$value)) {
+    best <- list(pi = heuristic$pi, value = heuristic$value, gap = NA_real_)
+    if (!is.null(barrier) && is.finite(barrier$dual_bound)) {
+      best$gap <- heuristic$value - barrier$dual_bound
+    }
+  } else if (!is.null(heuristic)) {
+    solver <- "barrier_newton"
+  }
+
+  pi <- numeric(ncol(A))
+  pi[active_columns] <- best$pi
+  names(pi) <- component_names
+  details <- .cmr_vertex_certificate(pi, A, oracle, return_details = TRUE)
+  directional_violation <- .cmr_directional_violation(best$pi, A_active, oracle)
+  optimality_gap <- if (is.null(best$gap)) NA_real_ else max(best$gap, 0)
+  converged <- if (is.finite(optimality_gap)) {
+    optimality_gap <= gap_tol
+  } else {
+    directional_violation <= 1e-6
+  }
+  if (!converged) {
+    warning(
+      "The CMR allocation solver did not reach its optimality tolerance. ",
+      "`U_CMR` is still the exact worst-case regret of the returned ",
+      "allocation, but a slightly better allocation may exist. See ",
+      "`diagnostics$optimality_gap`.",
+      call. = FALSE
+    )
+  }
+
+  diagnostics <- list(
+    solver = solver,
+    active_components = component_names[active_columns],
+    optimality_gap = optimality_gap,
+    directional_violation = directional_violation,
+    converged = converged,
+    active_column_mask = active_columns
+  )
+  if (!is.null(heuristic)) {
+    diagnostics$starts <- heuristic$starts
+    diagnostics$best_start_value <- heuristic$best_start_value
+  }
+
+  list(
+    pi = pi,
+    value = details$value,
+    vertex_regrets = details$vertex_regrets,
+    active_vertices = details$active_vertices,
+    diagnostics = diagnostics
+  )
+}
+
+# Barrier Newton method for
+#
+#   min_{pi in simplex, t}  t   subject to   f_v(pi) <= t  for every vertex v,
+#
+# with f_v(pi) = sum_j A[v, j] / pi[j] - oracle[v]. Each f_v is convex, so the
+# centering problems are smooth and convex. The barrier multipliers give a
+# probability vector lambda over vertices, and
+#
+#   min_pi sum_v lambda_v f_v(pi) = (sum_j sqrt(sum_v lambda_v A[v, j]))^2
+#                                   - sum_v lambda_v oracle[v]
+#
+# is a lower bound on the minimax value. The difference between the regret of
+# the returned allocation and that bound is a certified optimality gap.
+.cmr_barrier_solve <- function(A,
+                               oracle,
+                               start = NULL,
+                               gap_tol = 1e-9,
+                               max_outer = 80L,
+                               max_newton = 80L) {
+  m <- nrow(A)
+  n <- ncol(A)
+  regrets <- function(p) as.numeric(A %*% (1 / p)) - oracle
+  dual_bound <- function(lambda) {
+    sum(sqrt(pmax(as.numeric(crossprod(A, lambda)), 0)))^2 - sum(lambda * oracle)
+  }
+
+  pi <- if (is.null(start)) rep(1 / n, n) else as.numeric(start)
+  pi <- pmax(pi, 1e-6)
+  pi <- pi / sum(pi)
+  fv <- regrets(pi)
+  if (any(!is.finite(fv))) {
+    return(list(pi = pi, value = Inf, gap = NA_real_, dual_bound = -Inf, converged = FALSE))
+  }
+
+  best <- list(pi = pi, value = max(fv))
+  best_dual <- -Inf
+  slack0 <- max(0.1 * abs(max(fv)), 1e-8)
+  t <- max(fv) + slack0
+  tau <- (m + n) / slack0
+  converged <- FALSE
+
+  # The linear term is measured from a reference level so that differences in
+  # the barrier value stay resolvable when `tau` is large.
+  barrier_value <- function(p, tt, tau_now, t_ref) {
+    s <- tt - regrets(p)
+    if (any(p <= 0) || any(!is.finite(s)) || any(s <= 0)) {
+      return(Inf)
+    }
+    tau_now * (tt - t_ref) - sum(log(s)) - sum(log(p))
+  }
+
+  for (outer in seq_len(max_outer)) {
+    centered <- FALSE
+    decrement <- Inf
+    t_ref <- t
+    for (iter in seq_len(max_newton)) {
+      inv <- 1 / pi
+      s <- t - (as.numeric(A %*% inv) - oracle)
+      w <- 1 / s
+      G <- -A * rep(inv^2, each = m)
+      g_pi <- as.numeric(crossprod(G, w)) - inv
+      g_t <- tau - sum(w)
+      H <- matrix(0, n + 2L, n + 2L)
+      H[seq_len(n), seq_len(n)] <- crossprod(G * w)
+      diag(H)[seq_len(n)] <- diag(H)[seq_len(n)] +
+        2 * as.numeric(crossprod(A, w)) * inv^3 + inv^2
+      h_pt <- -as.numeric(crossprod(G, w^2))
+      H[seq_len(n), n + 1L] <- h_pt
+      H[n + 1L, seq_len(n)] <- h_pt
+      H[n + 1L, n + 1L] <- sum(w^2)
+      # Rescale the barrier block so it is comparable to the unit entries of
+      # the simplex constraint. The Newton step is unchanged.
+      block_scale <- max(abs(diag(H)[seq_len(n + 1L)]))
+      H <- H / block_scale
+      H[seq_len(n), n + 2L] <- 1
+      H[n + 2L, seq_len(n)] <- 1
+      rhs <- c(-g_pi, -g_t, 0) / block_scale
+      step <- tryCatch(solve(H, rhs, tol = 0), error = function(e) NULL)
+      if (is.null(step) || any(!is.finite(step))) {
+        break
+      }
+      d_pi <- step[seq_len(n)]
+      d_t <- step[[n + 1L]]
+      decrement <- -(sum(g_pi * d_pi) + g_t * d_t)
+      current <- barrier_value(pi, t, tau, t_ref)
+      resolution <- max(1e-7, 1e3 * .Machine$double.eps * abs(current))
+      if (!is.finite(decrement) || decrement <= resolution) {
+        centered <- is.finite(decrement)
+        break
+      }
+      size <- 1
+      accepted <- FALSE
+      for (line in seq_len(60L)) {
+        candidate <- barrier_value(pi + size * d_pi, t + size * d_t, tau, t_ref)
+        if (is.finite(candidate) && candidate <= current - 0.25 * size * decrement) {
+          accepted <- TRUE
+          break
+        }
+        size <- size / 2
+      }
+      if (!accepted) {
+        break
+      }
+      pi <- pi + size * d_pi
+      t <- t + size * d_t
+    }
+    # Near the floating-point limit the decrement stalls above the strict
+    # threshold. The iterate is then centered well enough for the dual bound,
+    # which is valid for any multiplier vector.
+    if (!centered && is.finite(decrement) && decrement <= 1e-4) {
+      centered <- TRUE
+    }
+
+    fv <- regrets(pi)
+    s <- t - fv
+    if (any(!is.finite(s)) || any(s <= 0)) {
+      break
+    }
+    lambda <- (1 / s) / sum(1 / s)
+    best_dual <- max(best_dual, dual_bound(lambda))
+    if (max(fv) < best$value) {
+      best <- list(pi = pi, value = max(fv))
+    }
+    # The allocation that minimizes the Lagrangian is a second primal candidate.
+    recovered <- sqrt(pmax(as.numeric(crossprod(A, lambda)), 0))
+    if (all(recovered > 0)) {
+      recovered <- recovered / sum(recovered)
+      recovered_value <- max(regrets(recovered))
+      if (is.finite(recovered_value) && recovered_value < best$value) {
+        best <- list(pi = recovered, value = recovered_value)
+      }
+    }
+    if (best$value - best_dual <= gap_tol) {
+      converged <- TRUE
+      break
+    }
+    if (!centered) {
+      break
+    }
+    tau <- tau * 10
+  }
+
+  list(
+    pi = best$pi / sum(best$pi),
+    value = best$value,
+    gap = best$value - best_dual,
+    dual_bound = best_dual,
+    converged = converged
+  )
+}
+
+.cmr_solve_vertex_heuristic <- function(A_active,
+                                        oracle,
+                                        default_active = NULL,
+                                        scale_value = 1,
+                                        control = list()) {
+  max_starts <- control$max_starts %||% 40L
+  starts <- .cmr_vertex_starts(A_active, default_start = default_active, max_starts = max_starts)
+  taus <- control$smooth_taus %||%
+    (scale_value * c(1e-2, 3e-3, 1e-3, 3e-4, 1e-4, 3e-5, 1e-5))
   maxit <- control$maxit %||% 1000L
 
   candidates <- list()
   for (start in starts) {
     z <- .cmr_to_logits(start)
-    convergence <- integer(0)
     for (tau in taus) {
       opt <- stats::optim(
         par = z,
@@ -350,7 +588,6 @@
         control = list(maxit = maxit, reltol = 1e-12)
       )
       z <- opt$par
-      convergence <- c(convergence, opt$convergence)
     }
 
     if (length(z) == 1L) {
@@ -360,7 +597,6 @@
         tol = 1e-14
       )
       z <- opt_nm$minimum
-      nm_convergence <- 0L
     } else {
       opt_nm <- stats::optim(
         par = z,
@@ -369,14 +605,11 @@
         control = list(maxit = maxit, reltol = 1e-12)
       )
       z <- opt_nm$par
-      nm_convergence <- opt_nm$convergence
     }
     pi_active <- .cmr_from_logits(z)
-    value <- max(.cmr_vertex_regrets(pi_active, A_active, oracle))
     candidates[[length(candidates) + 1L]] <- list(
       pi = pi_active,
-      value = value,
-      convergence = c(convergence, nm_convergence)
+      value = max(.cmr_vertex_regrets(pi_active, A_active, oracle))
     )
   }
 
@@ -391,26 +624,11 @@
     }
   }
 
-  pi <- numeric(ncol(A))
-  pi[active_columns] <- best$pi
-  names(pi) <- component_names
-  details <- .cmr_vertex_certificate(pi, A, oracle, return_details = TRUE)
-  directional_violation <- .cmr_directional_violation(best$pi, A_active, oracle)
-
   list(
-    pi = pi,
-    value = details$value,
-    vertex_regrets = details$vertex_regrets,
-    active_vertices = details$active_vertices,
-    diagnostics = list(
-      solver = "smooth_max_bfgs_nelder_mead",
-      active_components = component_names[active_columns],
-      starts = length(starts),
-      best_start_value = min(values),
-      directional_violation = directional_violation,
-      converged = directional_violation <= 1e-6,
-      active_column_mask = active_columns
-    )
+    pi = best$pi,
+    value = best$value,
+    starts = length(starts),
+    best_start_value = min(values)
   )
 }
 

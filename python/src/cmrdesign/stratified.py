@@ -6,8 +6,8 @@ from collections.abc import Mapping
 
 import numpy as np
 
+from .rectangles import prepare_outcome_scale
 from .results import CMRResult, RectangleResult
-from .rectangles import canonical_method
 from .solver import (
     hyperrectangle_vertices,
     inverse_share_sums,
@@ -24,8 +24,8 @@ from .validation import (
     check_variance,
     clean_outcome_01,
     cmr_error,
+    error_context,
     label_missing,
-    normalize_01,
 )
 from .variance_bounds import variance_bounds_by_method
 
@@ -244,7 +244,12 @@ def cmr_stratified_from_rectangle(
             "value": details["value"],
             "vertex_regrets": details["vertex_regrets"],
             "active_vertices": details["active_vertices"],
-            "diagnostics": {"solver": "collapsed_closed_form", "converged": True},
+            "diagnostics": {
+                "solver": "collapsed_closed_form",
+                "optimality_gap": 0.0,
+                "directional_violation": 0.0,
+                "converged": True,
+            },
         }
     elif full:
         pi_array = default_start
@@ -256,7 +261,12 @@ def cmr_stratified_from_rectangle(
             "value": details["value"],
             "vertex_regrets": details["vertex_regrets"],
             "active_vertices": details["active_vertices"],
-            "diagnostics": {"solver": "full_rectangle_closed_form", "converged": True},
+            "diagnostics": {
+                "solver": "full_rectangle_closed_form",
+                "optimality_gap": 0.0,
+                "directional_violation": 0.0,
+                "converged": True,
+            },
         }
     else:
         control = {} if control is None else dict(control)
@@ -376,12 +386,14 @@ def rectangle_stratified(
         strata_share=strata_share,
         na_rm=na_rm,
     )
-    normalization = None
-    if normalize:
-        pilot["y"], normalization = normalize_01(pilot["y"], lower=lower, upper=upper)
-    else:
-        pilot["y"] = clean_outcome_01(pilot["y"])
-    resolved_method = canonical_method(method, y=pilot["y"])
+    pilot["y"], resolved_method, normalization = prepare_outcome_scale(
+        pilot["y"],
+        method,
+        normalize=normalize,
+        lower=lower,
+        upper=upper,
+    )
+    pilot["y"] = clean_outcome_01(pilot["y"])
     beta_out = _resolve_stratified_beta(alpha, pilot["strata_share"], beta=beta)
 
     strata_names = list(pilot["strata_share"])
@@ -393,13 +405,15 @@ def rectangle_stratified(
     for col, stratum in enumerate(strata_names):
         for row, arm_label in enumerate((1, 0)):
             keep = (pilot["strata"] == stratum) & (pilot["d"] == arm_label)
-            result = variance_bounds_by_method(
-                pilot["y"][keep],
-                beta_l=beta_out["lower"][row, col],
-                beta_u=beta_out["upper"][row, col],
-                method=resolved_method,
-                tol=tol,
-            )
+            cell = "Treatment" if arm_label == 1 else "Control"
+            with error_context(f"{cell} cell of stratum `{stratum}`"):
+                result = variance_bounds_by_method(
+                    pilot["y"][keep],
+                    beta_l=beta_out["lower"][row, col],
+                    beta_u=beta_out["upper"][row, col],
+                    method=resolved_method,
+                    tol=tol,
+                )
             lower_matrix[row, col] = result["L"]
             upper_matrix[row, col] = result["U"]
             n[row, col] = int(result["n"])

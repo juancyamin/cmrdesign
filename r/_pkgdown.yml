@@ -102,6 +102,7 @@ reference:
       Print and summary methods for compact CMR result objects.
     contents:
       - print.cmr_two_arm
+      - print.cmr_pilot_plan
 
   - title: Package
     contents:
