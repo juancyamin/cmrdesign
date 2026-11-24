@@ -1,0 +1,123 @@
+# Shared-control multi-arm CMR assignment
+
+Estimate arm-specific variance confidence intervals from pilot data and
+return the shared-control multi-arm CMR assignment.
+
+## Usage
+
+``` r
+cmr_multiarm(
+  y,
+  arm,
+  alpha = 0.05,
+  method = c("auto", "bounded", "bernoulli", "maurer_pontil", "mp", "bernoulli_exact",
+    "martinez_taboada_ramdas", "mtr"),
+  beta = NULL,
+  control_arm = 0,
+  normalize = FALSE,
+  lower = NULL,
+  upper = NULL,
+  na.rm = TRUE,
+  tol = 1e-11,
+  solver_control = list(),
+  max_vertices = 65536L
+)
+```
+
+## Arguments
+
+- y:
+
+  Pilot outcomes.
+
+- arm:
+
+  Pilot arm labels. The control arm is identified by `control_arm` and
+  internally standardized to `"0"`.
+
+- alpha:
+
+  Target joint error level.
+
+- method:
+
+  Confidence-set method. `"auto"` chooses exact Bernoulli bounds for 0/1
+  outcomes and bounded Maurer–Pontil bounds otherwise.
+
+- beta:
+
+  Optional endpoint error allocation. If `NULL`, Bonferroni error is
+  split across all lower and upper arm endpoints.
+
+- control_arm:
+
+  Label identifying the control arm in `arm`.
+
+- normalize:
+
+  If `TRUE`, normalize bounded outcomes to `[0, 1]` before computing
+  variances. For guarantee-bearing bounded CMR on a non-unit scale,
+  provide known `lower` and `upper` bounds. With `method = "auto"` and
+  raw 0/1 outcomes, exact Bernoulli bounds are used on the raw scale and
+  normalization is skipped.
+
+- lower, upper:
+
+  Optional lower and upper outcome bounds used when `normalize = TRUE`.
+  If either is omitted, the pilot minimum and/or maximum is used with a
+  warning; that data-dependent normalization is exploratory and does not
+  carry the finite-sample bounded-outcome CMR guarantee.
+
+- na.rm:
+
+  If `TRUE`, drop rows with missing `y` or `arm`.
+
+- tol:
+
+  Numerical tolerance for exact Bernoulli bound inversion.
+
+- solver_control:
+
+  Optional list of solver controls for general rectangles. `gap_tol` is
+  the target optimality gap relative to the problem scale (default
+  `1e-9`). `barrier = FALSE` skips the barrier Newton method and uses
+  the multi-start search directly. `max_starts`, `smooth_taus`, `maxit`,
+  and `mirror_iterations` tune that fallback search.
+
+- max_vertices:
+
+  Maximum number of hyperrectangle vertices to enumerate.
+
+## Value
+
+A list of class `cmr_multiarm` with named assignment shares `pi` over
+all arms, CMR certificate `U_CMR`, confidence set, pilot summaries,
+endpoint error allocation, and diagnostics.
+
+## See also
+
+Other CMR rules:
+[`binary_rectangle_corners()`](https://juancyamin.github.io/cmrdesign/dev/reference/binary_rectangle_corners.md),
+[`cmr_multiarm_from_rectangle()`](https://juancyamin.github.io/cmrdesign/dev/reference/cmr_multiarm_from_rectangle.md),
+[`cmr_multiple_outcomes()`](https://juancyamin.github.io/cmrdesign/dev/reference/cmr_multiple_outcomes.md),
+[`cmr_proxy()`](https://juancyamin.github.io/cmrdesign/dev/reference/cmr_proxy.md),
+[`cmr_stratified()`](https://juancyamin.github.io/cmrdesign/dev/reference/cmr_stratified.md),
+[`cmr_stratified_from_rectangle()`](https://juancyamin.github.io/cmrdesign/dev/reference/cmr_stratified_from_rectangle.md),
+[`cmr_two_arm()`](https://juancyamin.github.io/cmrdesign/dev/reference/cmr_two_arm.md),
+[`cmr_unbounded()`](https://juancyamin.github.io/cmrdesign/dev/reference/cmr_unbounded.md),
+[`cmr_unbounded_from_rectangle()`](https://juancyamin.github.io/cmrdesign/dev/reference/cmr_unbounded_from_rectangle.md),
+[`print.cmr_two_arm()`](https://juancyamin.github.io/cmrdesign/dev/reference/print.cmr_two_arm.md)
+
+## Examples
+
+``` r
+set.seed(5)
+arm <- rep(c("control", "variant_a", "variant_b"), each = 200)
+y <- c(rbeta(200, 8, 8), rbeta(200, 0.5, 0.5), rbeta(200, 2, 2))
+cmr_multiarm(y, arm, control_arm = "control", method = "bounded")
+#> <cmr_multiarm>
+#>   pi: 0=0.306444, variant_a=0.390629, variant_b=0.302927
+#>   U_CMR: 0.407398
+#>   method: bounded
+#>   n: 600
+```
