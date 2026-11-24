@@ -85,6 +85,49 @@ def rectangle_multiple_outcomes(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> RectangleResult:
+    """Effective two-arm confidence rectangle for several outcomes.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of shape ``(n_units, n_outcomes)``, each in ``[0, 1]``. A
+        pandas DataFrame is accepted.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    weights : array_like, optional
+        Nonnegative outcome weights. They are rescaled to sum to one. The default
+        is equal weights.
+    estimand : {"coprimary", "index"}, default "coprimary"
+        ``"index"`` forms the weighted index outcome and applies the two-arm rule
+        to it. ``"coprimary"`` weights the outcome-specific variance criteria.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float, optional
+        One-sided endpoint error. With ``estimand="coprimary"`` it applies to every
+        arm-by-outcome endpoint. With ``estimand="index"`` it applies to the four
+        endpoints of the index outcome, and a mapping as in :func:`cmr_two_arm` is
+        also accepted.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle with the endpoint error allocation ``beta``, the
+        ``method`` used, pilot sample sizes ``n``, variance estimates ``vhat``, and
+        the ``joint_error_bound``.
+    """
+
     estimand = str(estimand).lower()
     if estimand not in {"coprimary", "index"}:
         cmr_error("`estimand` must be 'coprimary' or 'index'.")
@@ -196,6 +239,54 @@ def cmr_multiple_outcomes(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> CMRResult:
+    """Conditional Minimax Regret treatment share with several outcomes.
+
+    With ``estimand="index"`` the weighted index outcome is formed first and the
+    two-arm rule is applied to it. With ``estimand="coprimary"`` the criterion is
+    the weighted sum of the outcome-specific variance criteria, and the rectangle
+    is the weighted sum of the outcome-specific variance intervals in each arm.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of shape ``(n_units, n_outcomes)``, each in ``[0, 1]``. A
+        pandas DataFrame is accepted.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    weights : array_like, optional
+        Nonnegative outcome weights. They are rescaled to sum to one. The default
+        is equal weights.
+    estimand : {"coprimary", "index"}, default "coprimary"
+        ``"index"`` forms the weighted index outcome and applies the two-arm rule
+        to it. ``"coprimary"`` weights the outcome-specific variance criteria.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float, optional
+        One-sided endpoint error. With ``estimand="coprimary"`` it applies to every
+        arm-by-outcome endpoint. With ``estimand="index"`` it applies to the four
+        endpoints of the index outcome, and a mapping as in :func:`cmr_two_arm` is
+        also accepted.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    CMRResult
+        Result with the allocation ``pi``, the certificate ``U_CMR``, the variance
+        ``rectangle``, the ``confidence_set`` it came from, pilot summaries in
+        ``pilot``, and ``diagnostics``.
+    """
+
     confidence_set = rectangle_multiple_outcomes(
         y=y,
         d=d,

@@ -181,12 +181,34 @@ def variance_bounds_unbounded_mom(
     psi=None,
     na_rm: bool = True,
 ) -> dict:
-    """Median-of-means variance interval for unbounded outcomes.
+    """Median-of-means variance interval for one arm with unbounded outcomes.
 
-    The error budget ``alpha`` sizes the number of blocks as
-    ``k = ceil(8 * log(2 / alpha))``. This gives one-arm two-sided coverage
-    error at most ``alpha / 2``, so two arms sized with the same ``alpha``
-    satisfy the union bound at joint level ``alpha`` in ``rectangle_unbounded``.
+    Consecutive observations are paired, each pair gives the unbiased variance
+    estimate ``(Y2 - Y1) ** 2 / 2``, and the estimates are averaged in ``k`` blocks
+    of ``b`` pairs. The interval is ``[vhat / (1 + rho), vhat / (1 - rho)]`` with
+    ``vhat`` the median block mean and ``rho = sqrt(2 * (psi + 1) / b)``.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of one arm, in pilot order.
+    alpha : float, default 0.05
+        Error budget that sets the number of blocks, ``k = ceil(8 * log(2 /
+        alpha))``. The one-arm coverage error is at most ``alpha / 2``, so two arms
+        sized with the same ``alpha`` have joint error at most ``alpha``.
+    psi : float
+        Upper bound on the kurtosis of the outcome, at least 1.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    dict
+        Bounds ``L`` and ``U``, estimate ``vhat``, sample size ``n``, the flag
+        ``active``, a ``status`` label, and details in ``statistic``. When the arm
+        is too small or ``rho >= 1`` the interval is inactive and ``U`` is
+        infinite.
     """
 
     alpha = check_alpha(alpha)
@@ -328,7 +350,22 @@ def _unbounded_regret(pi: float, v1: float, v0: float) -> float:
 
 
 def cmr_unbounded_from_rectangle(rectangle) -> CMRResult:
-    """Compute two-arm CMR from a finite nonnegative variance rectangle."""
+    """Two-arm CMR allocation for a finite nonnegative variance rectangle.
+
+    The same closed form as :func:`cmr_two_arm_from_rectangle`, without the cap of
+    ``1/4`` on the variances.
+
+    Parameters
+    ----------
+    rectangle : mapping or array_like
+        Variance rectangle with entries ``v_l1``, ``v_u1``, ``v_l0``, ``v_u0``, all
+        finite and nonnegative.
+
+    Returns
+    -------
+    CMRResult
+        Result with the treatment share ``pi`` and the certificate ``U_CMR``.
+    """
 
     rect = check_unbounded_rectangle(rectangle)
     s_l1 = math.sqrt(rect["v_l1"])
@@ -392,12 +429,31 @@ def rectangle_unbounded(
     alpha: float = 0.05,
     na_rm: bool = True,
 ) -> RectangleResult:
-    """Build the two-arm unbounded-outcome confidence rectangle.
+    """Two-arm confidence rectangle for unbounded outcomes with bounded kurtosis.
 
-    ``alpha`` is the target joint error level. Each arm uses
-    ``variance_bounds_unbounded_mom`` with this same value; because that
-    one-arm bound has error at most ``alpha / 2``, the treatment/control union
-    bound yields ``joint_error_bound = alpha``.
+    Applies :func:`variance_bounds_unbounded_mom` to each arm.
+
+    Parameters
+    ----------
+    y : array_like
+        Raw pilot outcomes, one entry per pilot unit, in pilot order.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    psi : float or pair of floats
+        Upper bound on the kurtosis of the outcome, at least 1. A single value
+        applies to both arms. A pair or a mapping with keys ``treatment`` and
+        ``control`` sets each arm.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle. When either arm is inactive the ``rectangle`` is
+        ``None`` and ``extra["status"]`` says why.
     """
 
     alpha = check_alpha(alpha)
@@ -482,10 +538,51 @@ def cmr_unbounded(
     alpha: float = 0.05,
     na_rm: bool = True,
 ) -> CMRResult:
-    """Estimate the two-arm CMR assignment for unbounded outcomes.
+    """Conditional Minimax Regret treatment share for unbounded outcomes.
 
-    ``alpha`` is passed to ``rectangle_unbounded`` as a joint error level for
-    the two-arm median-of-means confidence rectangle.
+    Uses a median-of-means confidence rectangle that requires a bound on the
+    kurtosis of the outcome in place of a bound on its support.
+
+    Parameters
+    ----------
+    y : array_like
+        Raw pilot outcomes, one entry per pilot unit, in pilot order.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    psi : float or pair of floats
+        Upper bound on the kurtosis of the outcome, at least 1. A single value
+        applies to both arms. A pair or a mapping with keys ``treatment`` and
+        ``control`` sets each arm.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    CMRResult
+        Result with the treatment share ``pi`` and the certificate ``U_CMR``. When
+        the pilot is too small for the requested error level, the result is the
+        balanced design with an infinite certificate and ``diagnostics["status"]``
+        says why.
+
+    Notes
+    -----
+    The method is conservative. With Gaussian outcomes (``psi=3``) and
+    ``alpha=0.05`` an arm needs at least 540 observations for the interval to be
+    active.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import cmrdesign as cmr
+    >>> rng = np.random.default_rng(2)
+    >>> d = np.repeat([1, 0], 1000)
+    >>> y = np.r_[rng.normal(0, 1.3, 1000), rng.normal(0, 0.8, 1000)]
+    >>> fit = cmr.cmr_unbounded(y, d, psi=3)
+    >>> fit.diagnostics["status"]
+    'active'
     """
 
     confidence_set = rectangle_unbounded(

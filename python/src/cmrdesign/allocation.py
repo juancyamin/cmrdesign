@@ -320,7 +320,47 @@ def realize_allocation(
     min_per_arm: int = 1,
     max_vertices: int = 65536,
 ) -> AllocationResult:
-    """Convert target CMR shares into executable integer allocation counts."""
+    """Turn target CMR shares into integer main-wave counts.
+
+    Uses largest-remainder rounding with deterministic tie-breaking. When ``x`` is
+    a CMR result that carries its rectangle, the regret certificate is recomputed
+    at the rounded shares.
+
+    Parameters
+    ----------
+    x : CMRResult, float, mapping, or array_like
+        A CMR result, a two-arm treatment share, or target shares by arm or cell.
+    n_main : int, optional
+        Main-wave sample size. Required unless ``strata_counts`` is given.
+    strata_counts : mapping, optional
+        Fixed main-wave totals by stratum for a two-arm stratified design.
+        Treatment and control counts are rounded within each stratum and the
+        stratum totals are kept exactly.
+    min_per_arm : int, default 1
+        Smallest count for every arm or cell with a positive target share.
+    max_vertices : int, default 65536
+        Largest number of rectangle vertices to enumerate. The count doubles with
+        every arm or cell.
+
+    Returns
+    -------
+    AllocationResult
+        Integer ``counts``, realized ``shares``, the normalized ``target_pi``, and,
+        when available, ``continuous_U_CMR``, ``realized_U_CMR``, and their
+        difference ``excess_U_CMR``.
+
+    Notes
+    -----
+    The function stops at counts. It does not generate a randomized assignment
+    vector.
+
+    Examples
+    --------
+    >>> import cmrdesign as cmr
+    >>> alloc = cmr.realize_allocation(0.3, n_main=101)
+    >>> alloc.counts
+    {'treatment': 30, 'control': 71}
+    """
 
     fit = x if isinstance(x, CMRResult) else None
     target = x.pi if fit is not None else x

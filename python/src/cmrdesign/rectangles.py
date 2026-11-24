@@ -235,7 +235,57 @@ def rectangle_bounded_binary(
     upper=None,
     na_rm: bool = True,
 ) -> RectangleResult:
-    """Build a distribution-free bounded-outcome two-arm confidence rectangle."""
+    """Two-arm confidence rectangle for bounded outcomes.
+
+    Applies Maurer–Pontil or Martinez-Taboada–Ramdas variance bounds to each arm.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes, one entry per pilot unit. Bounded and Bernoulli methods
+        need values in ``[0, 1]`` unless ``normalize=True``.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "bounded"
+        ``"bounded"``, ``"maurer_pontil"``, or ``"mp"`` for Maurer–Pontil bounds.
+        ``"mtr"`` or ``"martinez_taboada_ramdas"`` for Martinez-Taboada–Ramdas
+        bounds.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` according to
+        ``correction``. A float is used for all four endpoints. A mapping with keys
+        ``beta_l1``, ``beta_u1``, ``beta_l0``, ``beta_u0`` sets each endpoint
+        separately.
+    correction : {"bonferroni", "sidak_arms"}, default "bonferroni"
+        How ``alpha`` is split across endpoints. ``"sidak_arms"`` uses the
+        independence of the two arms and gives slightly larger endpoint errors.
+    normalize : bool, default False
+        If True, map outcomes to ``[0, 1]`` using ``lower`` and ``upper`` before
+        computing variances. With ``method="auto"`` and raw 0/1 outcomes, exact
+        Bernoulli bounds are used on the raw scale and normalization is skipped.
+    lower, upper : float, optional
+        Known support bounds used when ``normalize=True``. If either is omitted,
+        the pilot minimum or maximum is used with a warning. That data-dependent
+        normalization is exploratory and does not carry the finite-sample
+        guarantee.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle with the endpoint error allocation ``beta``, the
+        ``method`` used, pilot sample sizes ``n``, variance estimates ``vhat``, and
+        the ``joint_error_bound``.
+
+    Notes
+    -----
+    For Maurer–Pontil bounds ``vhat`` is the raw Bessel sample variance, which can
+    slightly exceed ``1/4`` in small samples. The rectangle endpoints are always
+    inside ``[0, 1/4]``.
+    """
 
     alpha = check_alpha(alpha)
     correction = _check_correction(correction)
@@ -295,7 +345,39 @@ def rectangle_bernoulli_binary(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> RectangleResult:
-    """Build an exact folded-binomial Bernoulli two-arm confidence rectangle."""
+    """Two-arm confidence rectangle for binary outcomes.
+
+    Inverts the exact distribution of the folded success count in each arm.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes coded 0/1.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` according to
+        ``correction``. A float is used for all four endpoints. A mapping with keys
+        ``beta_l1``, ``beta_u1``, ``beta_l0``, ``beta_u0`` sets each endpoint
+        separately.
+    correction : {"bonferroni", "sidak_arms"}, default "bonferroni"
+        How ``alpha`` is split across endpoints. ``"sidak_arms"`` uses the
+        independence of the two arms and gives slightly larger endpoint errors.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle with the endpoint error allocation ``beta``, the
+        ``method`` used, pilot sample sizes ``n``, variance estimates ``vhat``, and
+        the ``joint_error_bound``.
+    """
 
     alpha = check_alpha(alpha)
     correction = _check_correction(correction)
@@ -347,7 +429,60 @@ def rectangle_two_arm(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> RectangleResult:
-    """Build a two-arm confidence rectangle, choosing Bernoulli bounds when possible."""
+    """Two-arm confidence rectangle from pilot data.
+
+    Chooses the variance bounds named by ``method`` and returns the rectangle used
+    by :func:`cmr_two_arm`.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes, one entry per pilot unit. Bounded and Bernoulli methods
+        need values in ``[0, 1]`` unless ``normalize=True``.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` according to
+        ``correction``. A float is used for all four endpoints. A mapping with keys
+        ``beta_l1``, ``beta_u1``, ``beta_l0``, ``beta_u0`` sets each endpoint
+        separately.
+    correction : {"bonferroni", "sidak_arms"}, default "bonferroni"
+        How ``alpha`` is split across endpoints. ``"sidak_arms"`` uses the
+        independence of the two arms and gives slightly larger endpoint errors.
+    normalize : bool, default False
+        If True, map outcomes to ``[0, 1]`` using ``lower`` and ``upper`` before
+        computing variances. With ``method="auto"`` and raw 0/1 outcomes, exact
+        Bernoulli bounds are used on the raw scale and normalization is skipped.
+    lower, upper : float, optional
+        Known support bounds used when ``normalize=True``. If either is omitted,
+        the pilot minimum or maximum is used with a warning. That data-dependent
+        normalization is exploratory and does not carry the finite-sample
+        guarantee.
+    psi : float or pair of floats, optional
+        Kurtosis bound, required only when ``method`` selects the unbounded-outcome
+        extension.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle with the endpoint error allocation ``beta``, the
+        ``method`` used, pilot sample sizes ``n``, variance estimates ``vhat``, and
+        the ``joint_error_bound``.
+    """
 
     if is_unbounded_method(method):
         check_unbounded_method_options(

@@ -148,6 +148,26 @@ def _pi_array(pi, arms) -> np.ndarray:
 
 
 def multiarm_variance_objective(pi, variances) -> float:
+    """Variance objective of a shared-control multi-arm design.
+
+    With ``K`` treatment arms the objective is ``K * v0 / pi0 + sum_k vk / pik``,
+    the sum of the variances of the ``K`` treatment-control contrasts.
+
+    Parameters
+    ----------
+    pi : mapping or array_like
+        Assignment shares over all arms, summing to one.
+    variances : mapping or array_like
+        Arm variances. A mapping from arm label to variance must include the
+        control arm ``"0"``. A sequence is read as control first, then treatments.
+        Labels of the form ``v0``, ``v1``, ... are also accepted.
+
+    Returns
+    -------
+    float
+        The objective.
+    """
+
     variances = check_multiarm_variances(variances)
     arms = list(variances)
     pi = _pi_array(pi, arms)
@@ -157,6 +177,23 @@ def multiarm_variance_objective(pi, variances) -> float:
 
 
 def multiarm_oracle_variance(variances) -> float:
+    """Smallest multi-arm variance objective at known variances.
+
+    Returns ``(sqrt(K * v0) + sum_k sqrt(vk)) ** 2``.
+
+    Parameters
+    ----------
+    variances : mapping or array_like
+        Arm variances. A mapping from arm label to variance must include the
+        control arm ``"0"``. A sequence is read as control first, then treatments.
+        Labels of the form ``v0``, ``v1``, ... are also accepted.
+
+    Returns
+    -------
+    float
+        The oracle value.
+    """
+
     variances = check_multiarm_variances(variances)
     weights = multiarm_weights(variances)
     return float(
@@ -165,6 +202,24 @@ def multiarm_oracle_variance(variances) -> float:
 
 
 def assign_multiarm_neyman(variances) -> dict[str, float]:
+    """Neyman allocation of a shared-control multi-arm design.
+
+    Shares are proportional to ``sqrt(K * v0)`` for control and ``sqrt(vk)`` for
+    each treatment arm.
+
+    Parameters
+    ----------
+    variances : mapping or array_like
+        Arm variances. A mapping from arm label to variance must include the
+        control arm ``"0"``. A sequence is read as control first, then treatments.
+        Labels of the form ``v0``, ``v1``, ... are also accepted.
+
+    Returns
+    -------
+    dict
+        Assignment shares by arm label, with control first.
+    """
+
     variances = check_multiarm_variances(variances)
     weights = multiarm_weights(variances)
     scores = np.asarray(
@@ -178,10 +233,47 @@ def assign_multiarm_neyman(variances) -> dict[str, float]:
 
 
 def multiarm_regret(pi, variances) -> float:
+    """Regret of a multi-arm allocation at known variances.
+
+    Parameters
+    ----------
+    pi : mapping or array_like
+        Assignment shares over all arms, summing to one.
+    variances : mapping or array_like
+        Arm variances. A mapping from arm label to variance must include the
+        control arm ``"0"``. A sequence is read as control first, then treatments.
+        Labels of the form ``v0``, ``v1``, ... are also accepted.
+
+    Returns
+    -------
+    float
+        The variance objective at ``pi`` minus its oracle value.
+    """
+
     return multiarm_variance_objective(pi, variances) - multiarm_oracle_variance(variances)
 
 
 def multiarm_rectangle_vertices(rectangle, max_vertices: int = 65536) -> dict:
+    """Vertices of a multi-arm variance rectangle.
+
+    Parameters
+    ----------
+    rectangle : mapping or array_like
+        Multi-arm variance rectangle. Either a mapping from arm label to
+        ``{"lower": ..., "upper": ...}``, a flat mapping with keys such as ``v_l0``
+        and ``v_u0``, or an array of shape ``(n_arms, 2)`` with control in the
+        first row.
+    max_vertices : int, default 65536
+        Largest number of rectangle vertices to enumerate. The count doubles with
+        every arm or cell.
+
+    Returns
+    -------
+    dict
+        The array ``vertices`` with one row per vertex, the arm ``names``, and
+        ``vertex_names`` such as ``"u0_l1_l2"``.
+    """
+
     rect = check_multiarm_rectangle(rectangle)
     arms = list(rect)
     lower = [rect[arm]["lower"] for arm in arms]
@@ -204,6 +296,37 @@ def cmr_multiarm_from_rectangle(
     control: Mapping | None = None,
     max_vertices: int = 65536,
 ) -> CMRResult:
+    """Multi-arm CMR allocation for a given variance rectangle.
+
+    Minimizes the worst regret over the vertices of the rectangle. Collapsed and
+    uninformative rectangles have closed forms. Other rectangles are solved as a
+    convex program.
+
+    Parameters
+    ----------
+    rectangle : mapping or array_like
+        Multi-arm variance rectangle. Either a mapping from arm label to
+        ``{"lower": ..., "upper": ...}``, a flat mapping with keys such as ``v_l0``
+        and ``v_u0``, or an array of shape ``(n_arms, 2)`` with control in the
+        first row.
+    control : mapping, optional
+        Solver controls for general rectangles. ``gap_tol`` is the target
+        optimality gap relative to the problem scale (default ``1e-9``).
+        ``barrier=False`` skips the barrier Newton method and uses the search
+        methods directly. ``max_starts``, ``smooth_taus``, ``maxit``, and
+        ``mirror_iterations`` tune that fallback.
+    max_vertices : int, default 65536
+        Largest number of rectangle vertices to enumerate. The count doubles with
+        every arm or cell.
+
+    Returns
+    -------
+    CMRResult
+        Result with shares ``pi`` by arm, the certificate ``U_CMR``, and solver
+        ``diagnostics``. ``diagnostics["optimality_gap"]`` bounds how far ``U_CMR``
+        can be from the minimax value.
+    """
+
     problem = _multiarm_vertex_problem(rectangle, max_vertices=max_vertices)
     rect = problem["rect"]
     arms = problem["arms"]
@@ -358,6 +481,55 @@ def rectangle_multiarm(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> RectangleResult:
+    """Variance confidence intervals for every arm of a multi-arm pilot.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes, one entry per pilot unit. Bounded and Bernoulli methods
+        need values in ``[0, 1]`` unless ``normalize=True``.
+    arm : array_like
+        Pilot arm labels, one per pilot unit. Any labels are accepted.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` equally across the
+        lower and upper endpoints of every arm. A float is used for every endpoint.
+        A mapping from arm label to a float or to ``{"lower": ..., "upper": ...}``
+        sets each arm.
+    control_arm : label, default 0
+        Label of the control arm in ``arm``. The control arm is reported as ``"0"``
+        in the result.
+    normalize : bool, default False
+        If True, map outcomes to ``[0, 1]`` using ``lower`` and ``upper`` before
+        computing variances. With ``method="auto"`` and raw 0/1 outcomes, exact
+        Bernoulli bounds are used on the raw scale and normalization is skipped.
+    lower, upper : float, optional
+        Known support bounds used when ``normalize=True``. If either is omitted,
+        the pilot minimum or maximum is used with a warning. That data-dependent
+        normalization is exploratory and does not carry the finite-sample
+        guarantee.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle with the endpoint error allocation ``beta``, the
+        ``method`` used, pilot sample sizes ``n``, variance estimates ``vhat``, and
+        the ``joint_error_bound``.
+    """
+
     alpha = check_alpha(alpha)
     if is_unbounded_method(method):
         cmr_error(
@@ -428,6 +600,77 @@ def cmr_multiarm(
     solver_control: Mapping | None = None,
     max_vertices: int = 65536,
 ) -> CMRResult:
+    """Conditional Minimax Regret allocation for several treatments and one control.
+
+    Builds a variance confidence interval for every arm from the pilot and returns
+    the allocation that minimizes the worst regret over the resulting rectangle.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes, one entry per pilot unit. Bounded and Bernoulli methods
+        need values in ``[0, 1]`` unless ``normalize=True``.
+    arm : array_like
+        Pilot arm labels, one per pilot unit. Any labels are accepted.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` equally across the
+        lower and upper endpoints of every arm. A float is used for every endpoint.
+        A mapping from arm label to a float or to ``{"lower": ..., "upper": ...}``
+        sets each arm.
+    control_arm : label, default 0
+        Label of the control arm in ``arm``. The control arm is reported as ``"0"``
+        in the result.
+    normalize : bool, default False
+        If True, map outcomes to ``[0, 1]`` using ``lower`` and ``upper`` before
+        computing variances. With ``method="auto"`` and raw 0/1 outcomes, exact
+        Bernoulli bounds are used on the raw scale and normalization is skipped.
+    lower, upper : float, optional
+        Known support bounds used when ``normalize=True``. If either is omitted,
+        the pilot minimum or maximum is used with a warning. That data-dependent
+        normalization is exploratory and does not carry the finite-sample
+        guarantee.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+    solver_control : mapping, optional
+        Solver controls for general rectangles. ``gap_tol`` is the target
+        optimality gap relative to the problem scale (default ``1e-9``).
+        ``barrier=False`` skips the barrier Newton method and uses the search
+        methods directly. ``max_starts``, ``smooth_taus``, ``maxit``, and
+        ``mirror_iterations`` tune that fallback.
+    max_vertices : int, default 65536
+        Largest number of rectangle vertices to enumerate. The count doubles with
+        every arm or cell.
+
+    Returns
+    -------
+    CMRResult
+        Result with shares ``pi`` by arm (control is ``"0"``), the certificate
+        ``U_CMR``, the ``confidence_set``, pilot summaries, and ``diagnostics``.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import cmrdesign as cmr
+    >>> rng = np.random.default_rng(5)
+    >>> arm = np.repeat(["control", "variant_a", "variant_b"], 200)
+    >>> y = np.r_[rng.beta(8, 8, 200), rng.beta(0.5, 0.5, 200), rng.beta(2, 2, 200)]
+    >>> fit = cmr.cmr_multiarm(y, arm, control_arm="control")
+    >>> list(fit.pi)
+    ['0', 'variant_a', 'variant_b']
+    """
+
     confidence_set = rectangle_multiarm(
         y=y,
         arm=arm,

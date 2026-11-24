@@ -113,6 +113,7 @@ class CMRResult:
     joint_error_bound: float | None = None
     diagnostics: dict[str, Any] = field(default_factory=dict)
     extra: dict[str, Any] = field(default_factory=dict)
+    correction: str | None = None
 
     @property
     def U_CMR(self) -> float:

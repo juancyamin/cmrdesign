@@ -48,6 +48,33 @@ def variance_bounds_maurer_pontil(
     beta_u: float,
     na_rm: bool = True,
 ) -> dict:
+    """Maurer–Pontil variance bounds for one arm.
+
+    With sample standard deviation ``s`` and ``m`` observations, the bounds are
+    ``max(0, s - eta_l) ** 2`` and ``(s + eta_u) ** 2`` with ``eta = sqrt(2 * log(1
+    / beta) / (m - 1))``, projected to ``[0, 1/4]``.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of one arm, in ``[0, 1]``.
+    beta_l : float
+        One-sided error of the lower variance bound. Zero returns the trivial bound
+        0.
+    beta_u : float
+        One-sided error of the upper variance bound. Zero returns the trivial bound
+        ``1/4``.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    dict
+        Lower bound ``L``, upper bound ``U``, raw Bessel sample variance ``vhat``,
+        sample size ``n``, ``method``, and details in ``statistic``.
+    """
+
     beta_l = check_tail_error(beta_l, "beta_l")
     beta_u = check_tail_error(beta_u, "beta_u")
     y = _clean_bound_outcome_01(y, na_rm=na_rm)
@@ -264,6 +291,42 @@ def variance_bounds_martinez_taboada_ramdas(
     tilde_cs: bool = True,
     na_rm: bool = True,
 ) -> dict:
+    """Martinez-Taboada–Ramdas variance bounds for one arm.
+
+    Sequential empirical-Bernstein bounds for the variance of a bounded outcome.
+    The calculation depends on the order of the observations, so pass them in their
+    pilot order and do not sort them.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of one arm, in ``[0, 1]``.
+    beta_l : float
+        One-sided error of the lower variance bound. Zero returns the trivial bound
+        0.
+    beta_u : float
+        One-sided error of the upper variance bound. Zero returns the trivial bound
+        ``1/4``.
+    lower_alpha_split : float, default 0.5
+        Share of ``beta_l`` spent on the variance component of the lower bound. The
+        rest is spent on the mean component.
+    c1, c2, c3, c4, c5 : float
+        Tuning constants of the procedure. The defaults follow the reference
+        implementation.
+    cs, tilde_cs : bool
+        Whether the variance and mean components use the confidence-sequence form
+        of the predictable weights.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    dict
+        Lower bound ``L``, upper bound ``U``, sample variance ``vhat``, sample size
+        ``n``, ``method``, and details in ``statistic``.
+    """
+
     beta_l = check_tail_error(beta_l, "beta_l")
     beta_u = check_tail_error(beta_u, "beta_u")
     constants = _check_mtr_constants(c1, c2, c3, c4, c5, lower_alpha_split)
@@ -372,6 +435,25 @@ def _binom_pmf(k: int, m: int, p: float) -> float:
 
 
 def folded_binomial_pmf(v: float, m: int) -> np.ndarray:
+    """Distribution of the folded success count of a Bernoulli sample.
+
+    The folded count is ``min(X, m - X)`` for a binomial count ``X``. Its
+    distribution depends on the success probability only through the variance
+    ``v``.
+
+    Parameters
+    ----------
+    v : float
+        Bernoulli variance in ``[0, 1/4]``.
+    m : int
+        Sample size, at least 2.
+
+    Returns
+    -------
+    ndarray
+        Probabilities of the folded counts ``0, ..., floor(m / 2)``.
+    """
+
     v = scalar_variance(v, "v")
     m = scalar_int(m, "m", lower=2)
     rho = bernoulli_rho(v)
@@ -386,6 +468,22 @@ def folded_binomial_pmf(v: float, m: int) -> np.ndarray:
 
 
 def folded_binomial_tails(v: float, m: int) -> dict[str, np.ndarray]:
+    """Lower and upper tail probabilities of the folded success count.
+
+    Parameters
+    ----------
+    v : float
+        Bernoulli variance in ``[0, 1/4]``.
+    m : int
+        Sample size, at least 2.
+
+    Returns
+    -------
+    dict
+        Arrays ``lower`` and ``upper`` with ``P(J <= j)`` and ``P(J >= j)`` for
+        each folded count ``j``.
+    """
+
     pmf = folded_binomial_pmf(v, m)
     return {"lower": np.cumsum(pmf), "upper": np.cumsum(pmf[::-1])[::-1]}
 
@@ -449,6 +547,36 @@ def variance_bounds_bernoulli_exact(
     tol: float = 1e-11,
     na_rm: bool = True,
 ) -> dict:
+    """Exact variance bounds for one arm with binary outcomes.
+
+    The bounds invert the exact distribution of the folded success count. The upper
+    bound is the largest variance at which a folded count this small has
+    probability above ``beta_u``. The lower bound is the smallest variance at which
+    a folded count this large has probability above ``beta_l``.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of one arm, coded 0/1.
+    beta_l : float
+        One-sided error of the lower variance bound. Zero returns the trivial bound
+        0.
+    beta_u : float
+        One-sided error of the upper variance bound. Zero returns the trivial bound
+        ``1/4``.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    dict
+        Lower bound ``L``, upper bound ``U``, sample variance ``vhat``, sample size
+        ``n``, ``method``, and the folded count in ``statistic``.
+    """
+
     beta_l = check_tail_error(beta_l, "beta_l")
     beta_u = check_tail_error(beta_u, "beta_u")
     fc = folded_count(y, na_rm=na_rm)
