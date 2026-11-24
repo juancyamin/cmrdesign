@@ -91,13 +91,17 @@ Multi-arm:
 
 - arm labels.
 - vertices, vertex regrets, and binding vertices for expert audit.
-- solver diagnostics.
+- solver diagnostics: `solver`, `optimality_gap`, `directional_violation`,
+  and `converged`. `optimality_gap` is the difference between `U_CMR` and a
+  dual lower bound on the minimax value. `converged` is true when that gap is
+  within the solver tolerance.
 
 Stratified:
 
 - cell allocations named `1:<stratum>` and `0:<stratum>`.
 - sampling margins by stratum.
-- treatment margins by stratum.
+- treatment margins by stratum. A stratum that receives no sample has a
+  missing margin (`NA` in R, NaN in Python).
 - vertices, vertex regrets, and binding vertices for expert audit.
 
 Multiple outcomes:
@@ -128,7 +132,7 @@ Planning:
 - break-even pilot share and total.
 - feasible even pilot sizes.
 - minimum and maximum feasible pilot sizes.
-- two-thirds-power default.
+- two-thirds-power default and its status relative to the band.
 - desired-pilot status when requested.
 - caveat that the screen is necessary, not sufficient.
 

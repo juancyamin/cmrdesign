@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
 
@@ -40,7 +41,9 @@ def check_strata_share(strata_share, observed=None) -> dict[str, float]:
         else:
             names = [canonical_label(x) for x in observed]
             if len(names) != arr.size:
-                cmr_error("Unnamed `strata_share` must have one entry per observed stratum.")
+                cmr_error(
+                    "Unnamed `strata_share` must have one entry per observed stratum."
+                )
         out = dict(zip(names, map(float, arr), strict=True))
     if not out:
         cmr_error("`strata_share` must contain at least one stratum.")
@@ -73,7 +76,7 @@ def standardize_stratified_matrix(
 ) -> np.ndarray:
     strata_names = list(strata_share)
     if isinstance(x, Mapping):
-        rows = {}
+        rows: dict[str, Any] = {}
         for raw_row, values in x.items():
             row = _row_alias(raw_row)
             if row is None:
@@ -140,7 +143,7 @@ def _pi_array(pi, strata_share) -> np.ndarray:
         missing = [cell for cell in cell_names if cell not in pi]
         if missing:
             cmr_error(f"`pi` is missing cells: {', '.join(missing)}.")
-        arr = [pi[cell] for cell in cell_names]
+        arr: Any = [pi[cell] for cell in cell_names]
     else:
         arr = pi
     arr = normalize_simplex(arr, "pi")
@@ -151,14 +154,24 @@ def _pi_array(pi, strata_share) -> np.ndarray:
 
 def check_stratified_rectangle(rectangle, strata_share) -> dict:
     strata_share = check_strata_share(strata_share)
-    if isinstance(rectangle, RectangleResult):
+    if (
+        isinstance(rectangle, RectangleResult)
+        or hasattr(rectangle, "rectangle")
+        and not isinstance(rectangle, Mapping)
+    ):
         rectangle = rectangle.rectangle
-    elif hasattr(rectangle, "rectangle") and not isinstance(rectangle, Mapping):
-        rectangle = rectangle.rectangle
-    if not isinstance(rectangle, Mapping) or "lower" not in rectangle or "upper" not in rectangle:
+    if (
+        not isinstance(rectangle, Mapping)
+        or "lower" not in rectangle
+        or "upper" not in rectangle
+    ):
         cmr_error("`rectangle` must be a mapping with `lower` and `upper` matrices.")
-    lower = standardize_stratified_matrix(rectangle["lower"], strata_share, "rectangle['lower']")
-    upper = standardize_stratified_matrix(rectangle["upper"], strata_share, "rectangle['upper']")
+    lower = standardize_stratified_matrix(
+        rectangle["lower"], strata_share, "rectangle['lower']"
+    )
+    upper = standardize_stratified_matrix(
+        rectangle["upper"], strata_share, "rectangle['upper']"
+    )
     if np.any(lower > upper + 1e-12):
         cmr_error("Lower endpoints cannot exceed upper endpoints.")
     lower_vec = stratified_matrix_to_vector(lower)
@@ -282,12 +295,14 @@ def stratified_regret(pi, variances, strata_share) -> float:
         The variance objective at ``pi`` minus its oracle value.
     """
 
-    return stratified_variance_objective(pi, variances, strata_share) - stratified_oracle_variance(
-        variances, strata_share
-    )
+    return stratified_variance_objective(
+        pi, variances, strata_share
+    ) - stratified_oracle_variance(variances, strata_share)
 
 
-def stratified_rectangle_vertices(rectangle, strata_share, max_vertices: int = 65536) -> dict:
+def stratified_rectangle_vertices(
+    rectangle, strata_share, max_vertices: int = 65536
+) -> dict:
     """Vertices of a stratified variance rectangle.
 
     Parameters
@@ -410,7 +425,9 @@ def cmr_stratified_from_rectangle(
     else:
         control = {} if control is None else dict(control)
         control["component_names"] = checked["cell_names"]
-        solution = solve_vertex_epigraph(A, oracle, default_start=default_start, control=control)
+        solution = solve_vertex_epigraph(
+            A, oracle, default_start=default_start, control=control
+        )
 
     pi_array = solution["pi_array"]
     sampling_margin = {}
@@ -419,10 +436,18 @@ def cmr_stratified_from_rectangle(
         pair = pi_array[(2 * idx) : (2 * idx + 2)]
         total = float(np.sum(pair))
         sampling_margin[stratum] = total
-        treatment_margin[stratum] = float(pair[0] / total) if total > 0 else float("nan")
+        treatment_margin[stratum] = (
+            float(pair[0] / total) if total > 0 else float("nan")
+        )
 
     diagnostics = dict(solution["diagnostics"])
-    diagnostics.update({"S": len(strata_names), "full_rectangle": full, "collapsed_rectangle": collapsed})
+    diagnostics.update(
+        {
+            "S": len(strata_names),
+            "full_rectangle": full,
+            "collapsed_rectangle": collapsed,
+        }
+    )
     return CMRResult(
         pi=solution["pi"],
         u_cmr=float(solution["value"]),
@@ -436,7 +461,9 @@ def cmr_stratified_from_rectangle(
             "treatment_margin": treatment_margin,
             "vertices": vertices,
             "vertex_regrets": solution["vertex_regrets"],
-            "binding_vertices": [vertices["vertex_names"][i] for i in solution["active_vertices"]],
+            "binding_vertices": [
+                vertices["vertex_names"][i] for i in solution["active_vertices"]
+            ],
         },
     )
 
@@ -451,7 +478,9 @@ def _split_stratified_pilot(y, d, strata, strata_share, na_rm: bool = True) -> d
     missing = np.isnan(y_arr) | np.isnan(d_arr) | strata_missing
     if np.any(missing):
         if not na_rm:
-            cmr_error("`y`, `d`, and `strata` cannot contain missing values when `na_rm=False`.")
+            cmr_error(
+                "`y`, `d`, and `strata` cannot contain missing values when `na_rm=False`."
+            )
         y_arr = y_arr[~missing]
         d_arr = d_arr[~missing]
         strata_arr = strata_arr[~missing]
@@ -465,10 +494,14 @@ def _split_stratified_pilot(y, d, strata, strata_share, na_rm: bool = True) -> d
     shares = check_strata_share(strata_share, observed=observed)
     missing_share = [s for s in observed if s not in shares]
     if missing_share:
-        cmr_error(f"`strata_share` is missing observed strata: {', '.join(missing_share)}.")
+        cmr_error(
+            f"`strata_share` is missing observed strata: {', '.join(missing_share)}."
+        )
     missing_pilot = [s for s in shares if s not in observed]
     if missing_pilot:
-        cmr_error(f"The pilot has no observations for strata: {', '.join(missing_pilot)}.")
+        cmr_error(
+            f"The pilot has no observations for strata: {', '.join(missing_pilot)}."
+        )
     return {"y": y_arr, "d": d_arr, "strata": strata_chr, "strata_share": shares}
 
 
@@ -491,7 +524,12 @@ def _resolve_stratified_beta(alpha: float, strata_share, beta=None) -> dict:
         value = float(as_numeric_array(beta, "beta").reshape(-1)[0])
         lower = np.full((2, len(strata_names)), value)
         upper = lower.copy()
-    if np.any(lower < 0) or np.any(upper < 0) or np.any(lower >= 1) or np.any(upper >= 1):
+    if (
+        np.any(lower < 0)
+        or np.any(upper < 0)
+        or np.any(lower >= 1)
+        or np.any(upper >= 1)
+    ):
         cmr_error("Every beta endpoint error must lie in [0, 1).")
     if float(np.sum(lower) + np.sum(upper)) > alpha + 1e-12:
         cmr_error("`beta` allocates joint error above `alpha`.")
@@ -618,7 +656,9 @@ def rectangle_stratified(
         beta=beta_out,
         method=resolved_method,
         n=stratified_vector_to_matrix(stratified_matrix_to_vector(n), strata_names),
-        vhat=stratified_vector_to_matrix(stratified_matrix_to_vector(vhat), strata_names),
+        vhat=stratified_vector_to_matrix(
+            stratified_matrix_to_vector(vhat), strata_names
+        ),
         joint_error_bound=float(np.sum(beta_out["lower"]) + np.sum(beta_out["upper"])),
         diagnostics={"normalization": normalization},
         extra={

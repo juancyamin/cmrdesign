@@ -73,7 +73,7 @@ from .variance_bounds import (
 try:
     __version__ = version("cmrdesign")
 except PackageNotFoundError:  # pragma: no cover - source tree without install
-    __version__ = "0.1.0"
+    __version__ = "0.1.1"
 
 __all__ = [
     "AllocationResult",
@@ -110,6 +110,7 @@ __all__ = [
     "oracle_variance",
     "pilot_plan",
     "pilot_viability_band",
+    "realize_allocation",
     "rectangle_bernoulli_binary",
     "rectangle_bernoulli_two_arm",
     "rectangle_binary",
@@ -122,7 +123,6 @@ __all__ = [
     "rectangle_stratified",
     "rectangle_two_arm",
     "rectangle_unbounded",
-    "realize_allocation",
     "regret",
     "stratified_oracle_variance",
     "stratified_rectangle_vertices",

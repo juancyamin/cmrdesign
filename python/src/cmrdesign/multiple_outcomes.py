@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 
 from .rectangles import canonical_method, rectangle_two_arm
@@ -139,7 +141,9 @@ def rectangle_multiple_outcomes(
         )
     pilot = _split_multiple_outcome_pilot(y, d, na_rm=na_rm)
     weights_arr = check_weights(weights, pilot["y"].shape[1])
-    weights_dict = dict(zip(pilot["outcome_names"], map(float, weights_arr), strict=True))
+    weights_dict = dict(
+        zip(pilot["outcome_names"], map(float, weights_arr), strict=True)
+    )
 
     if estimand == "index":
         index_y = pilot["y"] @ weights_arr
@@ -161,12 +165,12 @@ def rectangle_multiple_outcomes(
     resolved_method = canonical_method(method, y=pilot["y"].reshape(-1))
     beta_one = _resolve_multiple_beta(alpha, pilot["y"].shape[1], beta=beta)
     outcome_bounds = {}
-    lower1 = []
-    upper1 = []
-    lower0 = []
-    upper0 = []
-    vhat1 = []
-    vhat0 = []
+    lower1: Any = []
+    upper1: Any = []
+    lower0: Any = []
+    upper0: Any = []
+    vhat1: Any = []
+    vhat0: Any = []
     for col, name in enumerate(pilot["outcome_names"]):
         with error_context(f"Outcome `{name}`, treatment arm"):
             b1 = variance_bounds_by_method(
@@ -221,8 +225,12 @@ def rectangle_multiple_outcomes(
             "weights": weights_dict,
             "outcome_bounds": outcome_bounds,
             "outcome_vhat": {
-                "treatment": dict(zip(pilot["outcome_names"], map(float, vhat1), strict=True)),
-                "control": dict(zip(pilot["outcome_names"], map(float, vhat0), strict=True)),
+                "treatment": dict(
+                    zip(pilot["outcome_names"], map(float, vhat1), strict=True)
+                ),
+                "control": dict(
+                    zip(pilot["outcome_names"], map(float, vhat0), strict=True)
+                ),
             },
         },
     )

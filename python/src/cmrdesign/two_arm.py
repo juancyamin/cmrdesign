@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 
-from .core import assign_neyman, regret
+from .core import regret
 from .rectangles import check_binary_rectangle, rectangle_two_arm
 from .results import CMRResult
 from .unbounded import (

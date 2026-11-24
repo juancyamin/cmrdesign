@@ -262,13 +262,9 @@ def _realize_stratified_counts(target, strata_counts, min_per_arm):
     extra_strata = [label for label in stratum_count_labels if label not in strata]
     if extra_strata:
         cmr_error(
-            "`strata_counts` contains unknown strata: "
-            + ", ".join(extra_strata)
-            + "."
+            "`strata_counts` contains unknown strata: " + ", ".join(extra_strata) + "."
         )
-    stratum_counts = {
-        str(key): value for key, value in strata_counts.items()
-    }
+    stratum_counts = {str(key): value for key, value in strata_counts.items()}
     counts: dict[str, int] = {}
     for stratum in strata:
         if stratum not in stratum_counts:
@@ -372,14 +368,14 @@ def realize_allocation(
     if np.isscalar(target):
         if n_main is None:
             cmr_error("`n_main` is required unless `strata_counts` is supplied.")
-        pi = float(target)
+        pi = float(target)  # type: ignore[arg-type]
         if not math.isfinite(pi) or pi < -1e-12 or pi > 1 + 1e-12:
             cmr_error("Two-arm `pi` must lie in [0, 1].")
         labels = ["treatment", "control"]
         shares = np.asarray([min(max(pi, 0.0), 1.0), 1 - min(max(pi, 0.0), 1.0)])
-        target_pi = float(shares[0])
+        target_pi: Any = float(shares[0])
         counts, realized = _realize_vector(labels, shares, n_main, min_per_arm)
-        realized_pi = realized["treatment"]
+        realized_pi: Any = realized["treatment"]
         diagnostics: dict[str, Any] = {"design": "two_arm"}
         cert = (
             _two_arm_realized_certificate(fit.rectangle, realized_pi)
@@ -390,7 +386,7 @@ def realize_allocation(
         if not isinstance(target, Mapping):
             arr = as_numeric_array(target, "pi").reshape(-1)
             labels = [str(i) for i in range(arr.size)]
-            values = arr
+            values: Any = arr
         else:
             labels, values = _ordered_mapping_values(target)
         if len(labels) < 2:

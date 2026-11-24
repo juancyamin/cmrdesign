@@ -24,7 +24,7 @@ python -m pip install cmrdesign
 For exact reproducibility, pin the release version:
 
 ```bash
-python -m pip install cmrdesign==0.1.0
+python -m pip install cmrdesign==0.1.1
 ```
 
 For the development version from GitHub:
@@ -46,8 +46,8 @@ import numpy as np
 import cmrdesign as cmr
 
 rng = np.random.default_rng(123)
-d = np.r_[np.ones(40), np.zeros(40)]
-y = np.r_[rng.beta(2, 5, 40), rng.beta(4, 4, 40)]
+d = np.r_[np.ones(200), np.zeros(200)]
+y = np.r_[rng.beta(0.5, 0.5, 200), rng.beta(8, 8, 200)]
 
 fit = cmr.cmr_two_arm(y, d, alpha=0.05, method="auto")
 print(fit.pi)
@@ -57,6 +57,14 @@ allocation = cmr.realize_allocation(fit, n_main=1000)
 print(allocation.counts)
 print(allocation.realized_U_CMR)
 ```
+
+A pilot has to be large enough to rule out some variance pairs before it can
+move the allocation. When it is not, the confidence set is the whole range
+`[0, 1/4]` for both arms and the result is the balanced design, `pi = 0.5`
+with `U_CMR = 0.25`. With bounded outcomes at `alpha = 0.05` this happens for
+every pilot below 36 observations per arm, and for many larger pilots when the
+two variances are similar. `cmr_plan()` reports these thresholds before any
+pilot data are collected.
 
 ## Implemented Surface
 

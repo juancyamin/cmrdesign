@@ -2,7 +2,8 @@
 
 GitHub Actions workflows for the public repository:
 
-- `python.yml`: installs the Python package and runs the `unittest` suite.
+- `python.yml`: installs the Python package, runs `ruff` and `mypy`, and runs
+  the `unittest` suite on Python 3.10 to 3.13.
 - `r.yml`: installs R test dependencies, checks generated roxygen
   documentation, executes vignette chunks, and runs `R CMD check`.
 - `pkgdown.yml`: builds the R package documentation site and deploys it to the

@@ -129,7 +129,9 @@ def break_even_pilot_share(sigma1, sigma0, input: str = "sd"):
 
     sigmas = _check_sd_pair(sigma1, sigma0, input=input)
     numerator = np.asarray((sigmas["sigma1"] - sigmas["sigma0"]) ** 2, dtype=float)
-    denominator = np.asarray(2 * (sigmas["sigma1"] ** 2 + sigmas["sigma0"] ** 2), dtype=float)
+    denominator = np.asarray(
+        2 * (sigmas["sigma1"] ** 2 + sigmas["sigma0"] ** 2), dtype=float
+    )
     out = np.zeros_like(denominator)
     np.divide(numerator, denominator, out=out, where=denominator > 0)
     out = np.clip(out, 0, 0.5)
@@ -218,7 +220,9 @@ def pilot_viability_band(
     )
     continuous_cap = n * share_cap if accounting == "design_only" else math.inf
     candidates = _admissible_even_pilots(n)
-    candidates = [x for x in candidates if math.isfinite(activation) and x >= activation]
+    candidates = [
+        x for x in candidates if math.isfinite(activation) and x >= activation
+    ]
     if accounting == "design_only":
         if strict_upper:
             candidates = [x for x in candidates if x < continuous_cap - 1e-12]
@@ -252,7 +256,10 @@ def _pilot_size_status(m: int, band: dict) -> str:
         return "not_admissible_odd"
     if m < 4 or m > band["n"] - 2:
         return "outside_budget"
-    if not math.isfinite(band["activation_threshold"]) or m < band["activation_threshold"]:
+    if (
+        not math.isfinite(band["activation_threshold"])
+        or m < band["activation_threshold"]
+    ):
         return "below_activation_threshold"
     if design_only and band["strict_upper"] and m >= cap - 1e-12:
         return "above_break_even_cap"

@@ -28,7 +28,9 @@ class DocstringTests(unittest.TestCase):
             documented = set()
             for line in section.splitlines():
                 if " : " in line and not line.startswith(" "):
-                    documented.update(part.strip() for part in line.split(" : ")[0].split(","))
+                    documented.update(
+                        part.strip() for part in line.split(" : ")[0].split(",")
+                    )
             with self.subTest(name=name):
                 self.assertEqual(documented, set(inspect.signature(obj).parameters))
 

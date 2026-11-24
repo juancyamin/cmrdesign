@@ -134,7 +134,11 @@ def _mtr_upper_variance(y, alpha, c1, c2, c3, c4, cs=False):
     for idx, val in enumerate(y, start=1):
         x = (val - tilde_summuhat / idx) ** 2
         radius = (x - summuhat / idx) ** 2
-        denominator = math.sqrt(sumvarhat * math.log(idx + 1)) if cs else math.sqrt(sumvarhat * n / idx)
+        denominator = (
+            math.sqrt(sumvarhat * math.log(idx + 1))
+            if cs
+            else math.sqrt(sumvarhat * n / idx)
+        )
         lam = min(aux / denominator, c1)
         lambda_path.append(lam)
         sum_lambdas += lam
@@ -191,9 +195,15 @@ def _mtr_lower_variance(
         varhat = tilde_sumvarhat / idx
         lam = 0.0
         if sum_tilde_lambdas > 0:
-            threshold = (math.log(2 / alpha_mean) + varhat * sum_psi_tilde_lambdas) / sum_tilde_lambdas
+            threshold = (
+                math.log(2 / alpha_mean) + varhat * sum_psi_tilde_lambdas
+            ) / sum_tilde_lambdas
             if threshold < 1:
-                denominator = math.sqrt(sumvarhat * math.log(idx + 1)) if cs else math.sqrt(sumvarhat * n / idx)
+                denominator = (
+                    math.sqrt(sumvarhat * math.log(idx + 1))
+                    if cs
+                    else math.sqrt(sumvarhat * n / idx)
+                )
                 lam = min(aux / denominator, c1)
         lambda_path.append(lam)
         sum_lambdas += lam
@@ -206,7 +216,12 @@ def _mtr_lower_variance(
             center = bound_radius = math.nan
         if lam > 0:
             tilde_at = sum_psi_tilde_lambdas**2 / sum_tilde_lambdas**2
-            tilde_bt = 2 * math.log(2 / alpha_mean) * sum_psi_tilde_lambdas / sum_tilde_lambdas**2
+            tilde_bt = (
+                2
+                * math.log(2 / alpha_mean)
+                * sum_psi_tilde_lambdas
+                / sum_tilde_lambdas**2
+            )
             tilde_ct = math.log(2 / alpha_mean) ** 2 / sum_tilde_lambdas**2
             dt = center
             rt = bound_radius
@@ -345,7 +360,14 @@ def variance_bounds_martinez_taboada_ramdas(
     alpha_lower_variance = beta_l * lower_alpha_split
     alpha_lower_mean = beta_l * (1 - lower_alpha_split)
     lower_result = (
-        {"center": math.nan, "radius": math.nan, "lower": 0.0, "at": math.nan, "bt": math.nan, "ct": math.nan}
+        {
+            "center": math.nan,
+            "radius": math.nan,
+            "lower": 0.0,
+            "at": math.nan,
+            "bt": math.nan,
+            "ct": math.nan,
+        }
         if beta_l <= 0
         else _mtr_lower_variance(
             y,
@@ -587,7 +609,12 @@ def variance_bounds_bernoulli_exact(
         "vhat": float(np.clip(raw_vhat, 0, 0.25)),
         "method": "bernoulli",
         "n": fc["m"],
-        "statistic": {**fc, "raw_sample_variance": raw_vhat, "beta_l": beta_l, "beta_u": beta_u},
+        "statistic": {
+            **fc,
+            "raw_sample_variance": raw_vhat,
+            "beta_l": beta_l,
+            "beta_u": beta_u,
+        },
     }
 
 

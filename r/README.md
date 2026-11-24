@@ -35,15 +35,15 @@ remotes::install_github("juancyamin/cmrdesign", subdir = "r")
 ## Quick Start
 
 In a two-arm design, `y` is one vector of pilot outcomes and `d` marks the arm
-for each observation. Here the first 40 observations are treatment and the next
-40 are control.
+for each observation. Here the first 200 observations are treatment and the
+next 200 are control, and treatment outcomes are more variable.
 
 ```r
 library(cmrdesign)
 
 set.seed(123)
-d <- c(rep(1, 40), rep(0, 40))
-y <- c(rbeta(40, 2, 5), rbeta(40, 4, 4))
+d <- c(rep(1, 200), rep(0, 200))
+y <- c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8))
 
 fit <- cmr_two_arm(y, d, alpha = 0.05, method = "auto")
 fit$pi
@@ -57,6 +57,14 @@ allocation$realized_U_CMR
 
 `pi` is the recommended treatment share for the main wave. `U_CMR` is the
 worst-case regret certificate over the confidence set for arm variances.
+
+A pilot has to be large enough to rule out some variance pairs before it can
+move the allocation. When it is not, the confidence set is the whole range
+`[0, 1/4]` for both arms and the result is the balanced design, `pi = 0.5`
+with `U_CMR = 0.25`. With bounded outcomes at `alpha = 0.05` this happens for
+every pilot below 36 observations per arm, and for many larger pilots when the
+two variances are similar. `cmr_plan()` reports these thresholds before any
+pilot data are collected.
 
 ## Which Function Should I Use?
 
@@ -102,4 +110,4 @@ or redacted data:
 
 - [Bug reports](https://github.com/juancyamin/cmrdesign/issues/new?template=bug_report.yml)
 - [Usage questions](https://github.com/juancyamin/cmrdesign/issues/new?template=usage_question.yml)
-- [General feedback](https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml)
+- [General feedback](https://github.com/juancyamin/cmrdesign/issues/new?template=general_feedback.yml)

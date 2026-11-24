@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
 
@@ -71,9 +72,11 @@ def check_multiarm_variances(variances, name: str = "variances") -> dict[str, fl
 
 
 def check_multiarm_rectangle(rectangle) -> dict[str, dict[str, float]]:
-    if isinstance(rectangle, RectangleResult):
-        rectangle = rectangle.rectangle
-    elif hasattr(rectangle, "rectangle") and not isinstance(rectangle, Mapping):
+    if (
+        isinstance(rectangle, RectangleResult)
+        or hasattr(rectangle, "rectangle")
+        and not isinstance(rectangle, Mapping)
+    ):
         rectangle = rectangle.rectangle
     if hasattr(rectangle, "to_dict") and not isinstance(rectangle, Mapping):
         rectangle = rectangle.to_dict()
@@ -91,8 +94,14 @@ def check_multiarm_rectangle(rectangle) -> dict[str, dict[str, float]]:
                 if upper_key not in rectangle:
                     cmr_error(f"Rectangle is missing: {upper_key}.")
                 out[arm] = {
-                    "lower": float(check_variance(rectangle[lower_key], str(lower_key)).reshape(-1)[0]),
-                    "upper": float(check_variance(rectangle[upper_key], upper_key).reshape(-1)[0]),
+                    "lower": float(
+                        check_variance(rectangle[lower_key], str(lower_key)).reshape(
+                            -1
+                        )[0]
+                    ),
+                    "upper": float(
+                        check_variance(rectangle[upper_key], upper_key).reshape(-1)[0]
+                    ),
                 }
         else:
             for arm, endpoints in rectangle.items():
@@ -101,8 +110,12 @@ def check_multiarm_rectangle(rectangle) -> dict[str, dict[str, float]]:
                 if "lower" not in endpoints or "upper" not in endpoints:
                     cmr_error("Mapping rectangles need `lower` and `upper` by arm.")
                 out[str(arm)] = {
-                    "lower": float(check_variance(endpoints["lower"], "lower").reshape(-1)[0]),
-                    "upper": float(check_variance(endpoints["upper"], "upper").reshape(-1)[0]),
+                    "lower": float(
+                        check_variance(endpoints["lower"], "lower").reshape(-1)[0]
+                    ),
+                    "upper": float(
+                        check_variance(endpoints["upper"], "upper").reshape(-1)[0]
+                    ),
                 }
             labels = _standardize_arm_labels(out.keys())
             out = dict(zip(labels, out.values(), strict=True))
@@ -118,7 +131,9 @@ def check_multiarm_rectangle(rectangle) -> dict[str, dict[str, float]]:
     if "0" not in out:
         cmr_error("A multi-arm rectangle must include control arm `0`.")
     if len(out) < 2:
-        cmr_error("A multi-arm rectangle must include control plus at least one treatment.")
+        cmr_error(
+            "A multi-arm rectangle must include control plus at least one treatment."
+        )
     for arm, endpoints in out.items():
         if endpoints["lower"] > endpoints["upper"] + 1e-12:
             cmr_error(f"Lower endpoint exceeds upper endpoint for arm `{arm}`.")
@@ -138,7 +153,7 @@ def _pi_array(pi, arms) -> np.ndarray:
         missing = [arm for arm in arms if arm not in pi]
         if missing:
             cmr_error(f"Named `pi` is missing arms: {', '.join(missing)}.")
-        arr = [pi[arm] for arm in arms]
+        arr: Any = [pi[arm] for arm in arms]
     else:
         arr = pi
     arr = normalize_simplex(arr, "pi")
@@ -196,9 +211,7 @@ def multiarm_oracle_variance(variances) -> float:
 
     variances = check_multiarm_variances(variances)
     weights = multiarm_weights(variances)
-    return float(
-        sum((weights[arm] * variances[arm]) ** 0.5 for arm in variances) ** 2
-    )
+    return float(sum((weights[arm] * variances[arm]) ** 0.5 for arm in variances) ** 2)
 
 
 def assign_multiarm_neyman(variances) -> dict[str, float]:
@@ -250,7 +263,9 @@ def multiarm_regret(pi, variances) -> float:
         The variance objective at ``pi`` minus its oracle value.
     """
 
-    return multiarm_variance_objective(pi, variances) - multiarm_oracle_variance(variances)
+    return multiarm_variance_objective(pi, variances) - multiarm_oracle_variance(
+        variances
+    )
 
 
 def multiarm_rectangle_vertices(rectangle, max_vertices: int = 65536) -> dict:
@@ -288,7 +303,14 @@ def _multiarm_vertex_problem(rectangle, max_vertices: int = 65536) -> dict:
     vertices = multiarm_rectangle_vertices(rect, max_vertices=max_vertices)
     A = vertices["vertices"] * np.asarray([weights[arm] for arm in arms]).reshape(1, -1)
     oracle = np.sum(np.sqrt(A), axis=1) ** 2
-    return {"rect": rect, "arms": arms, "weights": weights, "vertices": vertices, "A": A, "oracle": oracle}
+    return {
+        "rect": rect,
+        "arms": arms,
+        "weights": weights,
+        "vertices": vertices,
+        "A": A,
+        "oracle": oracle,
+    }
 
 
 def cmr_multiarm_from_rectangle(
@@ -335,9 +357,7 @@ def cmr_multiarm_from_rectangle(
         list(assign_multiarm_neyman(default_variances).values()), dtype=float
     )
 
-    if all(
-        endpoints["lower"] == endpoints["upper"] for endpoints in rect.values()
-    ):
+    if all(endpoints["lower"] == endpoints["upper"] for endpoints in rect.values()):
         pi_dict = assign_multiarm_neyman({arm: rect[arm]["lower"] for arm in arms})
         pi_array = np.asarray([pi_dict[arm] for arm in arms], dtype=float)
         details = vertex_certificate(pi_array, problem["A"], problem["oracle"], True)
@@ -392,7 +412,9 @@ def cmr_multiarm_from_rectangle(
         endpoints["lower"] == endpoints["upper"] for endpoints in rect.values()
     )
     diagnostics = dict(solution["diagnostics"])
-    diagnostics.update({"K": len(arms) - 1, "full_rectangle": full, "collapsed_rectangle": collapsed})
+    diagnostics.update(
+        {"K": len(arms) - 1, "full_rectangle": full, "collapsed_rectangle": collapsed}
+    )
     return CMRResult(
         pi=solution["pi"],
         u_cmr=float(solution["value"]),
@@ -403,7 +425,8 @@ def cmr_multiarm_from_rectangle(
             "vertices": problem["vertices"],
             "vertex_regrets": solution["vertex_regrets"],
             "binding_vertices": [
-                problem["vertices"]["vertex_names"][i] for i in solution["active_vertices"]
+                problem["vertices"]["vertex_names"][i]
+                for i in solution["active_vertices"]
             ],
         },
     )
@@ -415,7 +438,9 @@ def _split_multiarm_pilot(y, arm, control_arm=0, na_rm: bool = True) -> dict:
     if y_arr.shape[0] != arm_arr.shape[0]:
         cmr_error("`y` and `arm` must have the same length.")
     control_chr = canonical_label(control_arm)
-    missing = np.isnan(y_arr) | np.asarray([label_missing(x) for x in arm_arr], dtype=bool)
+    missing = np.isnan(y_arr) | np.asarray(
+        [label_missing(x) for x in arm_arr], dtype=bool
+    )
     if np.any(missing):
         if not na_rm:
             cmr_error("`y` and `arm` cannot contain missing values when `na_rm=False`.")
@@ -431,13 +456,17 @@ def _split_multiarm_pilot(y, arm, control_arm=0, na_rm: bool = True) -> dict:
     if not np.any(arm_chr != control_chr):
         cmr_error("`arm` must include at least one treatment arm.")
     if control_chr != "0" and np.any((arm_chr != control_chr) & (arm_chr == "0")):
-        cmr_error("Treatment arm label `0` is reserved for the standardized control arm.")
+        cmr_error(
+            "Treatment arm label `0` is reserved for the standardized control arm."
+        )
     arm_std = np.where(arm_chr == control_chr, "0", arm_chr)
     arms = _arm_order(dict.fromkeys(arm_std))
     return {"y": y_arr, "arm": arm_std, "arms": arms, "control_arm": control_chr}
 
 
-def _resolve_multiarm_beta(alpha: float, arms, beta=None) -> dict[str, dict[str, float]]:
+def _resolve_multiarm_beta(
+    alpha: float, arms, beta=None
+) -> dict[str, dict[str, float]]:
     alpha = check_alpha(alpha)
     arms = list(arms)
     if beta is None:
@@ -574,7 +603,9 @@ def rectangle_multiarm(
         method=resolved_method,
         n=n,
         vhat=vhat,
-        joint_error_bound=sum(v[e] for v in beta_out.values() for e in ("lower", "upper")),
+        joint_error_bound=sum(
+            v[e] for v in beta_out.values() for e in ("lower", "upper")
+        ),
         diagnostics={"normalization": normalization},
         extra={
             "arms": pilot["arms"],

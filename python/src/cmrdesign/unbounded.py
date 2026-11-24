@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -231,10 +232,7 @@ def variance_bounds_unbounded_mom(
             0,
         )
 
-    paired = (
-        0.5
-        * (y_arr[1 : 2 * n_pairs : 2] - y_arr[0 : 2 * n_pairs : 2]) ** 2
-    )
+    paired = 0.5 * (y_arr[1 : 2 * n_pairs : 2] - y_arr[0 : 2 * n_pairs : 2]) ** 2
     used_pairs = int(k * b)
     block_means = paired[:used_pairs].reshape(k, b).mean(axis=1)
     vhat = float(np.median(block_means))
@@ -295,9 +293,11 @@ def variance_bounds_unbounded_mom(
 def check_unbounded_rectangle(rectangle) -> dict[str, float]:
     """Validate a finite nonnegative two-arm variance rectangle."""
 
-    if isinstance(rectangle, RectangleResult):
-        rectangle = rectangle.rectangle
-    elif hasattr(rectangle, "rectangle") and not isinstance(rectangle, Mapping):
+    if (
+        isinstance(rectangle, RectangleResult)
+        or hasattr(rectangle, "rectangle")
+        and not isinstance(rectangle, Mapping)
+    ):
         rectangle = rectangle.rectangle
     if hasattr(rectangle, "to_dict") and not isinstance(rectangle, Mapping):
         rectangle = rectangle.to_dict()
@@ -331,7 +331,7 @@ def _unbounded_rectangle_corners(rectangle) -> dict[str, dict[str, float]]:
     }
 
 
-def _unbounded_regret(pi: float, v1: float, v0: float) -> float:
+def _unbounded_regret(pi, v1, v0) -> Any:
     pi_arr = check_probability(pi, "pi", allow_boundary=True)
     v1_arr = _as_nonnegative_array(v1, "v1")
     v0_arr = _as_nonnegative_array(v0, "v0")

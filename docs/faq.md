@@ -3,10 +3,10 @@
 ## Why do examples build `y` with two or three simulated pieces?
 
 That is only a simulation device. For example,
-`c(rbeta(40, 2, 5), rbeta(40, 4, 4))` creates one outcome vector where the
-first 40 entries were generated from one arm-specific distribution and the next
-40 from another. The matching assignment vector, such as
-`d <- c(rep(1, 40), rep(0, 40))`, tells `cmrdesign` which row belongs to which
+`c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8))` creates one outcome vector where the
+first 200 entries were generated from one arm-specific distribution and the
+next 200 from another. The matching assignment vector, such as
+`d <- c(rep(1, 200), rep(0, 200))`, tells `cmrdesign` which row belongs to which
 arm.
 
 With real pilot data, pass the observed outcome column and the observed
@@ -41,10 +41,26 @@ is too small for the requested confidence level.
 
 ## What if my binary outcome is coded as 1/2, Yes/No, or 2/5?
 
-Recode it to 0/1 before using `method = "auto"`, or explicitly use
-`method = "bernoulli"` after verifying the function accepts the coded values in
-your workflow. The `auto` rule chooses Bernoulli exact bounds only for raw 0/1
-outcomes.
+Recode it to 0/1 before using `method = "auto"`. For a numeric coding such as
+2/5 you can instead set `method = "bernoulli"` with `normalize = TRUE`,
+`lower = 2`, and `upper = 5`. The `auto` rule chooses exact Bernoulli bounds
+only for raw 0/1 outcomes.
+
+## Why did I get `pi = 0.5` and `U_CMR = 0.25`?
+
+The pilot was too small to rule out any pair of variances. The confidence set
+is then the whole range `[0, 1/4]` for both arms, and the rule returns the
+balanced design with the no-pilot certificate. With bounded outcomes at
+`alpha = 0.05` this happens for every pilot below 36 observations per arm, and
+for larger pilots when the two sample standard deviations are small or close
+to each other. Binary outcomes need far fewer observations because their
+bounds are exact. `cmr_plan()` reports the activation threshold before the
+pilot is run.
+
+## Can arm and stratum labels be any values?
+
+Yes. Arm labels such as `"variant_a"` and stratum labels such as `"age:18-30"`
+are kept as they are. Only the control arm is renamed, to `"0"`.
 
 ## Does MTR depend on row order?
 
@@ -102,5 +118,6 @@ workflow to assign units within the requested arms or strata.
 Not bit-for-bit, but yes up to documented numerical tolerances. Closed-form
 two-arm, collapsed-rectangle, full-rectangle, planning, and variance-bound
 cases use tight cross-language tolerances. General multi-arm and stratified
-rectangles involve numerical optimization and use explicit case-level
-tolerances in the shared fixtures.
+rectangles are solved numerically by the same method in both languages. Each
+result reports `optimality_gap`, and the shared fixtures use explicit
+case-level tolerances.

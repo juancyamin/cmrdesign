@@ -62,7 +62,7 @@ python -m pip install cmrdesign
 For exact reproducibility:
 
 ```bash
-python -m pip install cmrdesign==0.1.0
+python -m pip install cmrdesign==0.1.1
 ```
 
 Python development version from GitHub:
@@ -74,8 +74,8 @@ python -m pip install "cmrdesign @ git+https://github.com/juancyamin/cmrdesign.g
 ## Quick Start
 
 In a two-arm design, `y` is one vector of pilot outcomes and `d` marks the arm
-for each observation. Here the first 40 observations are treatment and the next
-40 are control.
+for each observation. Here the first 200 observations are treatment and the
+next 200 are control, and treatment outcomes are more variable.
 
 R:
 
@@ -83,8 +83,8 @@ R:
 library(cmrdesign)
 
 set.seed(123)
-d <- c(rep(1, 40), rep(0, 40))
-y <- c(rbeta(40, 2, 5), rbeta(40, 4, 4))
+d <- c(rep(1, 200), rep(0, 200))
+y <- c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8))
 
 fit <- cmr_two_arm(y, d, alpha = 0.05, method = "auto")
 fit$pi
@@ -103,8 +103,8 @@ import numpy as np
 import cmrdesign as cmr
 
 rng = np.random.default_rng(123)
-d = np.r_[np.ones(40), np.zeros(40)]
-y = np.r_[rng.beta(2, 5, 40), rng.beta(4, 4, 40)]
+d = np.r_[np.ones(200), np.zeros(200)]
+y = np.r_[rng.beta(0.5, 0.5, 200), rng.beta(8, 8, 200)]
 
 fit = cmr.cmr_two_arm(y, d, alpha=0.05, method="auto")
 fit.pi
@@ -119,6 +119,14 @@ allocation.realized_U_CMR
 `pi` is the recommended treatment share for the main wave. `U_CMR` is the
 certificate: the worst-case regret of that allocation over the estimated
 confidence set for arm variances.
+
+A pilot has to be large enough to rule out some variance pairs before it can
+move the allocation. When it is not, the confidence set is the whole range
+`[0, 1/4]` for both arms and the result is the balanced design, `pi = 0.5`
+with `U_CMR = 0.25`. With bounded outcomes at `alpha = 0.05` this happens for
+every pilot below 36 observations per arm, and for many larger pilots when the
+two variances are similar. `cmr_plan()` reports these thresholds before any
+pilot data are collected.
 
 ## Which Function Should I Use?
 
@@ -210,7 +218,7 @@ useful as the package evolves:
   inconsistencies.
 - [Usage questions](https://github.com/juancyamin/cmrdesign/issues/new?template=usage_question.yml):
   help choosing between CMR functions, confidence methods, or input formats.
-- [General feedback](https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml):
+- [General feedback](https://github.com/juancyamin/cmrdesign/issues/new?template=general_feedback.yml):
   comments on names, return objects, examples, documentation, or applied
   workflow.
 
@@ -233,7 +241,7 @@ If you use `cmrdesign`, please cite the paper and the software:
   title = {cmrdesign: Conditional Minimax Regret Design Rules},
   author = {Yamin, Juan C.},
   year = {2026},
-  note = {R package version 0.1.0},
+  note = {R package version 0.1.1},
   url = {https://CRAN.R-project.org/package=cmrdesign}
 }
 ```

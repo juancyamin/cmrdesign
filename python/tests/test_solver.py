@@ -13,7 +13,10 @@ def _problem(rect):
     upper = np.array([rect[a]["upper"] for a in arms])
     weights = np.array([len(arms) - 1] + [1] * (len(arms) - 1), dtype=float)
     vertices = np.array(
-        [np.where(bits, upper, lower) for bits in itertools.product((0, 1), repeat=len(arms))]
+        [
+            np.where(bits, upper, lower)
+            for bits in itertools.product((0, 1), repeat=len(arms))
+        ]
     )
     A = vertices * weights
     return A, np.sum(np.sqrt(A), axis=1) ** 2
@@ -44,7 +47,9 @@ class SolverTests(unittest.TestCase):
         self.assertLessEqual(fit.diagnostics["optimality_gap"], 1e-7)
         A, oracle = _problem(FIVE_ARMS)
         pi = np.array([fit.pi[a] for a in sorted(fit.pi, key=int)])
-        self.assertAlmostEqual(fit.U_CMR, float(np.max(A @ (1 / pi) - oracle)), places=13)
+        self.assertAlmostEqual(
+            fit.U_CMR, float(np.max(A @ (1 / pi) - oracle)), places=13
+        )
 
     def test_barrier_and_search_agree(self):
         barrier = cmr.cmr_multiarm_from_rectangle(THREE_ARMS)

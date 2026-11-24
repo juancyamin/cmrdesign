@@ -1,6 +1,6 @@
 Package: cmrdesign
 Title: Conditional Minimax Regret Design Rules
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person(given = "Juan C.", family = "Yamin", role = c("aut", "cre", "cph"), email = "juan_yamin_silva@brown.edu")
   )

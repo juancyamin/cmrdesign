@@ -14,3 +14,5 @@ plan <- cmr_plan(
 
 print(plan$band)
 print(plan$recommendation)
+
+print(plan)

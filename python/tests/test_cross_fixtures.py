@@ -94,8 +94,7 @@ class CrossFixtureTests(unittest.TestCase):
         if found != expected:
             raise AssertionError(f"Fixture set mismatch: {found ^ expected}")
         cls.fixtures = {
-            path.name: json.loads(path.read_text())
-            for path in cls.root.glob("*.json")
+            path.name: json.loads(path.read_text()) for path in cls.root.glob("*.json")
         }
 
     def test_all_declared_fixtures_are_valid_json(self):

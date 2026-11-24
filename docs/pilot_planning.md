@@ -21,6 +21,9 @@ Core options:
 - `method = "bounded"` or `"bernoulli"`.
 - `accounting = "design_only"` or `"pooled"`.
 - `desired_pilot`: optional pilot size to evaluate.
+- `strict_upper`: whether a pilot equal to the break-even cap is excluded. The
+  default is `FALSE`/`False`, which matches the band `m_act <= m <= cap` of the
+  paper.
 
 ## Outputs
 
@@ -33,9 +36,21 @@ The returned object reports:
   break-even pilot share implied by `sigma1` and `sigma0`.
 - `band$feasible_pilot_sizes` / `plan["band"]["feasible_pilot_sizes"]`: even
   pilot sizes that clear the screen.
-- `suggested_pilot`: default recommendation within the feasible set.
-- `default_two_thirds_power`: the rounded even version of `n^(2/3)`.
-- `desired_status`: diagnostics for a user-supplied pilot size.
+- `suggested_pilot`: the smallest pilot size in the feasible set. It is the
+  least costly pilot at which CMR can leave balance. It is a floor, not an
+  optimal size.
+- `default_two_thirds_power`: the pilot size `2 * ceiling(n^(2/3) / 2)` from the
+  two-thirds-power rule of the paper.
+- `two_thirds_status`: where that size falls relative to the feasible set.
+- `desired_status`: the same classification for a user-supplied pilot size.
+
+The two sizes answer different questions. The two-thirds-power size is the
+worst-case-optimal scale of the pilot. The feasible set is a necessary screen
+at the planning values you supplied. Under design-only accounting the
+two-thirds-power size can exceed the break-even cap, and `two_thirds_status`
+then reads `above_break_even_cap`. With `n = 3000`, `sigma1 = 0.18`, and
+`sigma0 = 0.28`, for example, the feasible set is 72 to 134 while the
+two-thirds-power size is 210. Under pooled accounting the cap does not apply.
 
 ## Accounting Choice
 
@@ -48,7 +63,9 @@ threshold but does not impose the design-only break-even cap.
 R:
 
 ```r
-cmr_plan(n = 2000, sigma1 = 0.30, sigma0 = 0.45, method = "bounded")
+plan <- cmr_plan(n = 2000, sigma1 = 0.30, sigma0 = 0.45, method = "bounded")
+plan
+plan$two_thirds_status
 ```
 
 Python:
@@ -56,5 +73,7 @@ Python:
 ```python
 import cmrdesign as cmr
 
-cmr.cmr_plan(n=2000, sigma1=0.30, sigma0=0.45, method="bounded")
+plan = cmr.cmr_plan(n=2000, sigma1=0.30, sigma0=0.45, method="bounded")
+plan["band"]["min_feasible"], plan["band"]["max_feasible"]
+plan["two_thirds_status"]
 ```

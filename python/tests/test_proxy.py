@@ -27,7 +27,9 @@ class ProxyTests(unittest.TestCase):
     def test_unbounded_method_is_rejected(self):
         y = [0.1, 0.4, 0.2, 0.5, 0.3, 0.6, 0.2, 0.4]
         d = [1, 1, 1, 1, 0, 0, 0, 0]
-        with self.assertRaisesRegex(ValueError, "proxy bridge supports bounded-outcome"):
+        with self.assertRaisesRegex(
+            ValueError, "proxy bridge supports bounded-outcome"
+        ):
             cmr.cmr_proxy(y, d, zeta=0.1, method="unbounded")
 
 

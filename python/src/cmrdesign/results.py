@@ -52,7 +52,7 @@ def _total_n(n: Any) -> int | None:
         return None
     try:
         if isinstance(n, dict):
-            values = []
+            values: list[Any] = []
             for value in n.values():
                 if isinstance(value, dict):
                     values.extend(value.values())

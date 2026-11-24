@@ -83,7 +83,9 @@ def prepare_outcome_scale(
                 upper is not None and float(upper) != 1
             )
             if rescales:
-                warnings.warn(BERNOULLI_NORMALIZATION_WARNING, UserWarning, stacklevel=3)
+                warnings.warn(
+                    BERNOULLI_NORMALIZATION_WARNING, UserWarning, stacklevel=3
+                )
         else:
             y, normalization = normalize_01(y, lower=lower, upper=upper)
     return y, resolved, normalization
@@ -117,17 +119,19 @@ def _check_beta_vector(beta) -> dict[str, float]:
         cmr_error(f"`beta` is missing: {', '.join(missing)}.")
     out = {}
     for key in required:
-        value = check_probability(beta[key], key, allow_boundary=True)
-        if value.size != 1:
+        arr = check_probability(beta[key], key, allow_boundary=True)
+        if arr.size != 1:
             cmr_error(f"`{key}` must be a scalar.")
-        value = float(value.reshape(-1)[0])
+        value = float(arr.reshape(-1)[0])
         if value >= 1:
             cmr_error("Each element of `beta` must be smaller than 1.")
         out[key] = value
     return out
 
 
-def _resolve_beta(alpha: float, beta=None, correction: str = "bonferroni") -> dict[str, float]:
+def _resolve_beta(
+    alpha: float, beta=None, correction: str = "bonferroni"
+) -> dict[str, float]:
     alpha = check_alpha(alpha)
     correction = _check_correction(correction)
     if beta is None:
@@ -164,9 +168,11 @@ def _resolve_beta(alpha: float, beta=None, correction: str = "bonferroni") -> di
 def check_binary_rectangle(rectangle) -> dict[str, float]:
     """Validate a two-arm variance rectangle."""
 
-    if isinstance(rectangle, RectangleResult):
-        rectangle = rectangle.rectangle
-    elif hasattr(rectangle, "rectangle") and not isinstance(rectangle, Mapping):
+    if (
+        isinstance(rectangle, RectangleResult)
+        or hasattr(rectangle, "rectangle")
+        and not isinstance(rectangle, Mapping)
+    ):
         rectangle = rectangle.rectangle
 
     if hasattr(rectangle, "to_dict") and not isinstance(rectangle, Mapping):

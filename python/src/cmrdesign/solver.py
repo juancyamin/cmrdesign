@@ -5,6 +5,7 @@ from __future__ import annotations
 import itertools
 import math
 import warnings
+from typing import Any
 
 import numpy as np
 
@@ -41,8 +42,7 @@ def hyperrectangle_vertices(
     max_vertices = scalar_int(max_vertices, "max_vertices", lower=1)
     if n_vertices > max_vertices:
         cmr_error(
-            f"The hyperrectangle has {n_vertices} vertices, "
-            "exceeding `max_vertices`."
+            f"The hyperrectangle has {n_vertices} vertices, exceeding `max_vertices`."
         )
     if names is None:
         names = [f"component_{i + 1}" for i in range(n_dim)]
@@ -54,10 +54,7 @@ def hyperrectangle_vertices(
     for bits in itertools.product((0, 1), repeat=n_dim):
         rows.append(np.where(np.asarray(bits, dtype=bool), upper, lower))
         vertex_names.append(
-            "_".join(
-                ("u" if bit else "l") + names[idx]
-                for idx, bit in enumerate(bits)
-            )
+            "_".join(("u" if bit else "l") + names[idx] for idx, bit in enumerate(bits))
         )
     return {
         "vertices": np.asarray(rows, dtype=float),
@@ -71,7 +68,9 @@ def _check_vertex_problem(A, oracle) -> tuple[np.ndarray, np.ndarray, list[str]]
     if A.ndim == 1:
         A = A.reshape(1, -1)
     if A.ndim != 2 or A.shape[0] < 1 or A.shape[1] < 1:
-        cmr_error("`A` must be a two-dimensional array with at least one row and column.")
+        cmr_error(
+            "`A` must be a two-dimensional array with at least one row and column."
+        )
     if np.any(A < -1e-12):
         cmr_error("`A` must contain nonnegative entries.")
     A = np.maximum(A, 0)
@@ -139,7 +138,9 @@ def _vertex_starts(A, default_start=None, max_starts: int = 40) -> list[np.ndarr
     out = []
     seen = set()
     for start in starts:
-        start = np.maximum(np.asarray(start, dtype=float).reshape(-1), np.finfo(float).eps)
+        start = np.maximum(
+            np.asarray(start, dtype=float).reshape(-1), np.finfo(float).eps
+        )
         start = start / np.sum(start)
         key = tuple(np.round(start, 12))
         if key not in seen:
@@ -252,7 +253,11 @@ def _bfgs_smooth(z0, A, oracle, tau: float, maxit: int = 1000) -> dict:
     z = np.asarray(z0, dtype=float).reshape(-1)
     n = z.size
     if n == 0:
-        return {"z": z, "value": _smooth_vertex_objective(z, A, oracle, tau)[0], "converged": True}
+        return {
+            "z": z,
+            "value": _smooth_vertex_objective(z, A, oracle, tau)[0],
+            "converged": True,
+        }
     H = np.eye(n)
     value, grad = _smooth_vertex_objective(z, A, oracle, tau)
     converged = False
@@ -301,14 +306,20 @@ def _nelder_mead_true(z0, A, oracle, maxit: int = 1000, tol: float = 1e-12) -> d
     z0 = np.asarray(z0, dtype=float).reshape(-1)
     n = z0.size
     if n == 0:
-        return {"z": z0, "value": _true_vertex_objective_from_logits(z0, A, oracle), "converged": True}
-    simplex = [z0]
+        return {
+            "z": z0,
+            "value": _true_vertex_objective_from_logits(z0, A, oracle),
+            "converged": True,
+        }
+    simplex: Any = [z0]
     for j in range(n):
         point = z0.copy()
         point[j] += 0.05 if point[j] != 0 else 0.00025
         simplex.append(point)
     simplex = np.asarray(simplex, dtype=float)
-    values = np.asarray([_true_vertex_objective_from_logits(x, A, oracle) for x in simplex])
+    values = np.asarray(
+        [_true_vertex_objective_from_logits(x, A, oracle) for x in simplex]
+    )
     alpha = 1.0
     gamma = 2.0
     rho = 0.5
@@ -318,7 +329,9 @@ def _nelder_mead_true(z0, A, oracle, maxit: int = 1000, tol: float = 1e-12) -> d
         order = np.argsort(values)
         simplex = simplex[order]
         values = values[order]
-        if np.max(np.abs(values - values[0])) <= tol and np.max(np.linalg.norm(simplex - simplex[0], axis=1)) <= math.sqrt(tol):
+        if np.max(np.abs(values - values[0])) <= tol and np.max(
+            np.linalg.norm(simplex - simplex[0], axis=1)
+        ) <= math.sqrt(tol):
             converged = True
             break
         centroid = np.mean(simplex[:-1], axis=0)
@@ -368,7 +381,7 @@ def _smooth_bfgs_nelder_mead(
         scale_value * np.asarray([1e-2, 3e-3, 1e-3, 3e-4, 1e-4, 3e-5, 1e-5]),
     )
     maxit = int(control.get("maxit", 1000))
-    candidates = []
+    candidates: list[dict[str, Any]] = []
     for start in starts:
         z = _to_logits(start)
         convergence = []
@@ -452,7 +465,9 @@ def solve_vertex_epigraph(A, oracle, default_start=None, control=None) -> dict:
 
     A_active = A[:, active_columns]
     active_names = [
-        name for name, is_active in zip(component_names, active_columns, strict=True) if is_active
+        name
+        for name, is_active in zip(component_names, active_columns, strict=True)
+        if is_active
     ]
     default_active = None
     if default_start is not None:
@@ -518,7 +533,9 @@ def solve_vertex_epigraph(A, oracle, default_start=None, control=None) -> dict:
                 "best_start_value": fallback["best_start_value"],
             }
 
-    if fallback is not None and (barrier is None or fallback["value"] < barrier["value"]):
+    if fallback is not None and (
+        barrier is None or fallback["value"] < barrier["value"]
+    ):
         gap = math.nan
         if barrier is not None and math.isfinite(barrier["dual_bound"]):
             gap = fallback["value"] - barrier["dual_bound"]
@@ -533,7 +550,9 @@ def solve_vertex_epigraph(A, oracle, default_start=None, control=None) -> dict:
     pi[active_columns] = pi_active
     details = vertex_certificate(pi, A, oracle, return_details=True)
     violation = directional_violation(pi_active, A_active, oracle)
-    optimality_gap = max(float(best["gap"]), 0.0) if math.isfinite(best["gap"]) else math.nan
+    optimality_gap = (
+        max(float(best["gap"]), 0.0) if math.isfinite(best["gap"]) else math.nan
+    )
     if math.isfinite(optimality_gap):
         converged = optimality_gap <= gap_tol
     else:
@@ -594,7 +613,9 @@ def barrier_solve(
         return A @ (1.0 / p) - oracle
 
     def dual_bound(lam):
-        return float(np.sum(np.sqrt(np.maximum(A.T @ lam, 0.0))) ** 2 - np.sum(lam * oracle))
+        return float(
+            np.sum(np.sqrt(np.maximum(A.T @ lam, 0.0))) ** 2 - np.sum(lam * oracle)
+        )
 
     # The linear term is measured from a reference level so that differences
     # in the barrier value stay resolvable when ``tau`` is large.
@@ -606,12 +627,22 @@ def barrier_solve(
             return math.inf
         return float(tau_now * (tt - t_ref) - np.sum(np.log(s)) - np.sum(np.log(p)))
 
-    pi = np.full(n, 1.0 / n) if start is None else np.asarray(start, dtype=float).reshape(-1)
+    pi = (
+        np.full(n, 1.0 / n)
+        if start is None
+        else np.asarray(start, dtype=float).reshape(-1)
+    )
     pi = np.maximum(pi, 1e-6)
     pi = pi / np.sum(pi)
     fv = regrets(pi)
     if np.any(~np.isfinite(fv)):
-        return {"pi": pi, "value": math.inf, "gap": math.nan, "dual_bound": -math.inf, "converged": False}
+        return {
+            "pi": pi,
+            "value": math.inf,
+            "gap": math.nan,
+            "dual_bound": -math.inf,
+            "converged": False,
+        }
 
     best_pi = pi.copy()
     best_value = float(np.max(fv))
@@ -665,7 +696,10 @@ def barrier_solve(
             accepted = False
             for _line in range(60):
                 candidate = barrier_value(pi + size * d_pi, t + size * d_t, tau, t_ref)
-                if math.isfinite(candidate) and candidate <= current - 0.25 * size * decrement:
+                if (
+                    math.isfinite(candidate)
+                    and candidate <= current - 0.25 * size * decrement
+                ):
                     accepted = True
                     break
                 size /= 2.0

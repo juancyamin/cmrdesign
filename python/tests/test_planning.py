@@ -43,7 +43,9 @@ class PlanningTests(unittest.TestCase):
         band = cmr.pilot_viability_band(n=1000, sigma1=0.5, sigma0=0.25, alpha=0.01)
         self.assertEqual((band["min_feasible"], band["max_feasible"]), (96, 100))
         self.assertEqual(cmr.cmr_plan(600, 0.5, 0.25)["default_two_thirds_power"], 72)
-        self.assertEqual(cmr.cmr_plan(10000, 0.5, 0.25)["default_two_thirds_power"], 466)
+        self.assertEqual(
+            cmr.cmr_plan(10000, 0.5, 0.25)["default_two_thirds_power"], 466
+        )
 
     def test_two_thirds_status_reports_position_in_band(self):
         above = cmr.cmr_plan(n=3000, sigma1=0.18, sigma0=0.28)

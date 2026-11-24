@@ -3,6 +3,7 @@ import unittest
 import warnings
 
 import numpy as np
+
 import cmrdesign as cmr
 
 
@@ -50,7 +51,14 @@ class MultiarmTests(unittest.TestCase):
         self.assertAlmostEqual(fit.U_CMR, 0, places=12)
 
     def test_shrinking_rectangle_weakly_lowers_certificate(self):
-        big = {"v_l0": 0, "v_u0": 0.25, "v_l1": 0, "v_u1": 0.25, "v_l2": 0, "v_u2": 0.25}
+        big = {
+            "v_l0": 0,
+            "v_u0": 0.25,
+            "v_l1": 0,
+            "v_u1": 0.25,
+            "v_l2": 0,
+            "v_u2": 0.25,
+        }
         small = {
             "v_l0": 0.02,
             "v_u0": 0.08,
@@ -114,7 +122,9 @@ class MultiarmTests(unittest.TestCase):
         ]
         arm = np.asarray(list(np.repeat([0, 1, 2], n_per_arm)) + [np.nan], dtype=object)
         fit = cmr.cmr_multiarm(y, arm, method="bounded")
-        self.assertEqual(fit.pilot["n"], {"0": n_per_arm, "1": n_per_arm, "2": n_per_arm})
+        self.assertEqual(
+            fit.pilot["n"], {"0": n_per_arm, "1": n_per_arm, "2": n_per_arm}
+        )
         with self.assertRaisesRegex(ValueError, "na_rm=False"):
             cmr.cmr_multiarm(y, arm, method="bounded", na_rm=False)
 

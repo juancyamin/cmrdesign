@@ -20,7 +20,10 @@ class ArmLabelTests(unittest.TestCase):
         ):
             with self.subTest(labels=labels):
                 fit = cmr.cmr_multiarm(
-                    self.y, np.repeat(labels, 60), control_arm="control", method="bounded"
+                    self.y,
+                    np.repeat(labels, 60),
+                    control_arm="control",
+                    method="bounded",
                 )
                 self.assertEqual(list(fit.pi), ["0", *labels[1:]])
                 self.assertEqual(list(fit.pilot["n"]), ["0", *labels[1:]])
@@ -34,7 +37,9 @@ class ArmLabelTests(unittest.TestCase):
             control_arm="control",
             method="bounded",
         )
-        np.testing.assert_allclose(list(relabeled.pi.values()), list(reference.pi.values()))
+        np.testing.assert_allclose(
+            list(relabeled.pi.values()), list(reference.pi.values())
+        )
         self.assertAlmostEqual(relabeled.U_CMR, reference.U_CMR, places=14)
 
     def test_v_prefix_removed_only_for_variance_names(self):
@@ -57,14 +62,20 @@ class StratumLabelTests(unittest.TestCase):
         rng = np.random.default_rng(102)
         y = rng.uniform(size=160)
         d = np.tile([1, 0], 80)
-        plain = cmr.cmr_stratified(y, d, np.repeat(["a", "b"], 80), {"a": 0.4, "b": 0.6})
+        plain = cmr.cmr_stratified(
+            y, d, np.repeat(["a", "b"], 80), {"a": 0.4, "b": 0.6}
+        )
         labels = ["age:18-30", "age:31+"]
-        fit = cmr.cmr_stratified(y, d, np.repeat(labels, 80), dict(zip(labels, [0.4, 0.6])))
+        fit = cmr.cmr_stratified(
+            y, d, np.repeat(labels, 80), dict(zip(labels, [0.4, 0.6], strict=True))
+        )
         self.assertEqual(
             list(fit.pi), ["1:age:18-30", "0:age:18-30", "1:age:31+", "0:age:31+"]
         )
         np.testing.assert_allclose(list(fit.pi.values()), list(plain.pi.values()))
-        allocation = cmr.realize_allocation(fit, strata_counts=dict(zip(labels, [40, 60])))
+        allocation = cmr.realize_allocation(
+            fit, strata_counts=dict(zip(labels, [40, 60], strict=True))
+        )
         self.assertEqual(sum(allocation.counts.values()), 100)
 
     def test_stratum_without_sample_has_nan_treatment_margin(self):
@@ -82,15 +93,23 @@ class DispatchTests(unittest.TestCase):
         self.arm = np.repeat([0, 1], 20)
         self.strata = np.tile(["a", "b"], 20)
         self.share = {"a": 0.5, "b": 0.5}
-        self.coded = np.r_[np.repeat([3.0, 7.0], [5, 15]), np.repeat([3.0, 7.0], [10, 10])]
+        self.coded = np.r_[
+            np.repeat([3.0, 7.0], [5, 15]), np.repeat([3.0, 7.0], [10, 10])
+        ]
         self.binary = np.tile([0.0, 1.0], 20)
 
     def test_auto_uses_raw_values_in_every_design(self):
         kwargs = dict(normalize=True, lower=3, upper=7)
-        self.assertEqual(cmr.cmr_two_arm(self.coded, self.d, **kwargs).method, "bounded")
-        self.assertEqual(cmr.cmr_multiarm(self.coded, self.arm, **kwargs).method, "bounded")
         self.assertEqual(
-            cmr.cmr_stratified(self.coded, self.d, self.strata, self.share, **kwargs).method,
+            cmr.cmr_two_arm(self.coded, self.d, **kwargs).method, "bounded"
+        )
+        self.assertEqual(
+            cmr.cmr_multiarm(self.coded, self.arm, **kwargs).method, "bounded"
+        )
+        self.assertEqual(
+            cmr.cmr_stratified(
+                self.coded, self.d, self.strata, self.share, **kwargs
+            ).method,
             "bounded",
         )
 
@@ -99,12 +118,18 @@ class DispatchTests(unittest.TestCase):
         fit = cmr.cmr_two_arm(self.coded, self.d, **kwargs)
         self.assertEqual(fit.method, "bernoulli")
         self.assertEqual(fit.pilot["normalization"], {"lower": 3.0, "upper": 7.0})
-        self.assertEqual(cmr.cmr_multiarm(self.coded, self.arm, **kwargs).method, "bernoulli")
+        self.assertEqual(
+            cmr.cmr_multiarm(self.coded, self.arm, **kwargs).method, "bernoulli"
+        )
 
     def test_raw_binary_outcomes_skip_normalization_with_a_warning(self):
         for fit_fn in (
-            lambda: cmr.cmr_two_arm(self.binary, self.d, normalize=True, lower=0, upper=10),
-            lambda: cmr.cmr_multiarm(self.binary, self.arm, normalize=True, lower=0, upper=10),
+            lambda: cmr.cmr_two_arm(
+                self.binary, self.d, normalize=True, lower=0, upper=10
+            ),
+            lambda: cmr.cmr_multiarm(
+                self.binary, self.arm, normalize=True, lower=0, upper=10
+            ),
         ):
             with self.assertWarnsRegex(UserWarning, "`normalize=True` was ignored"):
                 fit = fit_fn()
@@ -163,7 +188,9 @@ class InputTests(unittest.TestCase):
         y = np.r_[rng.beta(0.5, 0.5, 80), rng.beta(8, 8, 80)]
         bonferroni = cmr.cmr_two_arm(y, d, method="bounded")
         sidak = cmr.cmr_two_arm(y, d, method="bounded", correction="sidak_arms")
-        self.assertAlmostEqual(sidak.beta["beta_l1"], (1 - math.sqrt(0.95)) / 2, places=15)
+        self.assertAlmostEqual(
+            sidak.beta["beta_l1"], (1 - math.sqrt(0.95)) / 2, places=15
+        )
         self.assertAlmostEqual(sidak.joint_error_bound, 0.05, places=12)
         self.assertLessEqual(sidak.rectangle["v_u1"], bonferroni.rectangle["v_u1"])
         self.assertGreaterEqual(sidak.rectangle["v_l1"], bonferroni.rectangle["v_l1"])
@@ -175,16 +202,24 @@ class ScaleTests(unittest.TestCase):
         self.assertAlmostEqual(pi_star, 2 / 3, places=14)
         self.assertAlmostEqual(cmr.regret(pi_star, 0.20, 0.05), 0.0, places=14)
         self.assertAlmostEqual(
-            cmr.regret(0.5, 0.20, 0.05), (math.sqrt(0.20) - math.sqrt(0.05)) ** 2, places=14
+            cmr.regret(0.5, 0.20, 0.05),
+            (math.sqrt(0.20) - math.sqrt(0.05)) ** 2,
+            places=14,
         )
         self.assertEqual(cmr.assign_neyman(0, 0), 0.5)
 
     def test_nonnegative_scale_allows_unbounded_variances(self):
         with self.assertRaisesRegex(ValueError, r"must lie in \[0, 1/4\]"):
             cmr.regret(0.5, 2, 1)
-        self.assertAlmostEqual(cmr.regret(0.5, 4, 1, scale="nonnegative"), 1.0, places=14)
-        self.assertAlmostEqual(cmr.oracle_variance(4, 1, scale="nonnegative"), 9.0, places=14)
-        self.assertAlmostEqual(cmr.assign_neyman(4, 1, scale="nonnegative"), 2 / 3, places=14)
+        self.assertAlmostEqual(
+            cmr.regret(0.5, 4, 1, scale="nonnegative"), 1.0, places=14
+        )
+        self.assertAlmostEqual(
+            cmr.oracle_variance(4, 1, scale="nonnegative"), 9.0, places=14
+        )
+        self.assertAlmostEqual(
+            cmr.assign_neyman(4, 1, scale="nonnegative"), 2 / 3, places=14
+        )
         self.assertAlmostEqual(
             cmr.variance_objective(0.5, 4, 1, scale="nonnegative"), 10.0, places=14
         )
