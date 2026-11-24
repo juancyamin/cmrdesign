@@ -211,12 +211,16 @@ variance_bounds_bernoulli_exact <- function(y,
 #' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
 #'   for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.
 #' @param beta Optional endpoint error allocation. If `NULL`, error is split
-#'   according to `correction`.
+#'   according to `correction`. A single number is used as the one-sided error of all four
+#'   endpoints. A named vector with entries `beta_l1`, `beta_u1`, `beta_l0`,
+#'   `beta_u0` sets each endpoint separately.
 #' @param correction Endpoint error correction, either `"bonferroni"` or
 #'   `"sidak_arms"` for two-arm workflows.
 #' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
 #'   computing variances. For guarantee-bearing bounded CMR on a non-unit
-#'   scale, provide known `lower` and `upper` bounds.
+#'   scale, provide known `lower` and `upper` bounds. With
+#'   `method = "auto"` and raw 0/1 outcomes, exact Bernoulli bounds are used
+#'   on the raw scale and normalization is skipped.
 #' @param lower,upper Optional lower and upper outcome bounds used when
 #'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
 #'   is used with a warning; that data-dependent normalization is exploratory
@@ -326,42 +330,38 @@ rectangle_binary <- function(y,
     ))
   }
 
-  resolved_method <- switch(
-    method,
-    auto = if (.cmr_is_dummy(pilot$y, na.rm = FALSE)) "bernoulli" else "bounded",
-    bounded = "bounded",
-    maurer_pontil = "bounded",
-    mp = "bounded",
-    bernoulli = "bernoulli",
-    bernoulli_exact = "bernoulli",
-    martinez_taboada_ramdas = "martinez_taboada_ramdas",
-    mtr = "martinez_taboada_ramdas"
+  prepared <- .cmr_prepare_outcome_scale(
+    pilot$y,
+    method = method,
+    normalize = normalize,
+    lower = lower,
+    upper = upper
   )
 
-  if (resolved_method == "bernoulli") {
-    return(rectangle_bernoulli_binary(
-      y = pilot$y,
+  out <- if (prepared$method == "bernoulli") {
+    rectangle_bernoulli_binary(
+      y = prepared$y,
       d = pilot$d,
       alpha = alpha,
       beta = beta,
       correction = correction,
       na.rm = FALSE,
       tol = tol
-    ))
+    )
+  } else {
+    rectangle_bounded_binary(
+      y = prepared$y,
+      d = pilot$d,
+      alpha = alpha,
+      method = prepared$method,
+      beta = beta,
+      correction = correction,
+      normalize = FALSE,
+      na.rm = FALSE
+    )
   }
-
-  rectangle_bounded_binary(
-    y = pilot$y,
-    d = pilot$d,
-    alpha = alpha,
-    method = resolved_method,
-    beta = beta,
-    correction = correction,
-    normalize = normalize,
-    lower = lower,
-    upper = upper,
-    na.rm = FALSE
-  )
+  out["normalization"] <- list(prepared$normalization)
+  out
 }
 
 #' @rdname rectangle_bernoulli_binary

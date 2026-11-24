@@ -150,7 +150,7 @@ testthat::test_that("main applied signatures match reviewed public surface", {
   ))
   .expect_default(cmr_plan, "alpha", 0.05)
   .expect_default(cmr_plan, "desired_pilot", NULL)
-  .expect_default(cmr_plan, "strict_upper", TRUE)
+  .expect_default(cmr_plan, "strict_upper", FALSE)
 
   .expect_formal_names(realize_allocation, c(
     "x", "n_main", "strata_counts", "min_per_arm", "max_vertices"
@@ -271,6 +271,7 @@ testthat::test_that("main result fields match reviewed contract", {
       "band",
       "suggested_pilot",
       "default_two_thirds_power",
+      "two_thirds_status",
       "desired_pilot",
       "desired_status",
       "recommendation",

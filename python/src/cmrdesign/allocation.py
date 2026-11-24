@@ -262,13 +262,9 @@ def _realize_stratified_counts(target, strata_counts, min_per_arm):
     extra_strata = [label for label in stratum_count_labels if label not in strata]
     if extra_strata:
         cmr_error(
-            "`strata_counts` contains unknown strata: "
-            + ", ".join(extra_strata)
-            + "."
+            "`strata_counts` contains unknown strata: " + ", ".join(extra_strata) + "."
         )
-    stratum_counts = {
-        str(key): value for key, value in strata_counts.items()
-    }
+    stratum_counts = {str(key): value for key, value in strata_counts.items()}
     counts: dict[str, int] = {}
     for stratum in strata:
         if stratum not in stratum_counts:
@@ -320,7 +316,47 @@ def realize_allocation(
     min_per_arm: int = 1,
     max_vertices: int = 65536,
 ) -> AllocationResult:
-    """Convert target CMR shares into executable integer allocation counts."""
+    """Turn target CMR shares into integer main-wave counts.
+
+    Uses largest-remainder rounding with deterministic tie-breaking. When ``x`` is
+    a CMR result that carries its rectangle, the regret certificate is recomputed
+    at the rounded shares.
+
+    Parameters
+    ----------
+    x : CMRResult, float, mapping, or array_like
+        A CMR result, a two-arm treatment share, or target shares by arm or cell.
+    n_main : int, optional
+        Main-wave sample size. Required unless ``strata_counts`` is given.
+    strata_counts : mapping, optional
+        Fixed main-wave totals by stratum for a two-arm stratified design.
+        Treatment and control counts are rounded within each stratum and the
+        stratum totals are kept exactly.
+    min_per_arm : int, default 1
+        Smallest count for every arm or cell with a positive target share.
+    max_vertices : int, default 65536
+        Largest number of rectangle vertices to enumerate. The count doubles with
+        every arm or cell.
+
+    Returns
+    -------
+    AllocationResult
+        Integer ``counts``, realized ``shares``, the normalized ``target_pi``, and,
+        when available, ``continuous_U_CMR``, ``realized_U_CMR``, and their
+        difference ``excess_U_CMR``.
+
+    Notes
+    -----
+    The function stops at counts. It does not generate a randomized assignment
+    vector.
+
+    Examples
+    --------
+    >>> import cmrdesign as cmr
+    >>> alloc = cmr.realize_allocation(0.3, n_main=101)
+    >>> alloc.counts
+    {'treatment': 30, 'control': 71}
+    """
 
     fit = x if isinstance(x, CMRResult) else None
     target = x.pi if fit is not None else x
@@ -332,14 +368,14 @@ def realize_allocation(
     if np.isscalar(target):
         if n_main is None:
             cmr_error("`n_main` is required unless `strata_counts` is supplied.")
-        pi = float(target)
+        pi = float(target)  # type: ignore[arg-type]
         if not math.isfinite(pi) or pi < -1e-12 or pi > 1 + 1e-12:
             cmr_error("Two-arm `pi` must lie in [0, 1].")
         labels = ["treatment", "control"]
         shares = np.asarray([min(max(pi, 0.0), 1.0), 1 - min(max(pi, 0.0), 1.0)])
-        target_pi = float(shares[0])
+        target_pi: Any = float(shares[0])
         counts, realized = _realize_vector(labels, shares, n_main, min_per_arm)
-        realized_pi = realized["treatment"]
+        realized_pi: Any = realized["treatment"]
         diagnostics: dict[str, Any] = {"design": "two_arm"}
         cert = (
             _two_arm_realized_certificate(fit.rectangle, realized_pi)
@@ -350,7 +386,7 @@ def realize_allocation(
         if not isinstance(target, Mapping):
             arr = as_numeric_array(target, "pi").reshape(-1)
             labels = [str(i) for i in range(arr.size)]
-            values = arr
+            values: Any = arr
         else:
             labels, values = _ordered_mapping_values(target)
         if len(labels) < 2:

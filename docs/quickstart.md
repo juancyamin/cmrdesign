@@ -62,8 +62,8 @@ from which arm. With a data frame you would usually call
 library(cmrdesign)
 
 set.seed(123)
-d <- c(rep(1, 40), rep(0, 40))
-y <- c(rbeta(40, 2, 5), rbeta(40, 4, 4))
+d <- c(rep(1, 200), rep(0, 200))
+y <- c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8))
 
 fit <- cmr_two_arm(y, d, alpha = 0.05, method = "auto")
 fit$pi
@@ -82,8 +82,8 @@ import numpy as np
 import cmrdesign as cmr
 
 rng = np.random.default_rng(123)
-d = np.r_[np.ones(40), np.zeros(40)]
-y = np.r_[rng.beta(2, 5, 40), rng.beta(4, 4, 40)]
+d = np.r_[np.ones(200), np.zeros(200)]
+y = np.r_[rng.beta(0.5, 0.5, 200), rng.beta(8, 8, 200)]
 
 fit = cmr.cmr_two_arm(y, d, alpha=0.05, method="auto")
 fit.pi
@@ -105,6 +105,10 @@ allocation.realized_U_CMR
   treatment-effect confidence interval.
 - `rectangle` or `confidence_set` records the variance uncertainty set that
   generated the allocation.
+- `pi = 0.5` with `U_CMR = 0.25` means the pilot was too small to rule out any
+  variance pair. The rule then returns the balanced design. With bounded
+  outcomes at `alpha = 0.05` this happens for every pilot below 36 observations
+  per arm.
 - `method` records the confidence-interval method after `auto` dispatch.
 - `diagnostics` records solver status and edge cases.
 - `realize_allocation()` converts the continuous CMR share into integer

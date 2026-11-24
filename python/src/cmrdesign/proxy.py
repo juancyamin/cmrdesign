@@ -57,6 +57,60 @@ def rectangle_proxy(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> RectangleResult:
+    """Two-arm confidence rectangle for a primary outcome observed through a proxy.
+
+    The proxy standard-deviation interval of each arm is widened by ``zeta`` on
+    both sides, clipped to ``[0, 1/2]``, and squared.
+
+    Parameters
+    ----------
+    proxy_y : array_like
+        Pilot proxy or short-run outcomes, one entry per pilot unit.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    zeta : float, pair of floats, or mapping
+        Bridge constant: a bound on the absolute difference between the standard
+        deviations of the primary and the proxy outcome in each arm. A single value
+        applies to both arms.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` according to
+        ``correction``. A float is used for all four endpoints. A mapping with keys
+        ``beta_l1``, ``beta_u1``, ``beta_l0``, ``beta_u0`` sets each endpoint
+        separately.
+    correction : {"bonferroni", "sidak_arms"}, default "bonferroni"
+        How ``alpha`` is split across endpoints. ``"sidak_arms"`` uses the
+        independence of the two arms and gives slightly larger endpoint errors.
+    normalize : bool, default False
+        If True, map outcomes to ``[0, 1]`` using ``lower`` and ``upper`` before
+        computing variances. With ``method="auto"`` and raw 0/1 outcomes, exact
+        Bernoulli bounds are used on the raw scale and normalization is skipped.
+    lower, upper : float, optional
+        Known support bounds used when ``normalize=True``. If either is omitted,
+        the pilot minimum or maximum is used with a warning. That data-dependent
+        normalization is exploratory and does not carry the finite-sample
+        guarantee.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    RectangleResult
+        Rectangle for the primary outcome. The proxy rectangle is kept in
+        ``extra["proxy_confidence_set"]``.
+    """
+
     zeta = check_zeta_pair(zeta)
     if is_unbounded_method(method):
         cmr_error("The proxy bridge supports bounded-outcome methods only.")
@@ -142,6 +196,63 @@ def cmr_proxy(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> CMRResult:
+    """Conditional Minimax Regret treatment share from a proxy or short-run outcome.
+
+    Use this when the pilot observes a proxy for the primary outcome and the
+    researcher can bound the difference between their standard deviations. The
+    bound ``zeta`` is an assumption supplied by the researcher. It is not
+    estimated.
+
+    Parameters
+    ----------
+    proxy_y : array_like
+        Pilot proxy or short-run outcomes, one entry per pilot unit.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    zeta : float, pair of floats, or mapping
+        Bridge constant: a bound on the absolute difference between the standard
+        deviations of the primary and the proxy outcome in each arm. A single value
+        applies to both arms.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` according to
+        ``correction``. A float is used for all four endpoints. A mapping with keys
+        ``beta_l1``, ``beta_u1``, ``beta_l0``, ``beta_u0`` sets each endpoint
+        separately.
+    correction : {"bonferroni", "sidak_arms"}, default "bonferroni"
+        How ``alpha`` is split across endpoints. ``"sidak_arms"`` uses the
+        independence of the two arms and gives slightly larger endpoint errors.
+    normalize : bool, default False
+        If True, map outcomes to ``[0, 1]`` using ``lower`` and ``upper`` before
+        computing variances. With ``method="auto"`` and raw 0/1 outcomes, exact
+        Bernoulli bounds are used on the raw scale and normalization is skipped.
+    lower, upper : float, optional
+        Known support bounds used when ``normalize=True``. If either is omitted,
+        the pilot minimum or maximum is used with a warning. That data-dependent
+        normalization is exploratory and does not carry the finite-sample
+        guarantee.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    CMRResult
+        Result with the allocation ``pi``, the certificate ``U_CMR``, the variance
+        ``rectangle``, the ``confidence_set`` it came from, pilot summaries in
+        ``pilot``, and ``diagnostics``.
+    """
+
     confidence_set = rectangle_proxy(
         proxy_y=proxy_y,
         d=d,
@@ -169,6 +280,7 @@ def cmr_proxy(
     out.beta = confidence_set.beta
     out.method = confidence_set.method
     out.joint_error_bound = confidence_set.joint_error_bound
+    out.correction = confidence_set.extra.get("correction")
     out.extra["zeta"] = confidence_set.extra.get("zeta")
     out.extra["bridge"] = confidence_set.extra.get("bridge")
     out.diagnostics["confidence_method"] = confidence_set.method

@@ -45,8 +45,11 @@ workflows. For raw finite outcomes without a known bound, use
 `cmr_multiarm(y, arm, control_arm = 0, ...)` allocates across one control arm
 and multiple treatment arms. The control arm is weighted by the number of
 treatment arms in the objective. Collapsed and full rectangles use closed-form
-shortcuts; general rectangles are solved over rectangle vertices with numerical
-optimization and a certificate check.
+shortcuts. General rectangles are solved over the rectangle vertices as a
+convex program, and `diagnostics` reports `optimality_gap`, a bound on how far
+`U_CMR` can be from the minimax value.
+
+Arm labels can be any values. Only the control arm is renamed, to `"0"`.
 
 The outcome vector `y` still has one entry per pilot unit. The companion `arm`
 vector labels each row's arm. The returned `pi` is a named vector over the
@@ -65,10 +68,10 @@ pilot composition, unless those are intentionally the same. The returned
 `pi_matrix` is often the clearest applied object: rows are treatment/control
 and columns are strata.
 
-For general multi-arm and stratified rectangles, the certificate `U_CMR` is the
-authoritative cross-language quantity. When the regret surface is nearly flat,
-multiple allocations can be essentially tied, so tiny solver differences may
-move `pi` more than they move `U_CMR`.
+For general multi-arm and stratified rectangles, R and Python run the same
+barrier Newton method and agree to about `1e-9` in `U_CMR`. When the regret
+surface is nearly flat, several allocations can be essentially tied, and `pi`
+can then differ by more than `U_CMR` does.
 
 The general vertex method enumerates variance-rectangle vertices, so it is
 intended for a modest number of arms or stratified cells. Very large
@@ -143,8 +146,9 @@ for the actual field implementation.
 `cmr_plan(n, sigma1, sigma0, ...)` is used before the pilot is collected. It
 implements the pilot-size planning screen from Appendix E of the accompanying
 paper (Yamin 2026) using planning standard deviations or variances. The output
-reports the activation threshold, break-even cap, feasible even pilot sizes, a
-default suggested pilot size, and diagnostics for an optional `desired_pilot`.
+reports the activation threshold, the break-even cap, the feasible even pilot
+sizes, the smallest feasible size, the two-thirds-power size with its status
+relative to the feasible set, and the status of an optional `desired_pilot`.
 
 This is a planning screen, not a guarantee that adaptation will help in every
 realized experiment.

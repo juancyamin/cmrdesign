@@ -7,13 +7,13 @@
 \alias{regret}
 \title{Two-arm variance objectives and Neyman allocation}
 \usage{
-variance_objective(pi, v1, v0)
+variance_objective(pi, v1, v0, scale = c("unit", "nonnegative"))
 
-oracle_variance(v1, v0)
+oracle_variance(v1, v0, scale = c("unit", "nonnegative"))
 
-assign_neyman(v1, v0)
+assign_neyman(v1, v0, scale = c("unit", "nonnegative"))
 
-regret(pi, v1, v0)
+regret(pi, v1, v0, scale = c("unit", "nonnegative"))
 }
 \arguments{
 \item{pi}{Treatment assignment share. Values must lie in \verb{[0, 1]}.}
@@ -23,6 +23,12 @@ this must lie in \verb{[0, 1/4]}.}
 
 \item{v0}{Control-arm outcome variance. For bounded or Bernoulli outcomes,
 this must lie in \verb{[0, 1/4]}.}
+
+\item{scale}{Variance scale. \code{"unit"}, the default, requires variances in
+\verb{[0, 1/4]}, the feasible range for outcomes in \verb{[0, 1]}. \code{"nonnegative"}
+accepts any finite nonnegative variance. Use it to audit
+\code{\link[=cmr_unbounded]{cmr_unbounded()}} results or a raw Maurer–Pontil sample variance above
+\code{1/4}.}
 }
 \value{
 Numeric vector after ordinary R recycling of \code{pi}, \code{v1}, and \code{v0}.
@@ -43,6 +49,7 @@ pi <- assign_neyman(v1, v0)
 variance_objective(pi, v1, v0)
 oracle_variance(v1, v0)
 regret(0.5, v1, v0)
+regret(0.5, v1 = 2.5, v0 = 0.6, scale = "nonnegative")
 
 }
 \seealso{

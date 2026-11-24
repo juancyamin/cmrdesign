@@ -29,7 +29,10 @@ cmr_stratified(
 
 \item{strata}{Pilot stratum labels.}
 
-\item{strata_share}{Named stratum population shares that sum to one.}
+\item{strata_share}{Named stratum population shares that sum to one. Names
+must match the labels in \code{strata}. An unnamed vector is matched to strata
+in their order of first appearance in the pilot, so naming the shares is
+safer.}
 
 \item{alpha}{Target joint error level.}
 
@@ -41,7 +44,9 @@ is split across all lower and upper treatment/control by stratum endpoints.}
 
 \item{normalize}{If \code{TRUE}, normalize bounded outcomes to \verb{[0, 1]} before
 computing variances. For guarantee-bearing bounded CMR on a non-unit
-scale, provide known \code{lower} and \code{upper} bounds.}
+scale, provide known \code{lower} and \code{upper} bounds. With
+\code{method = "auto"} and raw 0/1 outcomes, exact Bernoulli bounds are used
+on the raw scale and normalization is skipped.}
 
 \item{lower, upper}{Optional lower and upper outcome bounds used when
 \code{normalize = TRUE}. If either is omitted, the pilot minimum and/or maximum
@@ -52,8 +57,11 @@ and does not carry the finite-sample bounded-outcome CMR guarantee.}
 
 \item{tol}{Numerical tolerance for exact Bernoulli bound inversion.}
 
-\item{solver_control}{Optional list of solver controls for the general
-vertex epigraph solver.}
+\item{solver_control}{Optional list of solver controls for general rectangles.
+\code{gap_tol} is the target optimality gap relative to the problem scale
+(default \code{1e-9}). \code{barrier = FALSE} skips the barrier Newton method and
+uses the multi-start search directly. \code{max_starts}, \code{smooth_taus},
+\code{maxit}, and \code{mirror_iterations} tune that fallback search.}
 
 \item{max_vertices}{Maximum number of hyperrectangle vertices to enumerate.}
 }
@@ -70,11 +78,13 @@ cells.
 }
 \examples{
 set.seed(7)
-strata <- rep(c("A", "B"), each = 40)
-d <- rep(rep(c(1, 0), each = 20), 2)
-y <- c(rbeta(20, 2, 6), rbeta(20, 4, 4),
-       rbeta(20, 5, 3), rbeta(20, 3, 5))
-cmr_stratified(y, d, strata, strata_share = c(A = 0.45, B = 0.55))
+strata <- rep(c("A", "B"), each = 400)
+d <- rep(rep(c(1, 0), each = 200), 2)
+y <- c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8),
+       rbeta(200, 5, 3), rbeta(200, 3, 5))
+fit <- cmr_stratified(y, d, strata, strata_share = c(A = 0.45, B = 0.55))
+fit
+fit$pi_matrix
 
 }
 \seealso{

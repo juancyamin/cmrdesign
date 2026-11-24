@@ -217,7 +217,24 @@ The oracle value at known variances is
 (sqrt(K v0) + sum_k sqrt(vk))^2.
 ```
 
-CMR over a hyperrectangle is solved over the rectangle vertices.
+CMR over a hyperrectangle is solved over the rectangle vertices. Regret is
+convex in the variance vector, so the worst case over the rectangle is at a
+vertex, and each vertex regret is convex in the allocation. The problem
+
+```text
+min over pi in the simplex of  max over vertices v of  f_v(pi),
+f_v(pi) = sum_i a_{v,i} / pi_i - oracle_v,
+```
+
+is therefore convex. It is solved by a barrier Newton method. For any
+probability vector `lambda` over vertices,
+
+```text
+(sum_i sqrt(sum_v lambda_v a_{v,i}))^2 - sum_v lambda_v oracle_v
+```
+
+is a lower bound on the minimax value. The reported `optimality_gap` is
+`U_CMR` minus the best such bound found.
 
 ### Stratified
 
@@ -254,8 +271,9 @@ The endpoints are squared to form the primary variance interval.
 ## Appendix E Planning
 
 Bounded-outcome activation threshold: smallest even pilot size with equal arm
-sizes such that the Maurer–Pontil upper-radius adjustment is smaller than the
-maximum possible sample standard deviation for that arm size.
+sizes such that the Maurer–Pontil radius at level `alpha / 4` is smaller than
+the maximum possible sample standard deviation for that arm size. Below it the
+rectangle is `[0, 1/4]^2` for every pilot.
 
 Bernoulli activation threshold: `4`.
 
@@ -265,9 +283,15 @@ Break-even pilot share for planning standard deviations `sigma1`, `sigma0`:
 (sigma1 - sigma0)^2 / (2 (sigma1^2 + sigma0^2)).
 ```
 
-The design-only viability band keeps even pilot sizes that clear activation and
-lie below the break-even total. The pooled accounting option keeps activation
-but drops the design-only break-even cap.
+The design-only viability band keeps even pilot sizes `m` with
+
+```text
+m_act(alpha) <= m <= n (sigma1 - sigma0)^2 / (2 (sigma1^2 + sigma0^2)).
+```
+
+Both inequalities are weak, as in the paper. `strict_upper = TRUE` makes the
+upper one strict. The pooled accounting option keeps activation but drops the
+design-only break-even cap.
 
 Default pilot size:
 

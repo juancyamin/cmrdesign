@@ -83,7 +83,9 @@ class MultipleOutcomeTests(unittest.TestCase):
         d = [1, 1, 1, 1, 0, 0, 0, 0]
         for estimand in ("coprimary", "index"):
             with self.subTest(estimand=estimand):
-                with self.assertRaisesRegex(ValueError, "only available for two-arm designs"):
+                with self.assertRaisesRegex(
+                    ValueError, "only available for two-arm designs"
+                ):
                     cmr.cmr_multiple_outcomes(
                         y,
                         d,

@@ -94,8 +94,7 @@ class CrossFixtureTests(unittest.TestCase):
         if found != expected:
             raise AssertionError(f"Fixture set mismatch: {found ^ expected}")
         cls.fixtures = {
-            path.name: json.loads(path.read_text())
-            for path in cls.root.glob("*.json")
+            path.name: json.loads(path.read_text()) for path in cls.root.glob("*.json")
         }
 
     def test_all_declared_fixtures_are_valid_json(self):
@@ -261,6 +260,7 @@ class CrossFixtureTests(unittest.TestCase):
         for name in (
             "one_treatment_reduction",
             "general_asymmetric_3_components",
+            "general_asymmetric_6_components",
             "full_rectangle_k4",
         ):
             case = case_by_name(fixture, name)
@@ -288,6 +288,7 @@ class CrossFixtureTests(unittest.TestCase):
         for name in (
             "one_stratum_reduction",
             "general_asymmetric_2_strata",
+            "general_asymmetric_3_strata",
             "full_rectangle_representative_balance",
         ):
             case = case_by_name(fixture, name)
@@ -358,13 +359,19 @@ class CrossFixtureTests(unittest.TestCase):
         }
         assert_close(self, actual, activation_case["expected"], tol)
 
-        for name in ("design_only_break_even", "pooled_keeps_activation"):
+        for name in (
+            "design_only_break_even",
+            "pooled_keeps_activation",
+            "strict_upper_excludes_cap",
+            "two_thirds_above_cap",
+        ):
             case = case_by_name(fixture, name)
             plan = cmr.cmr_plan(**case["input"])
             actual = {
                 "activation_threshold": plan["band"]["activation_threshold"],
                 "break_even_total": plan["band"]["break_even_total"],
                 "default_two_thirds_power": plan["default_two_thirds_power"],
+                "two_thirds_status": plan["two_thirds_status"],
                 "desired_status": plan["desired_status"],
             }
             for key in (

@@ -33,7 +33,10 @@ weights are used.}
 \item{method}{Confidence-set method. \code{"auto"} chooses exact Bernoulli bounds
 for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.}
 
-\item{beta}{Optional scalar endpoint error allocation.}
+\item{beta}{Optional scalar one-sided endpoint error. With
+\code{estimand = "coprimary"} it applies to every arm-by-outcome endpoint.
+With \code{estimand = "index"} it applies to the four endpoints of the index
+outcome, and a named vector as in \code{\link[=cmr_two_arm]{cmr_two_arm()}} is also accepted.}
 
 \item{na.rm}{If \code{TRUE}, drop rows with missing \code{y} or \code{d}.}
 
@@ -70,6 +73,7 @@ Other rectangle helpers:
 \code{\link{cmr_unbounded_from_rectangle}()},
 \code{\link{folded_binomial_pmf}()},
 \code{\link{multiarm_variance_objective}()},
+\code{\link{print.cmr_pilot_plan}()},
 \code{\link{rectangle_bernoulli_binary}()},
 \code{\link{rectangle_bounded_two_arm}()},
 \code{\link{rectangle_multiarm}()},

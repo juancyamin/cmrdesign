@@ -15,10 +15,10 @@
 #'
 #' @examples
 #' set.seed(10)
-#' d <- rep(c(1, 0), each = 20)
+#' d <- rep(c(1, 0), each = 300)
 #' y <- cbind(
-#'   y1 = c(rbeta(20, 2, 6), rbeta(20, 4, 4)),
-#'   y2 = c(rbeta(20, 5, 3), rbeta(20, 3, 5))
+#'   y1 = c(rbeta(300, 0.5, 0.5), rbeta(300, 8, 8)),
+#'   y2 = c(rbeta(300, 0.6, 0.6), rbeta(300, 6, 6))
 #' )
 #' cmr_multiple_outcomes(y, d, weights = c(0.6, 0.4))
 #'

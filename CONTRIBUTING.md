@@ -15,7 +15,7 @@ For applied-user feedback, please use the GitHub issue forms:
 
 - Bug reports: <https://github.com/juancyamin/cmrdesign/issues/new?template=bug_report.yml>
 - Usage questions: <https://github.com/juancyamin/cmrdesign/issues/new?template=usage_question.yml>
-- General feedback: <https://github.com/juancyamin/cmrdesign/issues/new?template=alpha_feedback.yml>
+- General feedback: <https://github.com/juancyamin/cmrdesign/issues/new?template=general_feedback.yml>
 
 Please use simulated, public, or redacted data in issues.
 

@@ -2,6 +2,7 @@ import unittest
 import warnings
 
 import numpy as np
+
 import cmrdesign as cmr
 
 
@@ -19,7 +20,9 @@ class StratifiedTests(unittest.TestCase):
             cmr.stratified_oracle_variance(variances, shares),
             places=12,
         )
-        self.assertAlmostEqual(cmr.stratified_regret(pi, variances, shares), 0, places=12)
+        self.assertAlmostEqual(
+            cmr.stratified_regret(pi, variances, shares), 0, places=12
+        )
 
     def test_one_stratum_reduces_to_two_arm_cmr(self):
         shares = {"A": 1.0}
@@ -44,12 +47,18 @@ class StratifiedTests(unittest.TestCase):
             "treatment": {"A": 0.25, "B": 0.25, "C": 0.25},
             "control": {"A": 0.25, "B": 0.25, "C": 0.25},
         }
-        fit = cmr.cmr_stratified_from_rectangle({"lower": lower, "upper": upper}, shares)
+        fit = cmr.cmr_stratified_from_rectangle(
+            {"lower": lower, "upper": upper}, shares
+        )
         for stratum, share in shares.items():
             self.assertAlmostEqual(fit.pi[f"1:{stratum}"], share / 2, places=12)
             self.assertAlmostEqual(fit.pi[f"0:{stratum}"], share / 2, places=12)
-            self.assertAlmostEqual(fit.extra["sampling_margin"][stratum], share, places=12)
-            self.assertAlmostEqual(fit.extra["treatment_margin"][stratum], 0.5, places=12)
+            self.assertAlmostEqual(
+                fit.extra["sampling_margin"][stratum], share, places=12
+            )
+            self.assertAlmostEqual(
+                fit.extra["treatment_margin"][stratum], 0.5, places=12
+            )
         self.assertTrue(fit.diagnostics["full_rectangle"])
         self.assertEqual(fit.diagnostics["solver"], "full_rectangle_closed_form")
 

@@ -11,8 +11,11 @@ cmr_multiarm_from_rectangle(rectangle, control = list(), max_vertices = 65536L)
 with \code{lower} and \code{upper} columns or a named vector with entries like
 \code{v_l0}, \code{v_u0}, \code{v_l1}, \code{v_u1}.}
 
-\item{control}{Optional list of solver controls for the general vertex
-epigraph solver.}
+\item{control}{Optional list of solver controls for general rectangles.
+\code{gap_tol} is the target optimality gap relative to the problem scale
+(default \code{1e-9}). \code{barrier = FALSE} skips the barrier Newton method and
+uses the multi-start search directly. \code{max_starts}, \code{smooth_taus},
+\code{maxit}, and \code{mirror_iterations} tune that fallback search.}
 
 \item{max_vertices}{Maximum number of hyperrectangle vertices to enumerate.}
 }
@@ -20,7 +23,9 @@ epigraph solver.}
 A list of class \code{cmr_multiarm} with named assignment shares \code{pi}, regret
 certificate \code{U_CMR}, checked rectangle, enumerated vertices, vertex regrets,
 binding vertices, and solver diagnostics. For collapsed or full rectangles,
-closed-form shortcuts are used.
+closed-form shortcuts are used. For general rectangles,
+\code{diagnostics$optimality_gap} bounds how far \code{U_CMR} can be from the minimax
+value.
 }
 \description{
 Compute a shared-control multi-arm CMR allocation from a supplied variance
@@ -54,6 +59,7 @@ Other rectangle helpers:
 \code{\link{cmr_unbounded_from_rectangle}()},
 \code{\link{folded_binomial_pmf}()},
 \code{\link{multiarm_variance_objective}()},
+\code{\link{print.cmr_pilot_plan}()},
 \code{\link{rectangle_bernoulli_binary}()},
 \code{\link{rectangle_bounded_two_arm}()},
 \code{\link{rectangle_multiarm}()},

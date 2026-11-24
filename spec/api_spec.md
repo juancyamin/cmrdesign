@@ -19,8 +19,15 @@ as breaking unless this file is updated at the same time.
   When either bound is omitted, the package may use the pilot minimum and/or
   maximum as a convenience normalization, but must warn that this
   data-dependent path does not carry the finite-sample bounded-outcome CMR
-  guarantee. When `method = "auto"` and normalization is requested, dispatch
-  is based on the raw outcome values before normalization.
+  guarantee.
+- Method resolution and outcome scale follow one rule in every design.
+  `method = "auto"` looks at the raw outcome values before any normalization.
+  Raw 0/1 outcomes get exact Bernoulli bounds on the raw scale, normalization
+  is skipped, and a warning is raised when the requested support bounds differ
+  from `[0, 1]`. Any other raw outcome gets Maurer–Pontil bounds on the
+  normalized scale. An explicit method is applied to the normalized outcome,
+  so `method = "bernoulli"` with `normalize = TRUE` accepts a two-valued
+  outcome whose two values are the stated `lower` and `upper`.
 - Maurer–Pontil bounded-outcome bounds use the raw Bessel sample variance in
   the finite-sample statistic; returned variance endpoints are still projected
   to `[0, 1/4]`.
@@ -55,7 +62,9 @@ Core options:
 
 - `alpha = 0.05`.
 - `method = "auto"`.
-- `beta = NULL`/`None` for equal endpoint error allocation.
+- `beta = NULL`/`None` for equal endpoint error allocation. A scalar is the
+  common one-sided error of all four endpoints. A named vector (R) or mapping
+  (Python) with `beta_l1`, `beta_u1`, `beta_l0`, `beta_u0` sets each endpoint.
 - `correction = "bonferroni"` or `"sidak_arms"`.
 - `normalize = FALSE`/`False`, with optional `lower` and `upper`.
 - `psi` is required only when `method = "unbounded"`.
@@ -101,9 +110,16 @@ Core options:
 - `control_arm = 0`.
 - `alpha`, `method`, `beta`, `normalize`, and missing-data options as above.
 - `solver_control` and `max_vertices` for expert numerical control.
+  Recognized solver controls are `gap_tol` (target optimality gap relative to
+  the problem scale, default `1e-9`), `barrier` (set to false to skip the
+  barrier Newton method), and `max_starts`, `smooth_taus`, `maxit`,
+  `mirror_iterations` for the fallback search.
 
 Arm convention: the standardized control arm is named `"0"`. If the user passes
-a different `control_arm`, it is internally mapped to `"0"`.
+a different `control_arm`, it is internally mapped to `"0"`. Treatment arm
+labels are never renamed. Variance vectors and rectangles passed directly may
+label arms `v0`, `v1`, ...; that prefix is removed only when every label has
+that form.
 
 Variance objective weights: the control arm has weight equal to the number of
 treatment arms; each treatment arm has weight one.
@@ -181,10 +197,15 @@ Core options:
 - `method = "bounded"` or `"bernoulli"`.
 - `accounting = "design_only"` or `"pooled"`.
 - `desired_pilot` for status diagnostics.
+- `strict_upper = FALSE`/`False`. The default keeps a pilot equal to the
+  design-only break-even cap, as in the band `m_act <= m <= cap` of the paper.
 
 Return: activation threshold, break-even share, feasible even pilot sizes,
-suggested pilot size, two-thirds-power default, desired-pilot status, and a
-necessary-not-sufficient caveat.
+`suggested_pilot` (the smallest feasible size, a floor and not an optimum),
+the two-thirds-power size with its `two_thirds_status`, desired-pilot status,
+and a necessary-not-sufficient caveat. Status labels are
+`inside_viability_band`, `below_activation_threshold`, `above_break_even_cap`,
+`outside_budget`, `not_admissible_odd`, and `no_pilot`.
 
 ### `realize_allocation(x, n_main, ...)`
 

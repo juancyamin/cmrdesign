@@ -237,14 +237,20 @@ stratified_rectangle_vertices <- function(rectangle,
 #' @param rectangle Stratified variance rectangle, a list with `lower` and
 #'   `upper` `2 x S` matrices.
 #' @param strata_share Named stratum population shares that sum to one.
-#' @param control Optional list of solver controls for the general vertex
-#'   epigraph solver.
+#' @param control Optional list of solver controls for general rectangles.
+#'   `gap_tol` is the target optimality gap relative to the problem scale
+#'   (default `1e-9`). `barrier = FALSE` skips the barrier Newton method and
+#'   uses the multi-start search directly. `max_starts`, `smooth_taus`,
+#'   `maxit`, and `mirror_iterations` tune that fallback search.
 #' @param max_vertices Maximum number of hyperrectangle vertices to enumerate.
 #'
 #' @return
 #' A list of class `cmr_stratified` with assignment shares `pi`, `pi_matrix`,
 #' stratum sampling margins, within-stratum treatment margins, CMR certificate
 #' `U_CMR`, checked rectangle, vertex diagnostics, and solver diagnostics.
+#' A stratum that receives no sample has an `NA` treatment margin.
+#' `diagnostics$optimality_gap` bounds how far `U_CMR` can be from the minimax
+#' value.
 #'
 #' @examples
 #' strata_share <- c(A = 0.4, B = 0.6)
@@ -287,6 +293,7 @@ cmr_stratified_from_rectangle <- function(rectangle,
       diagnostics = list(
         solver = "collapsed_closed_form",
         active_components = checked$cell_names,
+        optimality_gap = 0,
         directional_violation = 0,
         converged = TRUE
       )
@@ -304,6 +311,7 @@ cmr_stratified_from_rectangle <- function(rectangle,
       diagnostics = list(
         solver = "full_rectangle_closed_form",
         active_components = checked$cell_names,
+        optimality_gap = 0,
         directional_violation = 0,
         converged = TRUE
       )
@@ -325,6 +333,8 @@ cmr_stratified_from_rectangle <- function(rectangle,
   sampling_margin <- as.numeric(sampling_margin[names(checked$strata_share)])
   names(sampling_margin) <- names(checked$strata_share)
   treatment_margin <- solution$pi[paste0("1:", names(checked$strata_share))] / sampling_margin
+  # A stratum that receives no sample has no within-stratum treatment share.
+  treatment_margin[sampling_margin <= 0] <- NA_real_
   names(treatment_margin) <- names(checked$strata_share)
 
   out <- list(
@@ -359,7 +369,10 @@ cmr_stratified_from_rectangle <- function(rectangle,
 #' @param y Pilot outcomes.
 #' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
 #' @param strata Pilot stratum labels.
-#' @param strata_share Named stratum population shares that sum to one.
+#' @param strata_share Named stratum population shares that sum to one. Names
+#'   must match the labels in `strata`. An unnamed vector is matched to strata
+#'   in their order of first appearance in the pilot, so naming the shares is
+#'   safer.
 #' @param alpha Target joint error level.
 #' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
 #'   for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.
@@ -367,15 +380,20 @@ cmr_stratified_from_rectangle <- function(rectangle,
 #'   is split across all lower and upper treatment/control by stratum endpoints.
 #' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
 #'   computing variances. For guarantee-bearing bounded CMR on a non-unit
-#'   scale, provide known `lower` and `upper` bounds.
+#'   scale, provide known `lower` and `upper` bounds. With
+#'   `method = "auto"` and raw 0/1 outcomes, exact Bernoulli bounds are used
+#'   on the raw scale and normalization is skipped.
 #' @param lower,upper Optional lower and upper outcome bounds used when
 #'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
 #'   is used with a warning; that data-dependent normalization is exploratory
 #'   and does not carry the finite-sample bounded-outcome CMR guarantee.
 #' @param na.rm If `TRUE`, drop rows with missing `y`, `d`, or `strata`.
 #' @param tol Numerical tolerance for exact Bernoulli bound inversion.
-#' @param solver_control Optional list of solver controls for the general
-#'   vertex epigraph solver.
+#' @param solver_control Optional list of solver controls for general rectangles.
+#'   `gap_tol` is the target optimality gap relative to the problem scale
+#'   (default `1e-9`). `barrier = FALSE` skips the barrier Newton method and
+#'   uses the multi-start search directly. `max_starts`, `smooth_taus`,
+#'   `maxit`, and `mirror_iterations` tune that fallback search.
 #' @param max_vertices Maximum number of hyperrectangle vertices to enumerate.
 #'
 #' @return
@@ -386,11 +404,13 @@ cmr_stratified_from_rectangle <- function(rectangle,
 #'
 #' @examples
 #' set.seed(7)
-#' strata <- rep(c("A", "B"), each = 40)
-#' d <- rep(rep(c(1, 0), each = 20), 2)
-#' y <- c(rbeta(20, 2, 6), rbeta(20, 4, 4),
-#'        rbeta(20, 5, 3), rbeta(20, 3, 5))
-#' cmr_stratified(y, d, strata, strata_share = c(A = 0.45, B = 0.55))
+#' strata <- rep(c("A", "B"), each = 400)
+#' d <- rep(rep(c(1, 0), each = 200), 2)
+#' y <- c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8),
+#'        rbeta(200, 5, 3), rbeta(200, 3, 5))
+#' fit <- cmr_stratified(y, d, strata, strata_share = c(A = 0.45, B = 0.55))
+#' fit
+#' fit$pi_matrix
 #'
 #' @family CMR rules
 #' @export

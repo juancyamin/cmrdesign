@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import warnings
 from collections.abc import Mapping
 
 import numpy as np
@@ -14,12 +15,14 @@ from .unbounded import (
     rectangle_unbounded,
 )
 from .validation import (
+    BERNOULLI_NORMALIZATION_WARNING,
     check_alpha,
     check_probability,
     check_variance,
     clean_outcome_01,
     cmr_error,
     is_dummy,
+    normalize_01,
     split_binary_pilot,
 )
 from .variance_bounds import variance_bounds_by_method
@@ -57,19 +60,35 @@ def canonical_method(method: str, y=None) -> str:
     return aliases[method]
 
 
-def _equal_beta(alpha: float, correction: str) -> dict[str, float]:
-    alpha = check_alpha(alpha)
-    correction = _check_correction(correction)
-    if correction == "bonferroni":
-        beta_one = alpha / 4
-    else:
-        beta_one = (1 - math.sqrt(1 - alpha)) / 2
-    return {
-        "beta_l1": beta_one,
-        "beta_u1": beta_one,
-        "beta_l0": beta_one,
-        "beta_u0": beta_one,
-    }
+def prepare_outcome_scale(
+    y,
+    method: str,
+    normalize: bool = False,
+    lower=None,
+    upper=None,
+) -> tuple[np.ndarray, str, dict[str, float] | None]:
+    """Resolve the confidence-set method and the outcome scale together.
+
+    Every design applies the same rule. ``method="auto"`` looks at the raw
+    outcome values. An explicit method is applied to the normalized outcome.
+    """
+
+    y = np.asarray(y, dtype=float)
+    requested = str(method).lower()
+    resolved = canonical_method(requested, y=y)
+    normalization = None
+    if normalize:
+        if requested == "auto" and resolved == "bernoulli":
+            rescales = (lower is not None and float(lower) != 0) or (
+                upper is not None and float(upper) != 1
+            )
+            if rescales:
+                warnings.warn(
+                    BERNOULLI_NORMALIZATION_WARNING, UserWarning, stacklevel=3
+                )
+        else:
+            y, normalization = normalize_01(y, lower=lower, upper=upper)
+    return y, resolved, normalization
 
 
 def _check_correction(correction: str) -> str:
@@ -100,17 +119,19 @@ def _check_beta_vector(beta) -> dict[str, float]:
         cmr_error(f"`beta` is missing: {', '.join(missing)}.")
     out = {}
     for key in required:
-        value = check_probability(beta[key], key, allow_boundary=True)
-        if value.size != 1:
+        arr = check_probability(beta[key], key, allow_boundary=True)
+        if arr.size != 1:
             cmr_error(f"`{key}` must be a scalar.")
-        value = float(value.reshape(-1)[0])
+        value = float(arr.reshape(-1)[0])
         if value >= 1:
             cmr_error("Each element of `beta` must be smaller than 1.")
         out[key] = value
     return out
 
 
-def _resolve_beta(alpha: float, beta=None, correction: str = "bonferroni") -> dict[str, float]:
+def _resolve_beta(
+    alpha: float, beta=None, correction: str = "bonferroni"
+) -> dict[str, float]:
     alpha = check_alpha(alpha)
     correction = _check_correction(correction)
     if beta is None:
@@ -147,9 +168,11 @@ def _resolve_beta(alpha: float, beta=None, correction: str = "bonferroni") -> di
 def check_binary_rectangle(rectangle) -> dict[str, float]:
     """Validate a two-arm variance rectangle."""
 
-    if isinstance(rectangle, RectangleResult):
-        rectangle = rectangle.rectangle
-    elif hasattr(rectangle, "rectangle") and not isinstance(rectangle, Mapping):
+    if (
+        isinstance(rectangle, RectangleResult)
+        or hasattr(rectangle, "rectangle")
+        and not isinstance(rectangle, Mapping)
+    ):
         rectangle = rectangle.rectangle
 
     if hasattr(rectangle, "to_dict") and not isinstance(rectangle, Mapping):
@@ -218,7 +241,57 @@ def rectangle_bounded_binary(
     upper=None,
     na_rm: bool = True,
 ) -> RectangleResult:
-    """Build a distribution-free bounded-outcome two-arm confidence rectangle."""
+    """Two-arm confidence rectangle for bounded outcomes.
+
+    Applies Maurer–Pontil or Martinez-Taboada–Ramdas variance bounds to each arm.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes, one entry per pilot unit. Bounded and Bernoulli methods
+        need values in ``[0, 1]`` unless ``normalize=True``.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "bounded"
+        ``"bounded"``, ``"maurer_pontil"``, or ``"mp"`` for Maurer–Pontil bounds.
+        ``"mtr"`` or ``"martinez_taboada_ramdas"`` for Martinez-Taboada–Ramdas
+        bounds.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` according to
+        ``correction``. A float is used for all four endpoints. A mapping with keys
+        ``beta_l1``, ``beta_u1``, ``beta_l0``, ``beta_u0`` sets each endpoint
+        separately.
+    correction : {"bonferroni", "sidak_arms"}, default "bonferroni"
+        How ``alpha`` is split across endpoints. ``"sidak_arms"`` uses the
+        independence of the two arms and gives slightly larger endpoint errors.
+    normalize : bool, default False
+        If True, map outcomes to ``[0, 1]`` using ``lower`` and ``upper`` before
+        computing variances. With ``method="auto"`` and raw 0/1 outcomes, exact
+        Bernoulli bounds are used on the raw scale and normalization is skipped.
+    lower, upper : float, optional
+        Known support bounds used when ``normalize=True``. If either is omitted,
+        the pilot minimum or maximum is used with a warning. That data-dependent
+        normalization is exploratory and does not carry the finite-sample
+        guarantee.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle with the endpoint error allocation ``beta``, the
+        ``method`` used, pilot sample sizes ``n``, variance estimates ``vhat``, and
+        the ``joint_error_bound``.
+
+    Notes
+    -----
+    For Maurer–Pontil bounds ``vhat`` is the raw Bessel sample variance, which can
+    slightly exceed ``1/4`` in small samples. The rectangle endpoints are always
+    inside ``[0, 1/4]``.
+    """
 
     alpha = check_alpha(alpha)
     correction = _check_correction(correction)
@@ -232,8 +305,6 @@ def rectangle_bounded_binary(
     normalization = None
 
     if normalize:
-        from .validation import normalize_01
-
         y_norm, normalization = normalize_01(pilot["y"], lower=lower, upper=upper)
         pilot["y"] = y_norm
         pilot["y1"] = y_norm[pilot["d"] == 1]
@@ -280,7 +351,39 @@ def rectangle_bernoulli_binary(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> RectangleResult:
-    """Build an exact folded-binomial Bernoulli two-arm confidence rectangle."""
+    """Two-arm confidence rectangle for binary outcomes.
+
+    Inverts the exact distribution of the folded success count in each arm.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes coded 0/1.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` according to
+        ``correction``. A float is used for all four endpoints. A mapping with keys
+        ``beta_l1``, ``beta_u1``, ``beta_l0``, ``beta_u0`` sets each endpoint
+        separately.
+    correction : {"bonferroni", "sidak_arms"}, default "bonferroni"
+        How ``alpha`` is split across endpoints. ``"sidak_arms"`` uses the
+        independence of the two arms and gives slightly larger endpoint errors.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle with the endpoint error allocation ``beta``, the
+        ``method`` used, pilot sample sizes ``n``, variance estimates ``vhat``, and
+        the ``joint_error_bound``.
+    """
 
     alpha = check_alpha(alpha)
     correction = _check_correction(correction)
@@ -332,7 +435,60 @@ def rectangle_two_arm(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> RectangleResult:
-    """Build a two-arm confidence rectangle, choosing Bernoulli bounds when possible."""
+    """Two-arm confidence rectangle from pilot data.
+
+    Chooses the variance bounds named by ``method`` and returns the rectangle used
+    by :func:`cmr_two_arm`.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes, one entry per pilot unit. Bounded and Bernoulli methods
+        need values in ``[0, 1]`` unless ``normalize=True``.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` according to
+        ``correction``. A float is used for all four endpoints. A mapping with keys
+        ``beta_l1``, ``beta_u1``, ``beta_l0``, ``beta_u0`` sets each endpoint
+        separately.
+    correction : {"bonferroni", "sidak_arms"}, default "bonferroni"
+        How ``alpha`` is split across endpoints. ``"sidak_arms"`` uses the
+        independence of the two arms and gives slightly larger endpoint errors.
+    normalize : bool, default False
+        If True, map outcomes to ``[0, 1]`` using ``lower`` and ``upper`` before
+        computing variances. With ``method="auto"`` and raw 0/1 outcomes, exact
+        Bernoulli bounds are used on the raw scale and normalization is skipped.
+    lower, upper : float, optional
+        Known support bounds used when ``normalize=True``. If either is omitted,
+        the pilot minimum or maximum is used with a warning. That data-dependent
+        normalization is exploratory and does not carry the finite-sample
+        guarantee.
+    psi : float or pair of floats, optional
+        Kurtosis bound, required only when ``method`` selects the unbounded-outcome
+        extension.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle with the endpoint error allocation ``beta``, the
+        ``method`` used, pilot sample sizes ``n``, variance estimates ``vhat``, and
+        the ``joint_error_bound``.
+    """
 
     if is_unbounded_method(method):
         check_unbounded_method_options(
@@ -350,11 +506,17 @@ def rectangle_two_arm(
             na_rm=na_rm,
         )
 
-    pilot = split_binary_pilot(y, d, na_rm=na_rm, check_outcome=not normalize)
-    resolved_method = canonical_method(method, y=pilot["y"])
+    pilot = split_binary_pilot(y, d, na_rm=na_rm, check_outcome=False)
+    y_scaled, resolved_method, normalization = prepare_outcome_scale(
+        pilot["y"],
+        method,
+        normalize=normalize,
+        lower=lower,
+        upper=upper,
+    )
     if resolved_method == "bernoulli":
-        return rectangle_bernoulli_binary(
-            pilot["y"],
+        out = rectangle_bernoulli_binary(
+            y_scaled,
             pilot["d"],
             alpha=alpha,
             beta=beta,
@@ -362,18 +524,20 @@ def rectangle_two_arm(
             na_rm=False,
             tol=tol,
         )
-    return rectangle_bounded_binary(
-        pilot["y"],
-        pilot["d"],
-        alpha=alpha,
-        method=resolved_method,
-        beta=beta,
-        correction=correction,
-        normalize=normalize,
-        lower=lower,
-        upper=upper,
-        na_rm=False,
-    )
+    else:
+        out = rectangle_bounded_binary(
+            y_scaled,
+            pilot["d"],
+            alpha=alpha,
+            method=resolved_method,
+            beta=beta,
+            correction=correction,
+            normalize=False,
+            na_rm=False,
+        )
+    out.diagnostics["normalization"] = normalization
+    out.extra["normalization"] = normalization
+    return out
 
 
 rectangle_binary = rectangle_two_arm

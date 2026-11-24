@@ -14,3 +14,10 @@ plan = cmr.cmr_plan(
 
 print(plan["band"])
 print(plan["recommendation"])
+print(
+    {
+        "suggested_pilot": plan["suggested_pilot"],
+        "default_two_thirds_power": plan["default_two_thirds_power"],
+        "two_thirds_status": plan["two_thirds_status"],
+    }
+)

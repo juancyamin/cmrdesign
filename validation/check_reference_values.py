@@ -389,9 +389,18 @@ def check_planning_formulas() -> None:
         method="bounded",
         desired_pilot=100,
     )
-    assert_equal(plan["desired_status"], "above_break_even_cap", "desired pilot status")
+    # Paper, Appendix E: with n = 1000 and a two-to-one ratio of standard
+    # deviations the viability band is 72 <= m <= 100.
+    assert_equal(plan["desired_status"], "inside_viability_band", "desired pilot status")
     assert_equal(plan["band"]["min_feasible"], 72, "planning min feasible")
-    assert_equal(plan["band"]["max_feasible"], 98, "planning max feasible")
+    assert_equal(plan["band"]["max_feasible"], 100, "planning max feasible")
+    assert_equal(plan["default_two_thirds_power"], 100, "two-thirds-power size")
+    strict = cmr.pilot_viability_band(n=1000, sigma1=0.5, sigma0=0.25, strict_upper=True)
+    assert_equal(strict["max_feasible"], 98, "strict planning max feasible")
+    level_001 = cmr.pilot_viability_band(n=1000, sigma1=0.5, sigma0=0.25, alpha=0.01)
+    assert_equal(level_001["min_feasible"], 96, "planning min feasible at alpha 0.01")
+    assert_equal(cmr.cmr_plan(600, 0.5, 0.25)["default_two_thirds_power"], 72, "n = 600")
+    assert_equal(cmr.cmr_plan(10000, 0.5, 0.25)["default_two_thirds_power"], 466, "n = 10000")
 
 
 def main() -> int:

@@ -145,12 +145,16 @@ cmr_two_arm_from_rectangle <- function(rectangle) {
 #'   `"unbounded"`, `"unbounded_mom"`, `"median_of_means"`, and `"mom"` dispatch
 #'   to the unbounded-outcome median-of-means extension.
 #' @param beta Optional endpoint error allocation. If `NULL`, error is split
-#'   across lower and upper endpoints using `correction`.
+#'   across lower and upper endpoints using `correction`. A single number is used as the one-sided error of all four
+#'   endpoints. A named vector with entries `beta_l1`, `beta_u1`, `beta_l0`,
+#'   `beta_u0` sets each endpoint separately.
 #' @param correction Endpoint error correction, either `"bonferroni"` or
 #'   `"sidak_arms"` for two-arm bounded/Bernoulli/proxy workflows.
 #' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
 #'   computing the rectangle. For guarantee-bearing bounded CMR on a non-unit
-#'   scale, provide known `lower` and `upper` bounds.
+#'   scale, provide known `lower` and `upper` bounds. With
+#'   `method = "auto"` and raw 0/1 outcomes, exact Bernoulli bounds are used
+#'   on the raw scale and normalization is skipped.
 #' @param lower,upper Optional lower and upper outcome bounds used when
 #'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
 #'   is used with a warning; that data-dependent normalization is exploratory
@@ -171,13 +175,20 @@ cmr_two_arm_from_rectangle <- function(rectangle) {
 #' `summary()` methods.
 #'
 #' @examples
+#' # A pilot of 200 units per arm. Treatment outcomes are much more variable
+#' # than control outcomes, so CMR assigns more of the main wave to treatment.
 #' set.seed(1)
-#' d <- rep(c(1, 0), each = 40)
-#' y <- c(rbeta(40, 2, 6), rbeta(40, 4, 4))
+#' d <- rep(c(1, 0), each = 200)
+#' y <- c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8))
 #'
 #' fit <- cmr_two_arm(y, d, alpha = 0.05, method = "bounded")
 #' fit
 #' summary(fit)
+#'
+#' # A small pilot cannot rule out any variance pair. CMR then returns the
+#' # balanced design, `pi = 0.5`, with the no-pilot certificate `U_CMR = 0.25`.
+#' small <- c(seq_len(20), 200 + seq_len(20))
+#' cmr_two_arm(y[small], d[small], method = "bounded")
 #'
 #' @family CMR rules
 #' @export

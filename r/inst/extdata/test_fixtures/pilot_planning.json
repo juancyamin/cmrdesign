@@ -37,10 +37,55 @@
         "break_even_share": 0.10000000000000001,
         "break_even_total": 100,
         "default_two_thirds_power": 100,
+        "two_thirds_status": "inside_viability_band",
         "suggested_pilot": 72,
+        "desired_status": "inside_viability_band",
+        "min_feasible": 72,
+        "max_feasible": 100
+      }
+    },
+    {
+      "name": "strict_upper_excludes_cap",
+      "input": {
+        "n": 1000,
+        "sigma1": 0.5,
+        "sigma0": 0.25,
+        "alpha": 0.050000000000000003,
+        "method": "bounded",
+        "desired_pilot": 100,
+        "accounting": "design_only",
+        "strict_upper": true
+      },
+      "expected": {
+        "activation_threshold": 72,
+        "break_even_total": 100,
+        "default_two_thirds_power": 100,
+        "two_thirds_status": "above_break_even_cap",
         "desired_status": "above_break_even_cap",
         "min_feasible": 72,
         "max_feasible": 98
+      }
+    },
+    {
+      "name": "two_thirds_above_cap",
+      "input": {
+        "n": 3000,
+        "sigma1": 0.17999999999999999,
+        "sigma0": 0.28000000000000003,
+        "alpha": 0.050000000000000003,
+        "method": "bounded",
+        "desired_pilot": 120,
+        "accounting": "design_only"
+      },
+      "expected": {
+        "activation_threshold": 72,
+        "break_even_total": 135.37906137184126,
+        "default_two_thirds_power": 210,
+        "two_thirds_status": "above_break_even_cap",
+        "suggested_pilot": 72,
+        "desired_status": "inside_viability_band",
+        "min_feasible": 72,
+        "max_feasible": 134
       }
     },
     {
@@ -58,6 +103,7 @@
         "activation_threshold": 72,
         "break_even_total": "Inf",
         "default_two_thirds_power": 100,
+        "two_thirds_status": "inside_viability_band",
         "desired_status": "inside_viability_band"
       }
     }

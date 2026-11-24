@@ -5,7 +5,6 @@ import numpy as np
 
 import cmrdesign as cmr
 
-
 EXPECTED_PUBLIC_API = {
     "AllocationResult",
     "CMRResult",
@@ -226,7 +225,7 @@ EXPECTED_MAIN_SIGNATURES = {
             "input": "sd",
             "accounting": "design_only",
             "desired_pilot": None,
-            "strict_upper": True,
+            "strict_upper": False,
         },
     },
     "realize_allocation": {
@@ -346,7 +345,9 @@ class PublicAPITests(unittest.TestCase):
             method="bounded",
         )
         expect_cmr_result(fit_stratified)
-        self.assertEqual(fit_stratified.extra["cell_names"], ["1:A", "0:A", "1:B", "0:B"])
+        self.assertEqual(
+            fit_stratified.extra["cell_names"], ["1:A", "0:A", "1:B", "0:B"]
+        )
         self.assertEqual(fit_stratified.extra["strata_share"], {"A": 0.45, "B": 0.55})
         self.assertIn("sampling_margin", fit_stratified.extra)
         self.assertIn("treatment_margin", fit_stratified.extra)
@@ -362,7 +363,9 @@ class PublicAPITests(unittest.TestCase):
         )
         expect_cmr_result(fit_multioutcome)
         self.assertEqual(fit_multioutcome.extra["estimand"], "coprimary")
-        self.assertEqual(fit_multioutcome.extra["weights"], {"outcome_1": 0.6, "outcome_2": 0.4})
+        self.assertEqual(
+            fit_multioutcome.extra["weights"], {"outcome_1": 0.6, "outcome_2": 0.4}
+        )
 
         fit_proxy = cmr.cmr_proxy(y, d, zeta=0.05, method="bounded")
         expect_cmr_result(fit_proxy)
@@ -377,6 +380,7 @@ class PublicAPITests(unittest.TestCase):
                 "band",
                 "suggested_pilot",
                 "default_two_thirds_power",
+                "two_thirds_status",
                 "desired_pilot",
                 "desired_status",
                 "recommendation",
@@ -385,7 +389,9 @@ class PublicAPITests(unittest.TestCase):
         )
 
     def test_main_error_messages_are_actionable(self):
-        with self.assertRaisesRegex(ValueError, "`y` and `d` must have the same length"):
+        with self.assertRaisesRegex(
+            ValueError, "`y` and `d` must have the same length"
+        ):
             cmr.cmr_two_arm([0.1, 0.2], [1])
 
         with self.assertRaisesRegex(ValueError, "`psi` is required"):
@@ -412,7 +418,9 @@ class PublicAPITests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "`zeta` must be nonnegative"):
             cmr.cmr_proxy([0.1, 0.2, 0.3, 0.4], [1, 1, 0, 0], zeta=-0.1)
 
-        with self.assertRaisesRegex(ValueError, "`method` must be 'bounded' or 'bernoulli'"):
+        with self.assertRaisesRegex(
+            ValueError, "`method` must be 'bounded' or 'bernoulli'"
+        ):
             cmr.cmr_plan(1000, 0.5, 0.25, method="unbounded")
 
 

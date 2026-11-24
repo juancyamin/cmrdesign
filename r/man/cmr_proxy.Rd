@@ -51,14 +51,18 @@ shared across arms or a treatment/control pair.}
 for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.}
 
 \item{beta}{Optional endpoint error allocation. If \code{NULL}, error is split
-according to \code{correction}.}
+according to \code{correction}. A single number is used as the one-sided error of all four
+endpoints. A named vector with entries \code{beta_l1}, \code{beta_u1}, \code{beta_l0},
+\code{beta_u0} sets each endpoint separately.}
 
 \item{correction}{Endpoint error correction, either \code{"bonferroni"} or
 \code{"sidak_arms"}.}
 
 \item{normalize}{If \code{TRUE}, normalize bounded proxy outcomes to \verb{[0, 1]}
 before computing variances. For guarantee-bearing bounded CMR on a
-non-unit scale, provide known \code{lower} and \code{upper} bounds.}
+non-unit scale, provide known \code{lower} and \code{upper} bounds. With
+\code{method = "auto"} and raw 0/1 outcomes, exact Bernoulli bounds are used
+on the raw scale and normalization is skipped.}
 
 \item{lower, upper}{Optional lower and upper outcome bounds used when
 \code{normalize = TRUE}. If either is omitted, the pilot minimum and/or maximum
@@ -80,8 +84,8 @@ and return the CMR treatment share for the primary-outcome design.
 }
 \examples{
 set.seed(12)
-d <- rep(c(1, 0), each = 30)
-proxy_y <- c(rbeta(30, 2, 6), rbeta(30, 4, 4))
+d <- rep(c(1, 0), each = 200)
+proxy_y <- c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8))
 cmr_proxy(proxy_y, d, zeta = 0.05)
 
 }

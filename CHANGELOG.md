@@ -3,9 +3,46 @@
 `cmrdesign` versions the R and Python packages separately; entries below are
 labeled by package.
 
-## Unreleased
+## Python development version (after 0.1.0, not on PyPI)
 
-- No unreleased user-visible changes.
+- Fixed `cmr_multiarm()` and `rectangle_multiarm()` for treatment arm labels
+  that start with "v", such as `"variant_a"` or `"v1"`. They raised a
+  `KeyError` in 0.1.0.
+- `method="auto"` looks at the raw outcome values in multi-arm and stratified
+  designs, as documented. An explicit method is applied to the normalized
+  outcome, and a warning is raised when raw 0/1 outcomes make `auto` skip a
+  requested normalization.
+- `pilot_viability_band()` and `cmr_plan()` default to `strict_upper=False`,
+  which reproduces the viability band of the accompanying paper. `cmr_plan()`
+  returns `two_thirds_status` and never classifies a pilot as inside an empty
+  band.
+- General multi-arm and stratified rectangles are solved by a barrier Newton
+  method with a certified optimality gap, reported as
+  `diagnostics["optimality_gap"]`. `U_CMR` can be slightly smaller than in
+  0.1.0, by up to about `3e-5` in relative terms in our checks.
+- `regret()`, `variance_objective()`, `oracle_variance()`, and
+  `assign_neyman()` gain `scale="nonnegative"`.
+- Every public function has a NumPy-style docstring with parameters, returns,
+  and, for the main entry points, a runnable example.
+- `variance_bounds_martinez_taboada_ramdas()` validates its tuning constants
+  and returns them in `statistic`.
+- `CMRResult` has a `correction` field. Missing arm and stratum labels given
+  as `pandas.NA` are dropped like `None` and NaN.
+- Errors raised while processing one arm, cell, or outcome name it.
+- The package passes `ruff` and `mypy`, and both run in CI. Python 3.13 is
+  tested and declared.
+
+## R development version (after 0.1.0, not on CRAN)
+
+- See `r/NEWS.md` for the full list. In short: fixed `cmr_multiarm()` for arm
+  labels that start with "v" and `cmr_stratified()` for stratum labels that
+  contain a colon, aligned the default viability band with the paper, added a
+  certified solver for multi-arm and stratified rectangles, accepted a scalar
+  `beta` in every two-arm workflow, added `scale = "nonnegative"` to the
+  diagnostics helpers, and added print methods for plans and rectangles.
+- Cross-language fixtures were regenerated and extended with a six-arm
+  rectangle, a three-stratum rectangle, and planning cases for
+  `strict_upper` and `two_thirds_status`.
 
 ## Python 0.1.0 - 2026-08-05
 

@@ -9,17 +9,17 @@
 \alias{share_of_oracle_gain}
 \title{Diagnostic metrics for CMR simulations}
 \usage{
-coverage_indicator(rectangle, truth)
+coverage_indicator(rectangle, truth, scale = c("unit", "nonnegative"))
 
-certificate_valid(pi, U, truth, tol = 1e-10)
+certificate_valid(pi, U, truth, tol = 1e-10, scale = c("unit", "nonnegative"))
 
 boundary_indicator(pi, tol = 0)
 
 boundary_rate(pi, tol = 0)
 
-saving_vs_balance(pi, v1, v0)
+saving_vs_balance(pi, v1, v0, scale = c("unit", "nonnegative"))
 
-share_of_oracle_gain(pi, v1, v0, tol = 1e-12)
+share_of_oracle_gain(pi, v1, v0, tol = 1e-12, scale = c("unit", "nonnegative"))
 }
 \arguments{
 \item{rectangle}{Two-arm variance rectangle, either a numeric vector with
@@ -27,6 +27,10 @@ names \code{v_l1}, \code{v_u1}, \code{v_l0}, \code{v_u0} or a rectangle object r
 two-arm rectangle constructor.}
 
 \item{truth}{Named true variances, with entries \code{v1} and \code{v0}.}
+
+\item{scale}{Variance scale. \code{"unit"}, the default, requires variances in
+\verb{[0, 1/4]}. \code{"nonnegative"} accepts any finite nonnegative variance, as
+needed for \code{\link[=cmr_unbounded]{cmr_unbounded()}} results.}
 
 \item{pi}{Treatment assignment share.}
 

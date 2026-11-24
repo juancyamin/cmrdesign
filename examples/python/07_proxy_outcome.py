@@ -12,7 +12,9 @@ proxy_y = np.r_[
     rng.binomial(1, 0.25, n_pilot // 2),
 ]
 
-fit = cmr.cmr_proxy(proxy_y, d, zeta={"treatment": 0.04, "control": 0.06}, method="bernoulli")
+fit = cmr.cmr_proxy(
+    proxy_y, d, zeta={"treatment": 0.04, "control": 0.06}, method="bernoulli"
+)
 
 print({"pi_treatment": fit.pi, "certificate": fit.U_CMR})
 print(fit.confidence_set.extra["bridge"])

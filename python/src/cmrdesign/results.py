@@ -52,7 +52,7 @@ def _total_n(n: Any) -> int | None:
         return None
     try:
         if isinstance(n, dict):
-            values = []
+            values: list[Any] = []
             for value in n.values():
                 if isinstance(value, dict):
                     values.extend(value.values())
@@ -113,6 +113,7 @@ class CMRResult:
     joint_error_bound: float | None = None
     diagnostics: dict[str, Any] = field(default_factory=dict)
     extra: dict[str, Any] = field(default_factory=dict)
+    correction: str | None = None
 
     @property
     def U_CMR(self) -> float:

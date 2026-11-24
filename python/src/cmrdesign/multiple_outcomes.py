@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 
 from .rectangles import canonical_method, rectangle_two_arm
@@ -15,6 +17,7 @@ from .validation import (
     check_weights,
     clean_outcome_01,
     cmr_error,
+    error_context,
 )
 from .variance_bounds import variance_bounds_by_method
 
@@ -84,6 +87,49 @@ def rectangle_multiple_outcomes(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> RectangleResult:
+    """Effective two-arm confidence rectangle for several outcomes.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of shape ``(n_units, n_outcomes)``, each in ``[0, 1]``. A
+        pandas DataFrame is accepted.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    weights : array_like, optional
+        Nonnegative outcome weights. They are rescaled to sum to one. The default
+        is equal weights.
+    estimand : {"coprimary", "index"}, default "coprimary"
+        ``"index"`` forms the weighted index outcome and applies the two-arm rule
+        to it. ``"coprimary"`` weights the outcome-specific variance criteria.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float, optional
+        One-sided endpoint error. With ``estimand="coprimary"`` it applies to every
+        arm-by-outcome endpoint. With ``estimand="index"`` it applies to the four
+        endpoints of the index outcome, and a mapping as in :func:`cmr_two_arm` is
+        also accepted.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle with the endpoint error allocation ``beta``, the
+        ``method`` used, pilot sample sizes ``n``, variance estimates ``vhat``, and
+        the ``joint_error_bound``.
+    """
+
     estimand = str(estimand).lower()
     if estimand not in {"coprimary", "index"}:
         cmr_error("`estimand` must be 'coprimary' or 'index'.")
@@ -95,7 +141,9 @@ def rectangle_multiple_outcomes(
         )
     pilot = _split_multiple_outcome_pilot(y, d, na_rm=na_rm)
     weights_arr = check_weights(weights, pilot["y"].shape[1])
-    weights_dict = dict(zip(pilot["outcome_names"], map(float, weights_arr), strict=True))
+    weights_dict = dict(
+        zip(pilot["outcome_names"], map(float, weights_arr), strict=True)
+    )
 
     if estimand == "index":
         index_y = pilot["y"] @ weights_arr
@@ -117,27 +165,29 @@ def rectangle_multiple_outcomes(
     resolved_method = canonical_method(method, y=pilot["y"].reshape(-1))
     beta_one = _resolve_multiple_beta(alpha, pilot["y"].shape[1], beta=beta)
     outcome_bounds = {}
-    lower1 = []
-    upper1 = []
-    lower0 = []
-    upper0 = []
-    vhat1 = []
-    vhat0 = []
+    lower1: Any = []
+    upper1: Any = []
+    lower0: Any = []
+    upper0: Any = []
+    vhat1: Any = []
+    vhat0: Any = []
     for col, name in enumerate(pilot["outcome_names"]):
-        b1 = variance_bounds_by_method(
-            pilot["y1"][:, col],
-            beta_l=beta_one,
-            beta_u=beta_one,
-            method=resolved_method,
-            tol=tol,
-        )
-        b0 = variance_bounds_by_method(
-            pilot["y0"][:, col],
-            beta_l=beta_one,
-            beta_u=beta_one,
-            method=resolved_method,
-            tol=tol,
-        )
+        with error_context(f"Outcome `{name}`, treatment arm"):
+            b1 = variance_bounds_by_method(
+                pilot["y1"][:, col],
+                beta_l=beta_one,
+                beta_u=beta_one,
+                method=resolved_method,
+                tol=tol,
+            )
+        with error_context(f"Outcome `{name}`, control arm"):
+            b0 = variance_bounds_by_method(
+                pilot["y0"][:, col],
+                beta_l=beta_one,
+                beta_u=beta_one,
+                method=resolved_method,
+                tol=tol,
+            )
         outcome_bounds[name] = {"treatment": b1, "control": b0}
         lower1.append(b1["L"])
         upper1.append(b1["U"])
@@ -175,8 +225,12 @@ def rectangle_multiple_outcomes(
             "weights": weights_dict,
             "outcome_bounds": outcome_bounds,
             "outcome_vhat": {
-                "treatment": dict(zip(pilot["outcome_names"], map(float, vhat1), strict=True)),
-                "control": dict(zip(pilot["outcome_names"], map(float, vhat0), strict=True)),
+                "treatment": dict(
+                    zip(pilot["outcome_names"], map(float, vhat1), strict=True)
+                ),
+                "control": dict(
+                    zip(pilot["outcome_names"], map(float, vhat0), strict=True)
+                ),
             },
         },
     )
@@ -193,6 +247,54 @@ def cmr_multiple_outcomes(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> CMRResult:
+    """Conditional Minimax Regret treatment share with several outcomes.
+
+    With ``estimand="index"`` the weighted index outcome is formed first and the
+    two-arm rule is applied to it. With ``estimand="coprimary"`` the criterion is
+    the weighted sum of the outcome-specific variance criteria, and the rectangle
+    is the weighted sum of the outcome-specific variance intervals in each arm.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of shape ``(n_units, n_outcomes)``, each in ``[0, 1]``. A
+        pandas DataFrame is accepted.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    weights : array_like, optional
+        Nonnegative outcome weights. They are rescaled to sum to one. The default
+        is equal weights.
+    estimand : {"coprimary", "index"}, default "coprimary"
+        ``"index"`` forms the weighted index outcome and applies the two-arm rule
+        to it. ``"coprimary"`` weights the outcome-specific variance criteria.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float, optional
+        One-sided endpoint error. With ``estimand="coprimary"`` it applies to every
+        arm-by-outcome endpoint. With ``estimand="index"`` it applies to the four
+        endpoints of the index outcome, and a mapping as in :func:`cmr_two_arm` is
+        also accepted.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    CMRResult
+        Result with the allocation ``pi``, the certificate ``U_CMR``, the variance
+        ``rectangle``, the ``confidence_set`` it came from, pilot summaries in
+        ``pilot``, and ``diagnostics``.
+    """
+
     confidence_set = rectangle_multiple_outcomes(
         y=y,
         d=d,

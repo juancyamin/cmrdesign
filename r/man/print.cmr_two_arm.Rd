@@ -58,8 +58,8 @@ nested confidence-set internals.
 }
 \examples{
 set.seed(13)
-d <- rep(c(1, 0), each = 20)
-y <- c(rbeta(20, 2, 6), rbeta(20, 4, 4))
+d <- rep(c(1, 0), each = 200)
+y <- c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8))
 fit <- cmr_two_arm(y, d)
 print(fit)
 summary(fit)

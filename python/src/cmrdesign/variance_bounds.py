@@ -7,6 +7,7 @@ import math
 import numpy as np
 
 from .validation import (
+    as_numeric_array,
     check_tail_error,
     clean_outcome_01,
     cmr_error,
@@ -47,6 +48,33 @@ def variance_bounds_maurer_pontil(
     beta_u: float,
     na_rm: bool = True,
 ) -> dict:
+    """Maurer–Pontil variance bounds for one arm.
+
+    With sample standard deviation ``s`` and ``m`` observations, the bounds are
+    ``max(0, s - eta_l) ** 2`` and ``(s + eta_u) ** 2`` with ``eta = sqrt(2 * log(1
+    / beta) / (m - 1))``, projected to ``[0, 1/4]``.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of one arm, in ``[0, 1]``.
+    beta_l : float
+        One-sided error of the lower variance bound. Zero returns the trivial bound
+        0.
+    beta_u : float
+        One-sided error of the upper variance bound. Zero returns the trivial bound
+        ``1/4``.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    dict
+        Lower bound ``L``, upper bound ``U``, raw Bessel sample variance ``vhat``,
+        sample size ``n``, ``method``, and details in ``statistic``.
+    """
+
     beta_l = check_tail_error(beta_l, "beta_l")
     beta_u = check_tail_error(beta_u, "beta_u")
     y = _clean_bound_outcome_01(y, na_rm=na_rm)
@@ -106,7 +134,11 @@ def _mtr_upper_variance(y, alpha, c1, c2, c3, c4, cs=False):
     for idx, val in enumerate(y, start=1):
         x = (val - tilde_summuhat / idx) ** 2
         radius = (x - summuhat / idx) ** 2
-        denominator = math.sqrt(sumvarhat * math.log(idx + 1)) if cs else math.sqrt(sumvarhat * n / idx)
+        denominator = (
+            math.sqrt(sumvarhat * math.log(idx + 1))
+            if cs
+            else math.sqrt(sumvarhat * n / idx)
+        )
         lam = min(aux / denominator, c1)
         lambda_path.append(lam)
         sum_lambdas += lam
@@ -163,9 +195,15 @@ def _mtr_lower_variance(
         varhat = tilde_sumvarhat / idx
         lam = 0.0
         if sum_tilde_lambdas > 0:
-            threshold = (math.log(2 / alpha_mean) + varhat * sum_psi_tilde_lambdas) / sum_tilde_lambdas
+            threshold = (
+                math.log(2 / alpha_mean) + varhat * sum_psi_tilde_lambdas
+            ) / sum_tilde_lambdas
             if threshold < 1:
-                denominator = math.sqrt(sumvarhat * math.log(idx + 1)) if cs else math.sqrt(sumvarhat * n / idx)
+                denominator = (
+                    math.sqrt(sumvarhat * math.log(idx + 1))
+                    if cs
+                    else math.sqrt(sumvarhat * n / idx)
+                )
                 lam = min(aux / denominator, c1)
         lambda_path.append(lam)
         sum_lambdas += lam
@@ -178,7 +216,12 @@ def _mtr_lower_variance(
             center = bound_radius = math.nan
         if lam > 0:
             tilde_at = sum_psi_tilde_lambdas**2 / sum_tilde_lambdas**2
-            tilde_bt = 2 * math.log(2 / alpha_mean) * sum_psi_tilde_lambdas / sum_tilde_lambdas**2
+            tilde_bt = (
+                2
+                * math.log(2 / alpha_mean)
+                * sum_psi_tilde_lambdas
+                / sum_tilde_lambdas**2
+            )
             tilde_ct = math.log(2 / alpha_mean) ** 2 / sum_tilde_lambdas**2
             dt = center
             rt = bound_radius
@@ -220,6 +263,35 @@ def _mtr_lower_variance(
     }
 
 
+def _check_mtr_constants(c1, c2, c3, c4, c5, lower_alpha_split) -> dict[str, float]:
+    values = {}
+    for name, value in (
+        ("c1", c1),
+        ("c2", c2),
+        ("c3", c3),
+        ("c4", c4),
+        ("c5", c5),
+        ("lower_alpha_split", lower_alpha_split),
+    ):
+        arr = as_numeric_array(value, name)
+        if arr.size != 1:
+            cmr_error(f"`{name}` must be a scalar.")
+        values[name] = float(arr.reshape(-1)[0])
+    if not 0 < values["c1"] < 1:
+        cmr_error("`c1` must be a scalar in (0, 1).")
+    if values["c2"] <= 0:
+        cmr_error("`c2` must be a positive scalar.")
+    if values["c3"] <= 0:
+        cmr_error("`c3` must be a positive scalar.")
+    if not 0 <= values["c4"] <= 1:
+        cmr_error("`c4` must be a scalar in [0, 1].")
+    if values["c5"] <= 0:
+        cmr_error("`c5` must be a positive scalar.")
+    if not 0 < values["lower_alpha_split"] < 1:
+        cmr_error("`lower_alpha_split` must be a scalar in (0, 1).")
+    return values
+
+
 def variance_bounds_martinez_taboada_ramdas(
     y,
     beta_l: float,
@@ -234,8 +306,47 @@ def variance_bounds_martinez_taboada_ramdas(
     tilde_cs: bool = True,
     na_rm: bool = True,
 ) -> dict:
+    """Martinez-Taboada–Ramdas variance bounds for one arm.
+
+    Sequential empirical-Bernstein bounds for the variance of a bounded outcome.
+    The calculation depends on the order of the observations, so pass them in their
+    pilot order and do not sort them.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of one arm, in ``[0, 1]``.
+    beta_l : float
+        One-sided error of the lower variance bound. Zero returns the trivial bound
+        0.
+    beta_u : float
+        One-sided error of the upper variance bound. Zero returns the trivial bound
+        ``1/4``.
+    lower_alpha_split : float, default 0.5
+        Share of ``beta_l`` spent on the variance component of the lower bound. The
+        rest is spent on the mean component.
+    c1, c2, c3, c4, c5 : float
+        Tuning constants of the procedure. The defaults follow the reference
+        implementation.
+    cs, tilde_cs : bool
+        Whether the variance and mean components use the confidence-sequence form
+        of the predictable weights.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    dict
+        Lower bound ``L``, upper bound ``U``, sample variance ``vhat``, sample size
+        ``n``, ``method``, and details in ``statistic``.
+    """
+
     beta_l = check_tail_error(beta_l, "beta_l")
     beta_u = check_tail_error(beta_u, "beta_u")
+    constants = _check_mtr_constants(c1, c2, c3, c4, c5, lower_alpha_split)
+    c1, c2, c3, c4, c5 = (constants[key] for key in ("c1", "c2", "c3", "c4", "c5"))
+    lower_alpha_split = constants["lower_alpha_split"]
     y = _clean_bound_outcome_01(y, na_rm=na_rm)
     m = y.size
     if m < 2:
@@ -249,7 +360,14 @@ def variance_bounds_martinez_taboada_ramdas(
     alpha_lower_variance = beta_l * lower_alpha_split
     alpha_lower_mean = beta_l * (1 - lower_alpha_split)
     lower_result = (
-        {"center": math.nan, "radius": math.nan, "lower": 0.0, "at": math.nan, "bt": math.nan, "ct": math.nan}
+        {
+            "center": math.nan,
+            "radius": math.nan,
+            "lower": 0.0,
+            "at": math.nan,
+            "bt": math.nan,
+            "ct": math.nan,
+        }
         if beta_l <= 0
         else _mtr_lower_variance(
             y,
@@ -276,12 +394,21 @@ def variance_bounds_martinez_taboada_ramdas(
             "beta_u": beta_u,
             "alpha_lower_variance": alpha_lower_variance,
             "alpha_lower_mean": alpha_lower_mean,
+            "lower_alpha_split": lower_alpha_split,
             "raw_lower": lower_result["lower"],
             "raw_upper": upper_result["upper"],
             "upper_center": upper_result["center"],
             "upper_radius": upper_result["radius"],
             "lower_center": lower_result["center"],
             "lower_radius": lower_result["radius"],
+            "lower_quadratic": {
+                "a": lower_result["at"],
+                "b": lower_result["bt"],
+                "c": lower_result["ct"],
+            },
+            "constants": constants,
+            "cs": bool(cs),
+            "tilde_cs": bool(tilde_cs),
         },
     }
 
@@ -330,6 +457,25 @@ def _binom_pmf(k: int, m: int, p: float) -> float:
 
 
 def folded_binomial_pmf(v: float, m: int) -> np.ndarray:
+    """Distribution of the folded success count of a Bernoulli sample.
+
+    The folded count is ``min(X, m - X)`` for a binomial count ``X``. Its
+    distribution depends on the success probability only through the variance
+    ``v``.
+
+    Parameters
+    ----------
+    v : float
+        Bernoulli variance in ``[0, 1/4]``.
+    m : int
+        Sample size, at least 2.
+
+    Returns
+    -------
+    ndarray
+        Probabilities of the folded counts ``0, ..., floor(m / 2)``.
+    """
+
     v = scalar_variance(v, "v")
     m = scalar_int(m, "m", lower=2)
     rho = bernoulli_rho(v)
@@ -344,6 +490,22 @@ def folded_binomial_pmf(v: float, m: int) -> np.ndarray:
 
 
 def folded_binomial_tails(v: float, m: int) -> dict[str, np.ndarray]:
+    """Lower and upper tail probabilities of the folded success count.
+
+    Parameters
+    ----------
+    v : float
+        Bernoulli variance in ``[0, 1/4]``.
+    m : int
+        Sample size, at least 2.
+
+    Returns
+    -------
+    dict
+        Arrays ``lower`` and ``upper`` with ``P(J <= j)`` and ``P(J >= j)`` for
+        each folded count ``j``.
+    """
+
     pmf = folded_binomial_pmf(v, m)
     return {"lower": np.cumsum(pmf), "upper": np.cumsum(pmf[::-1])[::-1]}
 
@@ -407,6 +569,36 @@ def variance_bounds_bernoulli_exact(
     tol: float = 1e-11,
     na_rm: bool = True,
 ) -> dict:
+    """Exact variance bounds for one arm with binary outcomes.
+
+    The bounds invert the exact distribution of the folded success count. The upper
+    bound is the largest variance at which a folded count this small has
+    probability above ``beta_u``. The lower bound is the smallest variance at which
+    a folded count this large has probability above ``beta_l``.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes of one arm, coded 0/1.
+    beta_l : float
+        One-sided error of the lower variance bound. Zero returns the trivial bound
+        0.
+    beta_u : float
+        One-sided error of the upper variance bound. Zero returns the trivial bound
+        ``1/4``.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+
+    Returns
+    -------
+    dict
+        Lower bound ``L``, upper bound ``U``, sample variance ``vhat``, sample size
+        ``n``, ``method``, and the folded count in ``statistic``.
+    """
+
     beta_l = check_tail_error(beta_l, "beta_l")
     beta_u = check_tail_error(beta_u, "beta_u")
     fc = folded_count(y, na_rm=na_rm)
@@ -417,7 +609,12 @@ def variance_bounds_bernoulli_exact(
         "vhat": float(np.clip(raw_vhat, 0, 0.25)),
         "method": "bernoulli",
         "n": fc["m"],
-        "statistic": {**fc, "raw_sample_variance": raw_vhat, "beta_l": beta_l, "beta_u": beta_u},
+        "statistic": {
+            **fc,
+            "raw_sample_variance": raw_vhat,
+            "beta_l": beta_l,
+            "beta_u": beta_u,
+        },
     }
 
 

@@ -480,7 +480,9 @@ variance_bounds_martinez_taboada_ramdas <- function(y,
 #'   `"mp"` are synonyms; `"martinez_taboada_ramdas"` and `"mtr"` use MTR
 #'   bounds.
 #' @param beta Optional endpoint error allocation. If `NULL`, error is split
-#'   according to `correction`.
+#'   according to `correction`. A single number is used as the one-sided error of all four
+#'   endpoints. A named vector with entries `beta_l1`, `beta_u1`, `beta_l0`,
+#'   `beta_u0` sets each endpoint separately.
 #' @param correction Endpoint error correction, either `"bonferroni"` or
 #'   `"sidak_arms"`.
 #' @param normalize If `TRUE`, normalize outcomes to `[0, 1]` before computing

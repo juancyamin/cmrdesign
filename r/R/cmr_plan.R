@@ -1,4 +1,4 @@
-# Pilot-planning tools from Section 5.
+# Pilot-planning tools from Appendix E of the accompanying paper.
 
 .cmr_check_sd_pair <- function(sigma1,
                                sigma0,
@@ -138,13 +138,16 @@ break_even_pilot_share <- function(sigma1,
 #'   or variances (`"variance"`).
 #' @param accounting `"design_only"` applies the break-even pilot-share cap;
 #'   `"pooled"` ignores that cap.
-#' @param strict_upper If `TRUE`, feasible pilot sizes must be strictly below
-#'   the design-only break-even cap.
+#' @param strict_upper If `FALSE`, the default, a pilot size equal to the
+#'   design-only break-even cap is feasible, as in the viability band of the
+#'   accompanying paper. If `TRUE`, feasible pilot sizes must be strictly
+#'   below the cap.
 #'
 #' @return
 #' A list of class `cmr_pilot_viability_band` with total sample size, standard
 #' deviations, method, break-even share and total, activation threshold,
-#' feasible even pilot sizes, and min/max feasible pilot sizes.
+#' feasible even pilot sizes, and min/max feasible pilot sizes. The object has
+#' a compact `print()` method.
 #'
 #' @examples
 #' pilot_viability_band(n = 3000, sigma1 = 0.18, sigma0 = 0.28)
@@ -158,7 +161,7 @@ pilot_viability_band <- function(n,
                                  method = c("bounded", "bernoulli"),
                                  input = c("sd", "variance"),
                                  accounting = c("design_only", "pooled"),
-                                 strict_upper = TRUE) {
+                                 strict_upper = FALSE) {
   method <- match.arg(method)
   input <- match.arg(input)
   accounting <- match.arg(accounting)
@@ -208,18 +211,56 @@ pilot_viability_band <- function(n,
   out
 }
 
+# Classify one total pilot size against a viability band.
+.cmr_pilot_size_status <- function(m, band) {
+  cap <- band$break_even_total
+  if (m == 0) {
+    "no_pilot"
+  } else if (m %% 2 == 1) {
+    "not_admissible_odd"
+  } else if (m < 4 || m > band$n - 2L) {
+    "outside_budget"
+  } else if (!is.finite(band$activation_threshold) ||
+             m < band$activation_threshold) {
+    "below_activation_threshold"
+  } else if (band$accounting == "design_only" &&
+             band$strict_upper && m >= cap - 1e-12) {
+    "above_break_even_cap"
+  } else if (band$accounting == "design_only" &&
+             !band$strict_upper && m > cap + 1e-12) {
+    "above_break_even_cap"
+  } else {
+    "inside_viability_band"
+  }
+}
+
 #' Pilot/main-wave planning summary
 #'
-#' Summarize the pilot-size viability band and a default pilot-size suggestion.
+#' Summarize the pilot-size viability band, the smallest viable pilot, and the
+#' pilot size given by the two-thirds-power rule of the accompanying paper.
 #'
 #' @inheritParams pilot_viability_band
 #' @param desired_pilot Optional user-proposed pilot size to classify.
 #'
 #' @return
-#' A list of class `cmr_pilot_plan` with `band`, `suggested_pilot`,
-#' `default_two_thirds_power`, `desired_pilot`, `desired_status`, a text
-#' recommendation, and a caveat that the screen is necessary rather than
-#' sufficient.
+#' A list of class `cmr_pilot_plan` with the following entries.
+#' \describe{
+#'   \item{`band`}{The viability band from `pilot_viability_band()`.}
+#'   \item{`suggested_pilot`}{The smallest pilot size in the band, or `0` when
+#'     the band is empty. This is the least costly pilot at which CMR can
+#'     leave balance. It is a floor, not an optimal size.}
+#'   \item{`default_two_thirds_power`}{The pilot size `2 * ceiling(n^(2/3) / 2)`
+#'     from the two-thirds-power rule.}
+#'   \item{`two_thirds_status`}{Where `default_two_thirds_power` falls relative
+#'     to the band, using the same labels as `desired_status`.}
+#'   \item{`desired_pilot`, `desired_status`}{The user-proposed pilot size and
+#'     its classification: `"inside_viability_band"`,
+#'     `"below_activation_threshold"`, `"above_break_even_cap"`,
+#'     `"outside_budget"`, `"not_admissible_odd"`, or `"no_pilot"`.}
+#'   \item{`recommendation`, `caveat`}{Text summaries. The caveat records that
+#'     the band is necessary rather than sufficient.}
+#' }
+#' The object has a compact `print()` method.
 #'
 #' @examples
 #' cmr_plan(
@@ -239,7 +280,7 @@ pilot_plan <- function(n,
                        input = c("sd", "variance"),
                        accounting = c("design_only", "pooled"),
                        desired_pilot = NULL,
-                       strict_upper = TRUE) {
+                       strict_upper = FALSE) {
   method <- match.arg(method)
   input <- match.arg(input)
   accounting <- match.arg(accounting)
@@ -255,27 +296,12 @@ pilot_plan <- function(n,
   )
   default_two_thirds_power <- 2L * ceiling(n^(2 / 3) / 2)
 
+  two_thirds_status <- .cmr_pilot_size_status(default_two_thirds_power, band)
+
   desired_status <- NULL
   if (!is.null(desired_pilot)) {
     desired_pilot <- .cmr_check_scalar_integer(desired_pilot, "desired_pilot", lower = 0L)
-    desired_status <- if (desired_pilot == 0L) {
-      "no_pilot"
-    } else if (desired_pilot %% 2L == 1L) {
-      "not_admissible_odd"
-    } else if (desired_pilot < 4L || desired_pilot > band$n - 2L) {
-      "outside_budget"
-    } else if (is.finite(band$activation_threshold) &&
-               desired_pilot < band$activation_threshold) {
-      "below_activation_threshold"
-    } else if (accounting == "design_only" &&
-               strict_upper && desired_pilot >= band$break_even_total - 1e-12) {
-      "above_break_even_cap"
-    } else if (accounting == "design_only" &&
-               !strict_upper && desired_pilot > band$break_even_total + 1e-12) {
-      "above_break_even_cap"
-    } else {
-      "inside_viability_band"
-    }
+    desired_status <- .cmr_pilot_size_status(desired_pilot, band)
   }
 
   recommendation <- if (!band$nonempty) {
@@ -294,6 +320,7 @@ pilot_plan <- function(n,
     band = band,
     suggested_pilot = if (band$nonempty) band$min_feasible else 0L,
     default_two_thirds_power = default_two_thirds_power,
+    two_thirds_status = two_thirds_status,
     desired_pilot = desired_pilot,
     desired_status = desired_status,
     recommendation = recommendation,

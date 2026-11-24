@@ -180,7 +180,9 @@
 #' @param control_arm Label identifying the control arm in `arm`.
 #' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
 #'   computing variances. For guarantee-bearing bounded CMR on a non-unit
-#'   scale, provide known `lower` and `upper` bounds.
+#'   scale, provide known `lower` and `upper` bounds. With
+#'   `method = "auto"` and raw 0/1 outcomes, exact Bernoulli bounds are used
+#'   on the raw scale and normalization is skipped.
 #' @param lower,upper Optional lower and upper outcome bounds used when
 #'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
 #'   is used with a warning; that data-dependent normalization is exploratory
@@ -217,21 +219,16 @@ rectangle_multiarm <- function(y,
   method <- match.arg(method)
   alpha <- .cmr_check_alpha(alpha)
   pilot <- .cmr_split_multiarm_pilot(y, arm, control_arm = control_arm, na.rm = na.rm)
-  normalization <- NULL
-
-  if (normalize) {
-    normalized <- .cmr_normalize_01(
-      pilot$y,
-      lower = lower,
-      upper = upper,
-      na.rm = FALSE,
-      return_params = TRUE
-    )
-    pilot$y <- normalized$values
-    normalization <- list(lower = normalized$lower, upper = normalized$upper)
-  }
-
-  resolved_method <- .cmr_resolve_extension_method(pilot$y, method = method)
+  prepared <- .cmr_prepare_outcome_scale(
+    pilot$y,
+    method = method,
+    normalize = normalize,
+    lower = lower,
+    upper = upper
+  )
+  pilot$y <- prepared$y
+  normalization <- prepared$normalization
+  resolved_method <- prepared$method
   beta_mat <- .cmr_resolve_multiarm_beta(alpha, pilot$arms, beta = beta)
 
   arm_results <- vector("list", length(pilot$arms))
@@ -245,12 +242,15 @@ rectangle_multiarm <- function(y,
 
   for (a in pilot$arms) {
     y_arm <- pilot$y[pilot$arm == a]
-    result <- .cmr_variance_bounds_by_method(
-      y_arm,
-      beta_l = beta_mat[a, "lower"],
-      beta_u = beta_mat[a, "upper"],
-      method = resolved_method,
-      tol = tol
+    result <- .cmr_with_context(
+      .cmr_variance_bounds_by_method(
+        y_arm,
+        beta_l = beta_mat[a, "lower"],
+        beta_u = beta_mat[a, "upper"],
+        method = resolved_method,
+        tol = tol
+      ),
+      context = paste0("Arm `", if (a == "0") control_arm else a, "`")
     )
     arm_results[[a]] <- result
     rectangle[a, "lower"] <- result$L

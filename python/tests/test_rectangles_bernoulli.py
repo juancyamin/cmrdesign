@@ -28,7 +28,9 @@ class BernoulliRectangleTests(unittest.TestCase):
 
     def test_large_binary_two_arm_auto_dispatch_is_finite(self):
         n_per_arm = 1200
-        y = np.r_[np.tile([0, 1], n_per_arm // 2), np.tile([0, 0, 1, 0], n_per_arm // 4)]
+        y = np.r_[
+            np.tile([0, 1], n_per_arm // 2), np.tile([0, 0, 1, 0], n_per_arm // 4)
+        ]
         d = np.r_[np.ones(n_per_arm), np.zeros(n_per_arm)]
         fit = cmr.cmr_two_arm(y, d, alpha=0.05, method="auto")
         self.assertEqual(fit.method, "bernoulli")
@@ -61,8 +63,12 @@ class BernoulliRectangleTests(unittest.TestCase):
             for k in range(21):
                 v = k * 0.25 / 20
                 pmf = cmr.folded_binomial_pmf(v, m)
-                lower_miss = sum(p for p, l in zip(pmf, lower, strict=True) if l > v + 1e-9)
-                upper_miss = sum(p for p, u in zip(pmf, upper, strict=True) if u < v - 1e-9)
+                lower_miss = sum(
+                    p for p, lo in zip(pmf, lower, strict=True) if lo > v + 1e-9
+                )
+                upper_miss = sum(
+                    p for p, u in zip(pmf, upper, strict=True) if u < v - 1e-9
+                )
                 self.assertLessEqual(lower_miss, beta_l + 1e-8)
                 self.assertLessEqual(upper_miss, beta_u + 1e-8)
 

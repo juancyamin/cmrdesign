@@ -126,9 +126,11 @@
   vhat <- matrix(NA_real_, nrow = 2L, ncol = length(strata_share),
                  dimnames = list(c("1", "0"), names(strata_share)))
   for (cell in names(cell_results)) {
-    parts <- strsplit(cell, ":", fixed = TRUE)[[1L]]
-    n[parts[[1L]], parts[[2L]]] <- cell_results[[cell]]$n
-    vhat[parts[[1L]], parts[[2L]]] <- cell_results[[cell]]$vhat
+    # Split on the first colon only: stratum labels may contain colons.
+    cell_arm <- sub(":.*$", "", cell)
+    cell_stratum <- sub("^[^:]*:", "", cell)
+    n[cell_arm, cell_stratum] <- cell_results[[cell]]$n
+    vhat[cell_arm, cell_stratum] <- cell_results[[cell]]$vhat
   }
 
   out <- list(
@@ -156,7 +158,10 @@
 #' @param y Pilot outcomes.
 #' @param d Pilot treatment indicator; treatment is `1` and control is `0`.
 #' @param strata Pilot stratum labels.
-#' @param strata_share Named stratum population shares that sum to one.
+#' @param strata_share Named stratum population shares that sum to one. Names
+#'   must match the labels in `strata`. An unnamed vector is matched to strata
+#'   in their order of first appearance in the pilot, so naming the shares is
+#'   safer.
 #' @param alpha Target joint error level.
 #' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
 #'   for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.
@@ -164,7 +169,9 @@
 #'   is split across all lower and upper treatment/control by stratum endpoints.
 #' @param normalize If `TRUE`, normalize bounded outcomes to `[0, 1]` before
 #'   computing variances. For guarantee-bearing bounded CMR on a non-unit
-#'   scale, provide known `lower` and `upper` bounds.
+#'   scale, provide known `lower` and `upper` bounds. With
+#'   `method = "auto"` and raw 0/1 outcomes, exact Bernoulli bounds are used
+#'   on the raw scale and normalization is skipped.
 #' @param lower,upper Optional lower and upper outcome bounds used when
 #'   `normalize = TRUE`. If either is omitted, the pilot minimum and/or maximum
 #'   is used with a warning; that data-dependent normalization is exploratory
@@ -211,21 +218,16 @@ rectangle_stratified <- function(y,
     strata_share = strata_share,
     na.rm = na.rm
   )
-  normalization <- NULL
-
-  if (normalize) {
-    normalized <- .cmr_normalize_01(
-      pilot$y,
-      lower = lower,
-      upper = upper,
-      na.rm = FALSE,
-      return_params = TRUE
-    )
-    pilot$y <- normalized$values
-    normalization <- list(lower = normalized$lower, upper = normalized$upper)
-  }
-
-  resolved_method <- .cmr_resolve_extension_method(pilot$y, method = method)
+  prepared <- .cmr_prepare_outcome_scale(
+    pilot$y,
+    method = method,
+    normalize = normalize,
+    lower = lower,
+    upper = upper
+  )
+  pilot$y <- prepared$y
+  normalization <- prepared$normalization
+  resolved_method <- prepared$method
   beta_out <- .cmr_resolve_stratified_beta(alpha, pilot$strata_share, beta = beta)
 
   lower_matrix <- matrix(
@@ -241,12 +243,18 @@ rectangle_stratified <- function(y,
   for (x in names(pilot$strata_share)) {
     for (arm in c("1", "0")) {
       keep <- pilot$strata == x & pilot$d == as.integer(arm)
-      result <- .cmr_variance_bounds_by_method(
-        pilot$y[keep],
-        beta_l = beta_out$lower[arm, x],
-        beta_u = beta_out$upper[arm, x],
-        method = resolved_method,
-        tol = tol
+      result <- .cmr_with_context(
+        .cmr_variance_bounds_by_method(
+          pilot$y[keep],
+          beta_l = beta_out$lower[arm, x],
+          beta_u = beta_out$upper[arm, x],
+          method = resolved_method,
+          tol = tol
+        ),
+        context = paste0(
+          if (arm == "1") "Treatment" else "Control",
+          " cell of stratum `", x, "`"
+        )
       )
       cell_name <- paste0(arm, ":", x)
       cell_results[[cell_name]] <- result

@@ -11,6 +11,11 @@
 #'   this must lie in `[0, 1/4]`.
 #' @param v0 Control-arm outcome variance. For bounded or Bernoulli outcomes,
 #'   this must lie in `[0, 1/4]`.
+#' @param scale Variance scale. `"unit"`, the default, requires variances in
+#'   `[0, 1/4]`, the feasible range for outcomes in `[0, 1]`. `"nonnegative"`
+#'   accepts any finite nonnegative variance. Use it to audit
+#'   [cmr_unbounded()] results or a raw Maurer–Pontil sample variance above
+#'   `1/4`.
 #'
 #' @return
 #' Numeric vector after ordinary R recycling of `pi`, `v1`, and `v0`.
@@ -26,13 +31,15 @@
 #' variance_objective(pi, v1, v0)
 #' oracle_variance(v1, v0)
 #' regret(0.5, v1, v0)
+#' regret(0.5, v1 = 2.5, v0 = 0.6, scale = "nonnegative")
 #'
 #' @family assignment helpers
 #' @export
-variance_objective <- function(pi, v1, v0) {
+variance_objective <- function(pi, v1, v0, scale = c("unit", "nonnegative")) {
+  scale <- .cmr_match_scale(scale)
   pi <- .cmr_check_probability(pi, "pi", allow_boundary = TRUE)
-  v1 <- .cmr_check_variance(v1, "v1")
-  v0 <- .cmr_check_variance(v0, "v0")
+  v1 <- .cmr_check_variance(v1, "v1", scale = scale)
+  v0 <- .cmr_check_variance(v0, "v0", scale = scale)
   args <- .cmr_recycle_common(pi, v1, v0, arg_names = c("pi", "v1", "v0"))
   pi <- args$pi
   v1 <- args$v1
@@ -55,18 +62,20 @@ variance_objective <- function(pi, v1, v0) {
 
 #' @rdname variance_objective
 #' @export
-oracle_variance <- function(v1, v0) {
-  v1 <- .cmr_check_variance(v1, "v1")
-  v0 <- .cmr_check_variance(v0, "v0")
+oracle_variance <- function(v1, v0, scale = c("unit", "nonnegative")) {
+  scale <- .cmr_match_scale(scale)
+  v1 <- .cmr_check_variance(v1, "v1", scale = scale)
+  v0 <- .cmr_check_variance(v0, "v0", scale = scale)
   args <- .cmr_recycle_common(v1, v0, arg_names = c("v1", "v0"))
   (sqrt(args$v1) + sqrt(args$v0))^2
 }
 
 #' @rdname variance_objective
 #' @export
-assign_neyman <- function(v1, v0) {
-  v1 <- .cmr_check_variance(v1, "v1")
-  v0 <- .cmr_check_variance(v0, "v0")
+assign_neyman <- function(v1, v0, scale = c("unit", "nonnegative")) {
+  scale <- .cmr_match_scale(scale)
+  v1 <- .cmr_check_variance(v1, "v1", scale = scale)
+  v0 <- .cmr_check_variance(v0, "v0", scale = scale)
   args <- .cmr_recycle_common(v1, v0, arg_names = c("v1", "v0"))
   s1 <- sqrt(args$v1)
   s0 <- sqrt(args$v0)
@@ -76,10 +85,11 @@ assign_neyman <- function(v1, v0) {
 
 #' @rdname variance_objective
 #' @export
-regret <- function(pi, v1, v0) {
+regret <- function(pi, v1, v0, scale = c("unit", "nonnegative")) {
+  scale <- .cmr_match_scale(scale)
   pi <- .cmr_check_probability(pi, "pi", allow_boundary = TRUE)
-  v1 <- .cmr_check_variance(v1, "v1")
-  v0 <- .cmr_check_variance(v0, "v0")
+  v1 <- .cmr_check_variance(v1, "v1", scale = scale)
+  v0 <- .cmr_check_variance(v0, "v0", scale = scale)
   args <- .cmr_recycle_common(pi, v1, v0, arg_names = c("pi", "v1", "v0"))
   pi <- args$pi
   v1 <- args$v1

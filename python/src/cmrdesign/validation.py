@@ -4,13 +4,25 @@ from __future__ import annotations
 
 import math
 import warnings
-from collections.abc import Iterable
+from collections.abc import Iterator
+from contextlib import contextmanager
+from typing import NoReturn
 
 import numpy as np
 
 
-def cmr_error(message: str) -> None:
+def cmr_error(message: str) -> NoReturn:
     raise ValueError(message)
+
+
+@contextmanager
+def error_context(context: str) -> Iterator[None]:
+    """Prefix an error with the arm, cell, or outcome that raised it."""
+
+    try:
+        yield
+    except ValueError as exc:
+        raise ValueError(f"{context}: {exc}") from exc
 
 
 NORMALIZATION_WARNING = (
@@ -23,6 +35,13 @@ NORMALIZATION_WARNING = (
     "`cmr_unbounded(..., psi=...)`; it requires a bounded-kurtosis input "
     "`psi`, is currently two-arm only, and may be conservative or return no "
     "finite CMR certificate."
+)
+
+
+BERNOULLI_NORMALIZATION_WARNING = (
+    "`normalize=True` was ignored: `method='auto'` found raw 0/1 outcomes "
+    "and used exact Bernoulli bounds on that scale. If the outcome is not "
+    "binary on the stated support, choose `method='bounded'`."
 )
 
 
@@ -41,7 +60,8 @@ def label_missing(x) -> bool:
         return True
     if isinstance(x, (float, np.floating)):
         return math.isnan(float(x))
-    return False
+    # pandas missing-value markers, recognized without importing pandas.
+    return type(x).__name__ in {"NAType", "NaTType"}
 
 
 def canonical_label(x) -> str:
@@ -101,8 +121,19 @@ def check_tail_error(beta: float, name: str) -> float:
     return beta
 
 
-def check_variance(v, name: str) -> np.ndarray:
+def check_scale(scale: str) -> str:
+    scale = str(scale).lower()
+    if scale not in {"unit", "nonnegative"}:
+        cmr_error("`scale` must be 'unit' or 'nonnegative'.")
+    return scale
+
+
+def check_variance(v, name: str, scale: str = "unit") -> np.ndarray:
     arr = as_numeric_array(v, name)
+    if scale == "nonnegative":
+        if np.any(arr < -1e-12):
+            cmr_error(f"`{name}` must be nonnegative.")
+        return np.maximum(arr, 0)
     if np.any((arr < -1e-12) | (arr > 0.25 + 1e-12)):
         cmr_error(f"`{name}` must lie in [0, 1/4].")
     return np.clip(arr, 0, 0.25)

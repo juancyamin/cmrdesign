@@ -35,6 +35,7 @@ Other rectangle helpers:
 \code{\link{cmr_stratified_from_rectangle}()},
 \code{\link{cmr_unbounded_from_rectangle}()},
 \code{\link{multiarm_variance_objective}()},
+\code{\link{print.cmr_pilot_plan}()},
 \code{\link{rectangle_bernoulli_binary}()},
 \code{\link{rectangle_bounded_two_arm}()},
 \code{\link{rectangle_multiarm}()},

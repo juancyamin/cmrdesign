@@ -14,6 +14,9 @@
 #' @param tol Nonnegative numerical tolerance.
 #' @param v1 Treatment-arm variance.
 #' @param v0 Control-arm variance.
+#' @param scale Variance scale. `"unit"`, the default, requires variances in
+#'   `[0, 1/4]`. `"nonnegative"` accepts any finite nonnegative variance, as
+#'   needed for [cmr_unbounded()] results.
 #'
 #' @return
 #' `coverage_indicator()`, `certificate_valid()`, and `boundary_indicator()`
@@ -30,9 +33,10 @@
 #'
 #' @family diagnostic helpers
 #' @export
-coverage_indicator <- function(rectangle, truth) {
-  rectangle <- .cmr_check_binary_rectangle(rectangle)
-  truth <- .cmr_check_truth_binary(truth)
+coverage_indicator <- function(rectangle, truth, scale = c("unit", "nonnegative")) {
+  scale <- .cmr_match_scale(scale)
+  rectangle <- .cmr_check_binary_rectangle(rectangle, scale = scale)
+  truth <- .cmr_check_truth_binary(truth, scale = scale)
 
   rectangle[["v_l1"]] <= truth[["v1"]] &&
     truth[["v1"]] <= rectangle[["v_u1"]] &&
@@ -42,17 +46,19 @@ coverage_indicator <- function(rectangle, truth) {
 
 #' @rdname coverage_indicator
 #' @export
-certificate_valid <- function(pi, U, truth, tol = 1e-10) {
+certificate_valid <- function(pi, U, truth, tol = 1e-10,
+                              scale = c("unit", "nonnegative")) {
+  scale <- .cmr_match_scale(scale)
   pi <- .cmr_check_probability(pi, "pi", allow_boundary = TRUE)
   U <- .cmr_check_nonnegative(U, "U", allow_infinite = TRUE)
-  truth <- .cmr_check_truth_binary(truth)
+  truth <- .cmr_check_truth_binary(truth, scale = scale)
   tol <- .cmr_check_numeric(tol, "tol")
   if (length(tol) != 1L || tol < 0) {
     .cmr_stop("`tol` must be a nonnegative scalar.")
   }
 
   args <- .cmr_recycle_common(pi, U, arg_names = c("pi", "U"))
-  regret(args$pi, truth[["v1"]], truth[["v0"]]) <= args$U + tol
+  regret(args$pi, truth[["v1"]], truth[["v0"]], scale = scale) <= args$U + tol
 }
 
 #' @rdname coverage_indicator
@@ -74,32 +80,35 @@ boundary_rate <- function(pi, tol = 0) {
 
 #' @rdname coverage_indicator
 #' @export
-saving_vs_balance <- function(pi, v1, v0) {
+saving_vs_balance <- function(pi, v1, v0, scale = c("unit", "nonnegative")) {
+  scale <- .cmr_match_scale(scale)
   pi <- .cmr_check_probability(pi, "pi", allow_boundary = TRUE)
-  v1 <- .cmr_check_variance(v1, "v1")
-  v0 <- .cmr_check_variance(v0, "v0")
+  v1 <- .cmr_check_variance(v1, "v1", scale = scale)
+  v0 <- .cmr_check_variance(v0, "v0", scale = scale)
   args <- .cmr_recycle_common(pi, v1, v0, arg_names = c("pi", "v1", "v0"))
 
-  v_balance <- variance_objective(0.5, args$v1, args$v0)
-  v_rule <- variance_objective(args$pi, args$v1, args$v0)
+  v_balance <- variance_objective(0.5, args$v1, args$v0, scale = scale)
+  v_rule <- variance_objective(args$pi, args$v1, args$v0, scale = scale)
   ifelse(v_balance > 0, 1 - v_rule / v_balance, 0)
 }
 
 #' @rdname coverage_indicator
 #' @export
-share_of_oracle_gain <- function(pi, v1, v0, tol = 1e-12) {
+share_of_oracle_gain <- function(pi, v1, v0, tol = 1e-12,
+                                 scale = c("unit", "nonnegative")) {
+  scale <- .cmr_match_scale(scale)
   pi <- .cmr_check_probability(pi, "pi", allow_boundary = TRUE)
-  v1 <- .cmr_check_variance(v1, "v1")
-  v0 <- .cmr_check_variance(v0, "v0")
+  v1 <- .cmr_check_variance(v1, "v1", scale = scale)
+  v0 <- .cmr_check_variance(v0, "v0", scale = scale)
   tol <- .cmr_check_numeric(tol, "tol")
   if (length(tol) != 1L || tol < 0) {
     .cmr_stop("`tol` must be a nonnegative scalar.")
   }
   args <- .cmr_recycle_common(pi, v1, v0, arg_names = c("pi", "v1", "v0"))
 
-  v_balance <- variance_objective(0.5, args$v1, args$v0)
-  v_oracle <- oracle_variance(args$v1, args$v0)
+  v_balance <- variance_objective(0.5, args$v1, args$v0, scale = scale)
+  v_oracle <- oracle_variance(args$v1, args$v0, scale = scale)
   oracle_gain <- ifelse(v_balance > 0, 1 - v_oracle / v_balance, 0)
-  saving <- saving_vs_balance(args$pi, args$v1, args$v0)
+  saving <- saving_vs_balance(args$pi, args$v1, args$v0, scale = scale)
   ifelse(abs(oracle_gain) > tol, saving / oracle_gain, NA_real_)
 }

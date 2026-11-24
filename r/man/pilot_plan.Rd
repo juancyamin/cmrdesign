@@ -14,7 +14,7 @@ pilot_plan(
   input = c("sd", "variance"),
   accounting = c("design_only", "pooled"),
   desired_pilot = NULL,
-  strict_upper = TRUE
+  strict_upper = FALSE
 )
 
 cmr_plan(
@@ -26,7 +26,7 @@ cmr_plan(
   input = c("sd", "variance"),
   accounting = c("design_only", "pooled"),
   desired_pilot = NULL,
-  strict_upper = TRUE
+  strict_upper = FALSE
 )
 }
 \arguments{
@@ -50,17 +50,34 @@ or variances (\code{"variance"}).}
 
 \item{desired_pilot}{Optional user-proposed pilot size to classify.}
 
-\item{strict_upper}{If \code{TRUE}, feasible pilot sizes must be strictly below
-the design-only break-even cap.}
+\item{strict_upper}{If \code{FALSE}, the default, a pilot size equal to the
+design-only break-even cap is feasible, as in the viability band of the
+accompanying paper. If \code{TRUE}, feasible pilot sizes must be strictly
+below the cap.}
 }
 \value{
-A list of class \code{cmr_pilot_plan} with \code{band}, \code{suggested_pilot},
-\code{default_two_thirds_power}, \code{desired_pilot}, \code{desired_status}, a text
-recommendation, and a caveat that the screen is necessary rather than
-sufficient.
+A list of class \code{cmr_pilot_plan} with the following entries.
+\describe{
+\item{\code{band}}{The viability band from \code{pilot_viability_band()}.}
+\item{\code{suggested_pilot}}{The smallest pilot size in the band, or \code{0} when
+the band is empty. This is the least costly pilot at which CMR can
+leave balance. It is a floor, not an optimal size.}
+\item{\code{default_two_thirds_power}}{The pilot size \code{2 * ceiling(n^(2/3) / 2)}
+from the two-thirds-power rule.}
+\item{\code{two_thirds_status}}{Where \code{default_two_thirds_power} falls relative
+to the band, using the same labels as \code{desired_status}.}
+\item{\code{desired_pilot}, \code{desired_status}}{The user-proposed pilot size and
+its classification: \code{"inside_viability_band"},
+\code{"below_activation_threshold"}, \code{"above_break_even_cap"},
+\code{"outside_budget"}, \code{"not_admissible_odd"}, or \code{"no_pilot"}.}
+\item{\code{recommendation}, \code{caveat}}{Text summaries. The caveat records that
+the band is necessary rather than sufficient.}
+}
+The object has a compact \code{print()} method.
 }
 \description{
-Summarize the pilot-size viability band and a default pilot-size suggestion.
+Summarize the pilot-size viability band, the smallest viable pilot, and the
+pilot size given by the two-thirds-power rule of the accompanying paper.
 }
 \examples{
 cmr_plan(
@@ -75,6 +92,7 @@ cmr_plan(
 Other pilot planning: 
 \code{\link{activation_threshold_bounded}()},
 \code{\link{break_even_pilot_share}()},
-\code{\link{pilot_viability_band}()}
+\code{\link{pilot_viability_band}()},
+\code{\link{print.cmr_pilot_plan}()}
 }
 \concept{pilot planning}

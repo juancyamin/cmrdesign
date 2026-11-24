@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
 
+from .rectangles import prepare_outcome_scale
 from .results import CMRResult, RectangleResult
-from .rectangles import canonical_method
 from .solver import (
     hyperrectangle_vertices,
     inverse_share_sums,
@@ -24,8 +25,8 @@ from .validation import (
     check_variance,
     clean_outcome_01,
     cmr_error,
+    error_context,
     label_missing,
-    normalize_01,
 )
 from .variance_bounds import variance_bounds_by_method
 
@@ -40,7 +41,9 @@ def check_strata_share(strata_share, observed=None) -> dict[str, float]:
         else:
             names = [canonical_label(x) for x in observed]
             if len(names) != arr.size:
-                cmr_error("Unnamed `strata_share` must have one entry per observed stratum.")
+                cmr_error(
+                    "Unnamed `strata_share` must have one entry per observed stratum."
+                )
         out = dict(zip(names, map(float, arr), strict=True))
     if not out:
         cmr_error("`strata_share` must contain at least one stratum.")
@@ -73,7 +76,7 @@ def standardize_stratified_matrix(
 ) -> np.ndarray:
     strata_names = list(strata_share)
     if isinstance(x, Mapping):
-        rows = {}
+        rows: dict[str, Any] = {}
         for raw_row, values in x.items():
             row = _row_alias(raw_row)
             if row is None:
@@ -140,7 +143,7 @@ def _pi_array(pi, strata_share) -> np.ndarray:
         missing = [cell for cell in cell_names if cell not in pi]
         if missing:
             cmr_error(f"`pi` is missing cells: {', '.join(missing)}.")
-        arr = [pi[cell] for cell in cell_names]
+        arr: Any = [pi[cell] for cell in cell_names]
     else:
         arr = pi
     arr = normalize_simplex(arr, "pi")
@@ -151,14 +154,24 @@ def _pi_array(pi, strata_share) -> np.ndarray:
 
 def check_stratified_rectangle(rectangle, strata_share) -> dict:
     strata_share = check_strata_share(strata_share)
-    if isinstance(rectangle, RectangleResult):
+    if (
+        isinstance(rectangle, RectangleResult)
+        or hasattr(rectangle, "rectangle")
+        and not isinstance(rectangle, Mapping)
+    ):
         rectangle = rectangle.rectangle
-    elif hasattr(rectangle, "rectangle") and not isinstance(rectangle, Mapping):
-        rectangle = rectangle.rectangle
-    if not isinstance(rectangle, Mapping) or "lower" not in rectangle or "upper" not in rectangle:
+    if (
+        not isinstance(rectangle, Mapping)
+        or "lower" not in rectangle
+        or "upper" not in rectangle
+    ):
         cmr_error("`rectangle` must be a mapping with `lower` and `upper` matrices.")
-    lower = standardize_stratified_matrix(rectangle["lower"], strata_share, "rectangle['lower']")
-    upper = standardize_stratified_matrix(rectangle["upper"], strata_share, "rectangle['upper']")
+    lower = standardize_stratified_matrix(
+        rectangle["lower"], strata_share, "rectangle['lower']"
+    )
+    upper = standardize_stratified_matrix(
+        rectangle["upper"], strata_share, "rectangle['upper']"
+    )
     if np.any(lower > upper + 1e-12):
         cmr_error("Lower endpoints cannot exceed upper endpoints.")
     lower_vec = stratified_matrix_to_vector(lower)
@@ -176,6 +189,30 @@ def check_stratified_rectangle(rectangle, strata_share) -> dict:
 
 
 def stratified_variance_objective(pi, variances, strata_share) -> float:
+    """Variance objective of a stratified two-arm design.
+
+    With stratum shares ``q_s`` the objective is ``sum_s q_s ** 2 * (v1s / pi1s +
+    v0s / pi0s)``.
+
+    Parameters
+    ----------
+    pi : mapping or array_like
+        Assignment shares over all treatment-by-stratum cells, summing to one.
+        Cells are ordered ``1:s``, ``0:s`` stratum by stratum.
+    variances : array_like or mapping
+        Cell variances of shape ``(2, S)``, with treatment in the first row and
+        control in the second.
+    strata_share : mapping or array_like
+        Stratum shares in the target population, summing to one. A mapping from
+        stratum label to share is the safe form. An unnamed sequence is matched to
+        strata in their order of first appearance in the pilot.
+
+    Returns
+    -------
+    float
+        The objective.
+    """
+
     checked = _check_stratified_variances(variances, strata_share)
     pi = _pi_array(pi, checked["strata_share"])
     A = (checked["weights"] * checked["vector"]).reshape(1, -1)
@@ -183,11 +220,49 @@ def stratified_variance_objective(pi, variances, strata_share) -> float:
 
 
 def stratified_oracle_variance(variances, strata_share) -> float:
+    """Smallest stratified variance objective at known variances.
+
+    Parameters
+    ----------
+    variances : array_like or mapping
+        Cell variances of shape ``(2, S)``, with treatment in the first row and
+        control in the second.
+    strata_share : mapping or array_like
+        Stratum shares in the target population, summing to one. A mapping from
+        stratum label to share is the safe form. An unnamed sequence is matched to
+        strata in their order of first appearance in the pilot.
+
+    Returns
+    -------
+    float
+        The oracle value, ``(sum over cells of q_s * sqrt(v_ds)) ** 2``.
+    """
+
     checked = _check_stratified_variances(variances, strata_share)
     return float(np.sum(np.sqrt(checked["weights"] * checked["vector"])) ** 2)
 
 
 def assign_stratified_neyman(variances, strata_share) -> dict[str, float]:
+    """Neyman allocation of a stratified two-arm design.
+
+    Cell shares are proportional to ``q_s * sqrt(v_ds)``.
+
+    Parameters
+    ----------
+    variances : array_like or mapping
+        Cell variances of shape ``(2, S)``, with treatment in the first row and
+        control in the second.
+    strata_share : mapping or array_like
+        Stratum shares in the target population, summing to one. A mapping from
+        stratum label to share is the safe form. An unnamed sequence is matched to
+        strata in their order of first appearance in the pilot.
+
+    Returns
+    -------
+    dict
+        Assignment shares by cell, with keys such as ``"1:A"`` and ``"0:A"``.
+    """
+
     checked = _check_stratified_variances(variances, strata_share)
     scores = np.sqrt(checked["weights"] * checked["vector"])
     if float(np.sum(scores)) > 0:
@@ -199,12 +274,57 @@ def assign_stratified_neyman(variances, strata_share) -> dict[str, float]:
 
 
 def stratified_regret(pi, variances, strata_share) -> float:
-    return stratified_variance_objective(pi, variances, strata_share) - stratified_oracle_variance(
-        variances, strata_share
-    )
+    """Regret of a stratified allocation at known variances.
+
+    Parameters
+    ----------
+    pi : mapping or array_like
+        Assignment shares over all treatment-by-stratum cells, summing to one.
+        Cells are ordered ``1:s``, ``0:s`` stratum by stratum.
+    variances : array_like or mapping
+        Cell variances of shape ``(2, S)``, with treatment in the first row and
+        control in the second.
+    strata_share : mapping or array_like
+        Stratum shares in the target population, summing to one. A mapping from
+        stratum label to share is the safe form. An unnamed sequence is matched to
+        strata in their order of first appearance in the pilot.
+
+    Returns
+    -------
+    float
+        The variance objective at ``pi`` minus its oracle value.
+    """
+
+    return stratified_variance_objective(
+        pi, variances, strata_share
+    ) - stratified_oracle_variance(variances, strata_share)
 
 
-def stratified_rectangle_vertices(rectangle, strata_share, max_vertices: int = 65536) -> dict:
+def stratified_rectangle_vertices(
+    rectangle, strata_share, max_vertices: int = 65536
+) -> dict:
+    """Vertices of a stratified variance rectangle.
+
+    Parameters
+    ----------
+    rectangle : mapping
+        Stratified variance rectangle with entries ``lower`` and ``upper``, each of
+        shape ``(2, S)`` with treatment in the first row.
+    strata_share : mapping or array_like
+        Stratum shares in the target population, summing to one. A mapping from
+        stratum label to share is the safe form. An unnamed sequence is matched to
+        strata in their order of first appearance in the pilot.
+    max_vertices : int, default 65536
+        Largest number of rectangle vertices to enumerate. The count doubles with
+        every arm or cell.
+
+    Returns
+    -------
+    dict
+        The array ``vertices`` with one row per vertex, the cell ``names``, and
+        ``vertex_names``.
+    """
+
     checked = check_stratified_rectangle(rectangle, strata_share)
     return hyperrectangle_vertices(
         checked["lower"],
@@ -220,6 +340,40 @@ def cmr_stratified_from_rectangle(
     control: Mapping | None = None,
     max_vertices: int = 65536,
 ) -> CMRResult:
+    """Stratified CMR allocation for a given variance rectangle.
+
+    Minimizes the worst regret over the vertices of the rectangle. Collapsed and
+    uninformative rectangles have closed forms. Other rectangles are solved as a
+    convex program.
+
+    Parameters
+    ----------
+    rectangle : mapping
+        Stratified variance rectangle with entries ``lower`` and ``upper``, each of
+        shape ``(2, S)`` with treatment in the first row.
+    strata_share : mapping or array_like
+        Stratum shares in the target population, summing to one. A mapping from
+        stratum label to share is the safe form. An unnamed sequence is matched to
+        strata in their order of first appearance in the pilot.
+    control : mapping, optional
+        Solver controls for general rectangles. ``gap_tol`` is the target
+        optimality gap relative to the problem scale (default ``1e-9``).
+        ``barrier=False`` skips the barrier Newton method and uses the search
+        methods directly. ``max_starts``, ``smooth_taus``, ``maxit``, and
+        ``mirror_iterations`` tune that fallback.
+    max_vertices : int, default 65536
+        Largest number of rectangle vertices to enumerate. The count doubles with
+        every arm or cell.
+
+    Returns
+    -------
+    CMRResult
+        Result with shares ``pi`` by cell, the certificate ``U_CMR``, and solver
+        ``diagnostics``. ``extra`` holds ``pi_matrix``, the stratum
+        ``sampling_margin``, and the within-stratum ``treatment_margin``, which is
+        NaN for a stratum that receives no sample.
+    """
+
     checked = check_stratified_rectangle(rectangle, strata_share)
     vertices = stratified_rectangle_vertices(
         rectangle,
@@ -244,7 +398,12 @@ def cmr_stratified_from_rectangle(
             "value": details["value"],
             "vertex_regrets": details["vertex_regrets"],
             "active_vertices": details["active_vertices"],
-            "diagnostics": {"solver": "collapsed_closed_form", "converged": True},
+            "diagnostics": {
+                "solver": "collapsed_closed_form",
+                "optimality_gap": 0.0,
+                "directional_violation": 0.0,
+                "converged": True,
+            },
         }
     elif full:
         pi_array = default_start
@@ -256,12 +415,19 @@ def cmr_stratified_from_rectangle(
             "value": details["value"],
             "vertex_regrets": details["vertex_regrets"],
             "active_vertices": details["active_vertices"],
-            "diagnostics": {"solver": "full_rectangle_closed_form", "converged": True},
+            "diagnostics": {
+                "solver": "full_rectangle_closed_form",
+                "optimality_gap": 0.0,
+                "directional_violation": 0.0,
+                "converged": True,
+            },
         }
     else:
         control = {} if control is None else dict(control)
         control["component_names"] = checked["cell_names"]
-        solution = solve_vertex_epigraph(A, oracle, default_start=default_start, control=control)
+        solution = solve_vertex_epigraph(
+            A, oracle, default_start=default_start, control=control
+        )
 
     pi_array = solution["pi_array"]
     sampling_margin = {}
@@ -270,10 +436,18 @@ def cmr_stratified_from_rectangle(
         pair = pi_array[(2 * idx) : (2 * idx + 2)]
         total = float(np.sum(pair))
         sampling_margin[stratum] = total
-        treatment_margin[stratum] = float(pair[0] / total) if total > 0 else float("nan")
+        treatment_margin[stratum] = (
+            float(pair[0] / total) if total > 0 else float("nan")
+        )
 
     diagnostics = dict(solution["diagnostics"])
-    diagnostics.update({"S": len(strata_names), "full_rectangle": full, "collapsed_rectangle": collapsed})
+    diagnostics.update(
+        {
+            "S": len(strata_names),
+            "full_rectangle": full,
+            "collapsed_rectangle": collapsed,
+        }
+    )
     return CMRResult(
         pi=solution["pi"],
         u_cmr=float(solution["value"]),
@@ -287,7 +461,9 @@ def cmr_stratified_from_rectangle(
             "treatment_margin": treatment_margin,
             "vertices": vertices,
             "vertex_regrets": solution["vertex_regrets"],
-            "binding_vertices": [vertices["vertex_names"][i] for i in solution["active_vertices"]],
+            "binding_vertices": [
+                vertices["vertex_names"][i] for i in solution["active_vertices"]
+            ],
         },
     )
 
@@ -302,7 +478,9 @@ def _split_stratified_pilot(y, d, strata, strata_share, na_rm: bool = True) -> d
     missing = np.isnan(y_arr) | np.isnan(d_arr) | strata_missing
     if np.any(missing):
         if not na_rm:
-            cmr_error("`y`, `d`, and `strata` cannot contain missing values when `na_rm=False`.")
+            cmr_error(
+                "`y`, `d`, and `strata` cannot contain missing values when `na_rm=False`."
+            )
         y_arr = y_arr[~missing]
         d_arr = d_arr[~missing]
         strata_arr = strata_arr[~missing]
@@ -316,10 +494,14 @@ def _split_stratified_pilot(y, d, strata, strata_share, na_rm: bool = True) -> d
     shares = check_strata_share(strata_share, observed=observed)
     missing_share = [s for s in observed if s not in shares]
     if missing_share:
-        cmr_error(f"`strata_share` is missing observed strata: {', '.join(missing_share)}.")
+        cmr_error(
+            f"`strata_share` is missing observed strata: {', '.join(missing_share)}."
+        )
     missing_pilot = [s for s in shares if s not in observed]
     if missing_pilot:
-        cmr_error(f"The pilot has no observations for strata: {', '.join(missing_pilot)}.")
+        cmr_error(
+            f"The pilot has no observations for strata: {', '.join(missing_pilot)}."
+        )
     return {"y": y_arr, "d": d_arr, "strata": strata_chr, "strata_share": shares}
 
 
@@ -342,7 +524,12 @@ def _resolve_stratified_beta(alpha: float, strata_share, beta=None) -> dict:
         value = float(as_numeric_array(beta, "beta").reshape(-1)[0])
         lower = np.full((2, len(strata_names)), value)
         upper = lower.copy()
-    if np.any(lower < 0) or np.any(upper < 0) or np.any(lower >= 1) or np.any(upper >= 1):
+    if (
+        np.any(lower < 0)
+        or np.any(upper < 0)
+        or np.any(lower >= 1)
+        or np.any(upper >= 1)
+    ):
         cmr_error("Every beta endpoint error must lie in [0, 1).")
     if float(np.sum(lower) + np.sum(upper)) > alpha + 1e-12:
         cmr_error("`beta` allocates joint error above `alpha`.")
@@ -363,6 +550,58 @@ def rectangle_stratified(
     na_rm: bool = True,
     tol: float = 1e-11,
 ) -> RectangleResult:
+    """Variance confidence intervals for every treatment-by-stratum cell.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes, one entry per pilot unit. Bounded and Bernoulli methods
+        need values in ``[0, 1]`` unless ``normalize=True``.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    strata : array_like
+        Pilot stratum labels, one per pilot unit.
+    strata_share : mapping or array_like
+        Stratum shares in the target population, summing to one. A mapping from
+        stratum label to share is the safe form. An unnamed sequence is matched to
+        strata in their order of first appearance in the pilot.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` equally across the
+        lower and upper endpoints of every treatment-by-stratum cell. A float is
+        used for every endpoint. A mapping with ``lower`` and ``upper`` arrays of
+        shape ``(2, S)`` sets each cell, with treatment in the first row.
+    normalize : bool, default False
+        If True, map outcomes to ``[0, 1]`` using ``lower`` and ``upper`` before
+        computing variances. With ``method="auto"`` and raw 0/1 outcomes, exact
+        Bernoulli bounds are used on the raw scale and normalization is skipped.
+    lower, upper : float, optional
+        Known support bounds used when ``normalize=True``. If either is omitted,
+        the pilot minimum or maximum is used with a warning. That data-dependent
+        normalization is exploratory and does not carry the finite-sample
+        guarantee.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+
+    Returns
+    -------
+    RectangleResult
+        Confidence rectangle with the endpoint error allocation ``beta``, the
+        ``method`` used, pilot sample sizes ``n``, variance estimates ``vhat``, and
+        the ``joint_error_bound``.
+    """
+
     alpha = check_alpha(alpha)
     if is_unbounded_method(method):
         cmr_error(
@@ -376,12 +615,14 @@ def rectangle_stratified(
         strata_share=strata_share,
         na_rm=na_rm,
     )
-    normalization = None
-    if normalize:
-        pilot["y"], normalization = normalize_01(pilot["y"], lower=lower, upper=upper)
-    else:
-        pilot["y"] = clean_outcome_01(pilot["y"])
-    resolved_method = canonical_method(method, y=pilot["y"])
+    pilot["y"], resolved_method, normalization = prepare_outcome_scale(
+        pilot["y"],
+        method,
+        normalize=normalize,
+        lower=lower,
+        upper=upper,
+    )
+    pilot["y"] = clean_outcome_01(pilot["y"])
     beta_out = _resolve_stratified_beta(alpha, pilot["strata_share"], beta=beta)
 
     strata_names = list(pilot["strata_share"])
@@ -393,13 +634,15 @@ def rectangle_stratified(
     for col, stratum in enumerate(strata_names):
         for row, arm_label in enumerate((1, 0)):
             keep = (pilot["strata"] == stratum) & (pilot["d"] == arm_label)
-            result = variance_bounds_by_method(
-                pilot["y"][keep],
-                beta_l=beta_out["lower"][row, col],
-                beta_u=beta_out["upper"][row, col],
-                method=resolved_method,
-                tol=tol,
-            )
+            cell = "Treatment" if arm_label == 1 else "Control"
+            with error_context(f"{cell} cell of stratum `{stratum}`"):
+                result = variance_bounds_by_method(
+                    pilot["y"][keep],
+                    beta_l=beta_out["lower"][row, col],
+                    beta_u=beta_out["upper"][row, col],
+                    method=resolved_method,
+                    tol=tol,
+                )
             lower_matrix[row, col] = result["L"]
             upper_matrix[row, col] = result["U"]
             n[row, col] = int(result["n"])
@@ -413,7 +656,9 @@ def rectangle_stratified(
         beta=beta_out,
         method=resolved_method,
         n=stratified_vector_to_matrix(stratified_matrix_to_vector(n), strata_names),
-        vhat=stratified_vector_to_matrix(stratified_matrix_to_vector(vhat), strata_names),
+        vhat=stratified_vector_to_matrix(
+            stratified_matrix_to_vector(vhat), strata_names
+        ),
         joint_error_bound=float(np.sum(beta_out["lower"]) + np.sum(beta_out["upper"])),
         diagnostics={"normalization": normalization},
         extra={
@@ -440,6 +685,72 @@ def cmr_stratified(
     solver_control: Mapping | None = None,
     max_vertices: int = 65536,
 ) -> CMRResult:
+    """Conditional Minimax Regret allocation for a stratified two-arm design.
+
+    Builds a variance confidence interval for every treatment-by-stratum cell from
+    the pilot and returns the cell allocation that minimizes the worst regret over
+    the resulting rectangle.
+
+    Parameters
+    ----------
+    y : array_like
+        Pilot outcomes, one entry per pilot unit. Bounded and Bernoulli methods
+        need values in ``[0, 1]`` unless ``normalize=True``.
+    d : array_like
+        Pilot treatment indicator, with ``1`` for treatment and ``0`` for control.
+    strata : array_like
+        Pilot stratum labels, one per pilot unit.
+    strata_share : mapping or array_like
+        Stratum shares in the target population, summing to one. A mapping from
+        stratum label to share is the safe form. An unnamed sequence is matched to
+        strata in their order of first appearance in the pilot.
+    alpha : float, default 0.05
+        Joint error level of the variance confidence set.
+    method : str, default "auto"
+        Confidence-set method. ``"auto"`` uses exact Bernoulli bounds when the raw
+        outcomes are all 0/1 and Maurer–Pontil bounds otherwise. ``"bounded"``,
+        ``"maurer_pontil"``, and ``"mp"`` select Maurer–Pontil bounds.
+        ``"bernoulli"`` and ``"bernoulli_exact"`` select exact folded-binomial
+        bounds. ``"mtr"`` and ``"martinez_taboada_ramdas"`` select
+        Martinez-Taboada–Ramdas bounds, which depend on the row order of the pilot.
+    beta : float or mapping, optional
+        One-sided endpoint errors. ``None`` splits ``alpha`` equally across the
+        lower and upper endpoints of every treatment-by-stratum cell. A float is
+        used for every endpoint. A mapping with ``lower`` and ``upper`` arrays of
+        shape ``(2, S)`` sets each cell, with treatment in the first row.
+    normalize : bool, default False
+        If True, map outcomes to ``[0, 1]`` using ``lower`` and ``upper`` before
+        computing variances. With ``method="auto"`` and raw 0/1 outcomes, exact
+        Bernoulli bounds are used on the raw scale and normalization is skipped.
+    lower, upper : float, optional
+        Known support bounds used when ``normalize=True``. If either is omitted,
+        the pilot minimum or maximum is used with a warning. That data-dependent
+        normalization is exploratory and does not carry the finite-sample
+        guarantee.
+    na_rm : bool, default True
+        If True, drop rows with missing values. If False, missing values raise an
+        error.
+    tol : float, default 1e-11
+        Numerical tolerance for inverting the exact Bernoulli bounds.
+    solver_control : mapping, optional
+        Solver controls for general rectangles. ``gap_tol`` is the target
+        optimality gap relative to the problem scale (default ``1e-9``).
+        ``barrier=False`` skips the barrier Newton method and uses the search
+        methods directly. ``max_starts``, ``smooth_taus``, ``maxit``, and
+        ``mirror_iterations`` tune that fallback.
+    max_vertices : int, default 65536
+        Largest number of rectangle vertices to enumerate. The count doubles with
+        every arm or cell.
+
+    Returns
+    -------
+    CMRResult
+        Result with shares ``pi`` by cell, the certificate ``U_CMR``, the
+        ``confidence_set``, pilot summaries, and ``diagnostics``. ``extra`` holds
+        ``pi_matrix``, the stratum ``sampling_margin``, and the within-stratum
+        ``treatment_margin``.
+    """
+
     confidence_set = rectangle_stratified(
         y=y,
         d=d,

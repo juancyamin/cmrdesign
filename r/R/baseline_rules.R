@@ -57,7 +57,7 @@ assign_multiarm_balance <- function(arms) {
     if (anyNA(arms) || any(arms == "")) {
       .cmr_stop("`arms` cannot contain missing or empty labels.")
     }
-    arms <- sub("^v", "", arms)
+    arms <- .cmr_standardize_arm_labels(arms)
     if (!"0" %in% arms) {
       .cmr_stop("`arms` must include control arm `0`.")
     }

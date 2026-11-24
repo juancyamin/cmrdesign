@@ -354,9 +354,18 @@ run_check("Appendix E pilot-planning formulas", {
     method = "bounded",
     desired_pilot = 100
   )
-  expect_equal(plan$desired_status, "above_break_even_cap", "desired pilot status")
+  # Paper, Appendix E: with n = 1000 and a two-to-one ratio of standard
+  # deviations the viability band is 72 <= m <= 100.
+  expect_equal(plan$desired_status, "inside_viability_band", "desired pilot status")
   expect_equal(plan$band$min_feasible, 72L, "planning min feasible")
-  expect_equal(plan$band$max_feasible, 98L, "planning max feasible")
+  expect_equal(plan$band$max_feasible, 100L, "planning max feasible")
+  expect_equal(plan$default_two_thirds_power, 100, "two-thirds-power size")
+  strict <- pilot_viability_band(n = 1000, sigma1 = 0.5, sigma0 = 0.25, strict_upper = TRUE)
+  expect_equal(strict$max_feasible, 98L, "strict planning max feasible")
+  level_001 <- pilot_viability_band(n = 1000, sigma1 = 0.5, sigma0 = 0.25, alpha = 0.01)
+  expect_equal(level_001$min_feasible, 96L, "planning min feasible at alpha 0.01")
+  expect_equal(cmr_plan(600, 0.5, 0.25)$default_two_thirds_power, 72, "n = 600")
+  expect_equal(cmr_plan(10000, 0.5, 0.25)$default_two_thirds_power, 466, "n = 10000")
 })
 
 if (length(failures) > 0) {

@@ -14,8 +14,8 @@
 #'
 #' @examples
 #' set.seed(12)
-#' d <- rep(c(1, 0), each = 30)
-#' proxy_y <- c(rbeta(30, 2, 6), rbeta(30, 4, 4))
+#' d <- rep(c(1, 0), each = 200)
+#' proxy_y <- c(rbeta(200, 0.5, 0.5), rbeta(200, 8, 8))
 #' cmr_proxy(proxy_y, d, zeta = 0.05)
 #'
 #' @family CMR rules

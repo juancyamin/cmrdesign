@@ -38,9 +38,16 @@ pilot outcomes are exactly 0 and 1. Otherwise it uses the Maurer–Pontil
 bounded-outcome bounds.
 
 If `normalize = TRUE` in R or `normalize=True` in Python, the dispatch decision
-still uses the raw outcome values before normalization. For example, an outcome
-coded as 2/5 is treated as bounded, not Bernoulli. If that variable is truly
-binary, recode it to 0/1 or set `method = "bernoulli"` intentionally.
+still uses the raw outcome values before normalization, in every design. For
+example, an outcome coded as 2/5 is treated as bounded, not Bernoulli. If that
+variable is truly binary, recode it to 0/1, or set `method = "bernoulli"`
+together with `normalize = TRUE`, `lower = 2`, and `upper = 5`. An explicit
+method is always applied to the normalized outcome.
+
+When the raw outcomes are 0/1, `auto` uses exact Bernoulli bounds on the raw
+scale and skips normalization. If you asked for a support other than `[0, 1]`,
+the package warns that the request was ignored. Choose `method = "bounded"` if
+the outcome is not binary on that support.
 
 ## Bounded Outcomes
 

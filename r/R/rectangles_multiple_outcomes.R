@@ -102,7 +102,10 @@
 #' @param alpha Target joint error level.
 #' @param method Confidence-set method. `"auto"` chooses exact Bernoulli bounds
 #'   for 0/1 outcomes and bounded Maurer–Pontil bounds otherwise.
-#' @param beta Optional scalar endpoint error allocation.
+#' @param beta Optional scalar one-sided endpoint error. With
+#'   `estimand = "coprimary"` it applies to every arm-by-outcome endpoint.
+#'   With `estimand = "index"` it applies to the four endpoints of the index
+#'   outcome, and a named vector as in [cmr_two_arm()] is also accepted.
 #' @param na.rm If `TRUE`, drop rows with missing `y` or `d`.
 #' @param tol Numerical tolerance for exact Bernoulli bound inversion.
 #'
@@ -172,19 +175,25 @@ rectangle_multiple_outcomes <- function(y,
 
   for (j in seq_len(ncol(pilot$y))) {
     name <- colnames(pilot$y)[[j]]
-    b1 <- .cmr_variance_bounds_by_method(
-      pilot$y1[, j],
-      beta_l = beta_one,
-      beta_u = beta_one,
-      method = resolved_method,
-      tol = tol
+    b1 <- .cmr_with_context(
+      .cmr_variance_bounds_by_method(
+        pilot$y1[, j],
+        beta_l = beta_one,
+        beta_u = beta_one,
+        method = resolved_method,
+        tol = tol
+      ),
+      context = paste0("Outcome `", name, "`, treatment arm")
     )
-    b0 <- .cmr_variance_bounds_by_method(
-      pilot$y0[, j],
-      beta_l = beta_one,
-      beta_u = beta_one,
-      method = resolved_method,
-      tol = tol
+    b0 <- .cmr_with_context(
+      .cmr_variance_bounds_by_method(
+        pilot$y0[, j],
+        beta_l = beta_one,
+        beta_u = beta_one,
+        method = resolved_method,
+        tol = tol
+      ),
+      context = paste0("Outcome `", name, "`, control arm")
     )
     outcome_bounds[[name]] <- list(treatment = b1, control = b0)
     lower1[[j]] <- b1$L

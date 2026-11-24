@@ -32,6 +32,7 @@ break_even_pilot_share(sigma1 = 0.35^2, sigma0 = 0.20^2, input = "variance")
 Other pilot planning: 
 \code{\link{activation_threshold_bounded}()},
 \code{\link{pilot_plan}()},
-\code{\link{pilot_viability_band}()}
+\code{\link{pilot_viability_band}()},
+\code{\link{print.cmr_pilot_plan}()}
 }
 \concept{pilot planning}
